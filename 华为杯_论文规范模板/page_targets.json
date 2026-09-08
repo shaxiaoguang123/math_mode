@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "required_body_pages": 45,
+  "page_system": "printed",
+  "body_definition": "正文从摘要结束后的下一页开始，到参考文献标题前一页结束；附录不计入正文。",
+  "role_targets": {
+    "evaluation": {
+      "min_pages": 1,
+      "max_pages": 6,
+      "observed": [
+        1,
+        1
+      ]
+    },
+    "preliminary": {
+      "min_pages": 1,
+      "max_pages": 8,
+      "observed": [
+        1,
+        4
+      ]
+    },
+    "problem": {
+      "min_pages": 3,
+      "max_pages": 27,
+      "observed": [
+        7,
+        8,
+        10,
+        10,
+        13,
+        14,
+        18,
+        27
+      ]
+    }
+  },
+  "observations": [
+    {
+      "sample": "A24103350007",
+      "name": "问题重述与背景",
+      "role": "preliminary",
+      "pages": 4
+    },
+    {
+      "sample": "A24103350007",
+      "name": "问题一",
+      "role": "problem",
+      "pages": 10
+    },
+    {
+      "sample": "A24103350007",
+      "name": "问题二",
+      "role": "problem",
+      "pages": 10
+    },
+    {
+      "sample": "A24103350007",
+      "name": "问题三",
+      "role": "problem",
+      "pages": 27
+    },
+    {
+      "sample": "A24103350007",
+      "name": "模型总结",
+      "role": "evaluation",
+      "pages": 1
+    },
+    {
+      "sample": "C24106130096",
+      "name": "问题重述",
+      "role": "preliminary",
+      "pages": 1
+    },
+    {
+      "sample": "C24106130096",
+      "name": "问题一",
+      "role": "problem",
+      "pages": 13
+    },
+    {
+      "sample": "C24106130096",
+      "name": "问题二",
+      "role": "problem",
+      "pages": 14
+    },
+    {
+      "sample": "C24106130096",
+      "name": "问题三",
+      "role": "problem",
+      "pages": 7
+    },
+    {
+      "sample": "C24106130096",
+      "name": "问题四",
+      "role": "problem",
+      "pages": 18
+    },
+    {
+      "sample": "C24106130096",
+      "name": "问题五",
+      "role": "problem",
+      "pages": 8
+    },
+    {
+      "sample": "C24106130096",
+      "name": "模型评价与推广",
+      "role": "evaluation",
+      "pages": 1
+    }
+  ],
+  "policy": "Use role windows as warnings; body minimum is a hard failure. Never alter official font, margins, or line spacing to pass."
+}
