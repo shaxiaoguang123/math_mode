@@ -5,34 +5,15 @@ Final gates require reviewed source snapshots and matching template hashes.
 """
 from __future__ import annotations
 
-import hashlib
-import json
 import re
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
+from .io import read_json, file_hash
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_POLICY = REPO_ROOT / "华为杯_论文规范模板" / "competition_policy.json"
 SCHEMA_PATH = REPO_ROOT / "华为杯_求解规范" / "schemas" / "competition_policy.schema.json"
-
-
-def _pairs(items):
-    result = {}
-    for key, value in items:
-        if key in result:
-            raise ValueError(f"Duplicate JSON key: {key}")
-        result[key] = value
-    return result
-
-
-def _nonfinite(value):
-    raise ValueError(f"Nonfinite JSON number: {value}")
-
-
-def read_json(path: Path):
-    return json.loads(path.read_text(encoding="utf-8-sig"),
-                      object_pairs_hook=_pairs, parse_constant=_nonfinite)
 
 
 def validate_policy(policy: dict) -> dict:
@@ -54,11 +35,6 @@ def validate_policy(policy: dict) -> dict:
 
 def load_policy(path: Path | None = None) -> dict:
     return validate_policy(read_json(path or DEFAULT_POLICY))
-
-
-def file_hash(path: Path) -> str:
-    with path.open("rb") as handle:
-        return hashlib.file_digest(handle, "sha256").hexdigest()
 
 
 def policy_file(root: Path, relative: str) -> Path:

@@ -1,8 +1,9 @@
-# V2 contract catalog (T02 design)
+# V2 contract catalog
 
 All new contracts use `schema_version: "2.0"`, JSON Schema Draft 2020-12 and strict
 object fields. This catalog defines responsibilities before implementation.
-Later schemas/tests are executable definitions; changed contracts must update
+T04 implements modeling contracts; runner/evidence/agent contracts below remain
+scheduled for T05–T08. Schemas/tests are executable definitions; changed contracts must update
 this catalog, examples and migration together.
 
 Common artifact reference: `artifact_id`, workspace-relative `path`, `sha256`,
@@ -56,3 +57,38 @@ are reopened and validated after export.
    snapshot bytes fail hash verification; thaw/refreeze preserves prior versions.
 7. Actor/decision identity is attributed honestly. Scientific review and result
    generation use separate roles; deterministic gate remains final authority.
+
+## Executable modeling contracts (T04)
+
+`mathmode/schema_catalog.py` defines 12 standalone generated schemas. Rebuild with
+`python tools/build_contract_schemas.py`; use `--check` to reject distribution drift.
+`fixtures/contracts/` contains one explicitly synthetic example per schema and a
+cross-contract bundle. Examples demonstrate consistency, never scientific approval.
+
+`python -m mathmode validate <contract> <file> [--workspace <root>]` checks strict
+JSON, schema, timestamps, finite numbers, portable paths and contract semantics.
+Use `modeling_bundle` to check question/DAG coverage, source and assumption
+references, selected methods, symbol scope, unchanged question requirements and
+comparable main/baseline splits. Input hashes and read-only permissions are checked
+when a workspace is supplied. Schema validation without a workspace cannot verify
+that declared inputs exist. Textual citations and unit explanations still require
+source/semantic review; structural consistency never proves their truth.
+
+Chronological splits include `sample_times` for all train/holdout IDs; group splits
+include `sample_groups`. Training must precede holdout and groups cannot overlap.
+Each rolling fold is a separate evaluated spec/run; this contract does not infer
+chronology from lexicographic sample IDs. Actual data rows must later be compared
+to declared membership by the independent validator.
+
+`StateStore` uses an exclusive writer lock, atomic JSON replacement and expected
+revision checks. Retry/reference histories cannot be shortened or rewritten by
+its update API. A crashed writer lock is preserved for diagnosis. Assumption JSONL
+uses append-only events and explicit supersession; torn/invalid lines fail closed.
+These are trusted local APIs, not OS security boundaries: editing files outside
+the API is not prohibited by the operating system.
+
+`python -m mathmode status --workspace <root>` rehashes registered artifacts and
+finds transitive stale dependencies. The reported scope is artifact freshness;
+an empty registry passing this check does not pass any workflow gate. Gate writes,
+provenance-authenticated run evidence, immutable freezes, source authenticity,
+actual human events and scientific checks are later-stage responsibilities.

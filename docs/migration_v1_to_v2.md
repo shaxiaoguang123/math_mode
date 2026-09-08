@@ -60,7 +60,40 @@ The original template filename remains unchanged. The builders read the edition
 from policy; `gmcm-title.sty` visual parameters and original DOCX bytes are preserved.
 No example PDF, past page count or original router claim proves official compliance.
 
-## Compatibility boundaries to finish in T04–T12
+## Modeling contracts and private workspaces (T04)
+
+V2 modeling contracts are additive; existing V1 paper/visual/support inputs retain
+their entry points. Do not rename a V1 plan to a V2 spec or fill evidence fields
+with invented PASS records. Start by explicitly framing the actual question,
+registering inputs and reviewing assumptions.
+
+Prepare an input declaration JSON array with `input_id`, absolute source `path`,
+explicit `role` (`problem`, `data`, `template`, `rule`, `description`) and `source`
+(`uri`, ISO `accessed_at`, `license`). At least one original problem is required.
+Then run:
+
+```powershell
+python tools/init_competition_workspace.py --case-id case-id --inputs inputs.json
+python -m mathmode validate input_manifest ../competitions/case-id/input_manifest.json --workspace ../competitions/case-id
+python -m mathmode status --workspace ../competitions/case-id
+```
+
+The default destination is outside this public repository at
+`../competitions/<case-id>`. Existing workspaces are never overwritten. Source
+files stay unchanged; snapshots are hashed and made read-only. Invalid declarations
+are rejected before destination creation. A publication failure may leave an
+incomplete new destination for diagnosis; it never merges into existing content.
+`--kind fixture` explicitly labels synthetic test workspaces. Initialization does
+not verify official policy or run a scientific gate.
+
+The 12 schemas, examples and cross-contract checks live in `mathmode/`,
+`华为杯_求解规范/schemas/` and `fixtures/contracts/`. For JSONL assumptions and
+decisions preserve every event; supersede instead of rewriting history. New split
+contracts require explicit timestamps/groups when relevant. `.gitignore` protects
+untracked private workspaces, root solve outputs, environments and secrets; it
+does not remove already tracked template assets.
+
+## Compatibility boundaries to finish in T05–T12
 
 V1 visual/support/paper manifests will have explicit lineage adapters; no adapter
 may invent successful execution, independent validation or a frozen value.
