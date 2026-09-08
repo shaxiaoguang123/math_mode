@@ -102,12 +102,39 @@ historical diagnosis. No backend means WAITING_AGENT, never an invented review.
 `verify-diagnosis --workspace <root> --diagnosis reviews/<file>.json` checks actual
 role provenance, source pins and historical execution integrity. Its PASS scope
 is the diagnostic handoff only; the source remains FAIL. The workflow reports
-the next owner, repair steps and remaining run attempts but does not yet apply
-those steps or authorize a retry. Validation-summary failures, preflight errors
-without terminal manifests, automatic repair review/application and exhaustion
-escalation are subsequent integrations. Existing evidence gates remain blocked.
+the next owner, repair steps and remaining run attempts. CODE_FAILURE with a
+remaining run budget now advances into staged repair generation and review as
+described below. Exhausted attempts return to the upstream modeling owner without
+another code task. Validation-summary failures, preflight errors without terminal
+manifests, automatic activation/retry and actual upstream modeling escalation
+remain subsequent integrations. Existing evidence gates remain blocked.
 Unregistered partial/invalid output files are not added as though the old manifest
 had hashed them; insufficient recorded evidence must yield a diagnostic blocker.
+
+`code_repair_request` pins the diagnosis, failed run and unchanged original model
+specification, and derives fixed candidate spec/code/review paths. The code role
+(or probe role for a failed probe) produces a separate complete implementation.
+It must preserve the actual author and every model field except the relocated
+implementation paths. Parameters, formulae, split, seed, criteria, output and
+resource changes are rejected as model changes requiring upstream work. The
+candidate spec and every code file must come from one verified producer handoff;
+a spec pointing to manually supplied code is insufficient. Byte-identical code
+does not constitute a repair. Relocated multi-file imports remain the author's
+responsibility and are explicitly reviewed before a future execution.
+
+Another reviewer, different from both code author and diagnostician, reviews the
+candidate, failed evidence, current original requirements and selected model pair
+when present. Its review must cite the request, diagnosis, failure, original and
+candidate specs and complete candidate code. Unresolved findings, LIMITED/BLOCKED
+verdicts and missing evidence prevent approval. Fixed task/output identities
+preserve failed or interrupted proposals and avoid repeatedly soliciting a more
+favorable review. `verify-code-repair --workspace <root> --request
+repairs/<repair-id>/request.json` checks this chain; its PASS scope is only the
+independently reviewed code repair, with execution and scientific acceptance
+NOT_RUN. It does not activate the candidate or call the runner. A subsequent
+adapter must bind the reviewed candidate to the effective workflow job, enforce
+the latest predecessor and remaining budget, execute, revalidate, reassess stale
+assumptions and refreeze. Original sources and failures remain unchanged.
 
 The T08 recovery service now records owner PID/creation time, local child identity
 and observed descendants. `mathmode recover` rejects live recorded processes and

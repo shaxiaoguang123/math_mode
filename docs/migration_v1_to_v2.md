@@ -350,3 +350,16 @@ not reconstruct missing failure evidence or fabricate a reviewer. Authored legac
 diagnostics need an actual independent handoff. Old successful runs remain
 usable under their existing verification rules. Diagnostic PASS is confined to
 provenance/integrity and does not mean successful repair or scientific acceptance.
+
+
+### Staged code repairs
+
+The additive 2.0 `code_repair_request` contract introduces no required fields on
+old workflow plans, run manifests or model specs. Once a terminal failure has a
+current independent CODE_FAILURE diagnosis, workflow advance can now create a
+fixed separate candidate and independent code review. Existing original files
+remain intact; no source replacement or workflow-model override is implicit.
+Legacy authored candidate code/spec/reviews cannot be relabeled as actual role
+handoffs. Repairs that change mathematical fields must return upstream. A reviewed
+candidate still needs the activation/retry adapter, current independent numerical
+and assumption evidence and a new freeze before downstream use.

@@ -120,7 +120,14 @@ def test_workflow_failure_hook_returns_diagnosis_without_retrying(failure_case, 
     monkeypatch.setattr(service, "observe", lambda plan: {"status": "BLOCKED"})
     result = service._failure(plan, job, "model_spec.json", "main")
     assert result["performed"]["action"] == "diagnose-failure", result
-    assert service._failure(plan, job, "model_spec.json", "main")["next_owner"] == "code"
+    from mathmode import code_repairs
+    calls = []
+    def capture(workflow, plan, job, diagnosis_path):
+        calls.append(diagnosis_path)
+        return {"status": "BLOCKED", "executed": [], "scope": "fixture-capture"}
+    monkeypatch.setattr(code_repairs, "prepare_code_repair", capture)
+    assert service._failure(plan, job, "model_spec.json", "main")["next_owner"] == "code-repair"
+    assert len(calls) == 1
     assert len(list((root / "runs").iterdir())) == 1
 
 

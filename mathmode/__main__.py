@@ -111,6 +111,9 @@ def main(argv=None) -> int:
     diagnosis = commands.add_parser("verify-diagnosis", help="Verify independent terminal failure diagnosis; does not approve a repair")
     diagnosis.add_argument("--workspace", type=Path, required=True)
     diagnosis.add_argument("--diagnosis", required=True)
+    code_repair = commands.add_parser("verify-code-repair", help="Verify a staged code repair and independent review; does not execute it")
+    code_repair.add_argument("--workspace", type=Path, required=True)
+    code_repair.add_argument("--request", required=True)
     probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
     probe.add_argument("--workspace", type=Path, required=True)
     probe.add_argument("--manifest", required=True)
@@ -242,6 +245,9 @@ def main(argv=None) -> int:
         elif args.command == "verify-assumptions":
             from .assessments import verify_assessment
             result = verify_assessment(args.workspace, args.assessment)
+        elif args.command == "verify-code-repair":
+            from .code_repairs import verify_code_repair
+            result = verify_code_repair(args.workspace, args.request)
         elif args.command == "verify-diagnosis":
             from .repairs import verify_diagnosis, OWNERS
             record = verify_diagnosis(args.workspace, args.diagnosis)

@@ -191,7 +191,7 @@ Visual/paper/package producers add their own downstream edges during T08–T09.
 
 ## Agent transport and measured preflight (T08 in progress)
 
-Twenty-two additional contracts bring the catalog to 42: `failure_diagnosis`, `assumption_plan`,
+Twenty-three additional contracts bring the catalog to 43: `code_repair_request`, `failure_diagnosis`, `assumption_plan`,
 `assumption_report`, `issue_disposition`,
 `disposition_review`, `human_decision_request`,
 `human_decision_event`, `reference_retrieval`, `workflow_plan`,
@@ -583,3 +583,22 @@ The deterministic owner map and remaining attempt count are workflow outputs,
 not agent-controlled budget changes. This contract neither approves the proposed
 steps nor establishes that they fix the model. See workflow_v2.md for current
 automatic dispatch and remaining repair application limitations.
+
+
+## Staged code repair request (T08)
+
+`code_repair_request` is host-generated, not an agent's permission to change the
+model. It binds repair/question/time, diagnosis and failed-run pins, original
+specification, actual execution role, candidate spec and review paths, and each
+original code file's immutable snapshot/hash and deterministic candidate path.
+The verifier rederives the complete request from current verified failure evidence.
+It rejects other failure classes, exhausted attempts, altered originals and path
+redirection. Original model/code files are never overwritten by this adapter.
+
+The code/probe role may propose the exact corresponding candidate spec and Python
+bundle. Verification preserves all model semantics and requires one actual
+producer handoff covering the entire bundle. Independent semantic review must
+bind the original failure and complete repair evidence, and cannot be authored by
+the code author or diagnostician. A reviewed candidate is not a successful run,
+accepted mathematical result or activated workflow model. See workflow_v2.md for
+the remaining activation/retry/validation boundaries.

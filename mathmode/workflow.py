@@ -191,6 +191,16 @@ class Workflow:
         if relative is None:
             return None
         result = diagnose_failure(self, plan, job, relative)
+        if result["status"] == "DIAGNOSED" and result["next_owner"] == "code":
+            if result["retry_budget_remaining"] == 0:
+                return {**self.observe(plan), "performed": None, "failure_diagnosis": result,
+                        "next_owner": "council", "repair_blockers": ["Run budget exhausted; return to upstream modeling"]}
+            from .code_repairs import prepare_code_repair
+            repair = prepare_code_repair(self, plan, job, result["diagnosis"])
+            return {**self.observe(plan), "performed": {"question_id": job["question_id"],
+                "action": repair.get("action", "reviewed-code-repair"), "result": repair} if repair["executed"] else None,
+                "failure_diagnosis": result, "code_repair": repair,
+                "next_owner": "runner" if repair.get("scope") == "independently_reviewed_code_repair" else "code-repair"}
         return {**self.observe(plan), "performed": {"question_id": job["question_id"],
             "action": "diagnose-failure", "result": result} if result["executed"] else None,
             "failure_diagnosis": result, "next_owner": result["next_owner"]}

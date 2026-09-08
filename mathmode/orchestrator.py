@@ -124,6 +124,9 @@ class Orchestrator:
         # Probe reports have independently recomputable process provenance.
         if path.suffix == ".json":
             value = read_json(path)
+            if isinstance(value, dict) and {"repair_id", "failed_run", "original_spec", "candidate_spec"} <= value.keys():
+                from .code_repairs import verify_request
+                return "code_repair_request", verify_request(self.root, relative)
             if isinstance(value, dict) and value.get("scope") == "declared_assumption_checks":
                 from .assessments import verify_assessment
                 return "assumption_report", verify_assessment(self.root, relative)
