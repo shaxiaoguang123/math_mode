@@ -14,6 +14,7 @@ import json
 import re
 import shutil
 import sys
+import time
 import zipfile
 from pathlib import Path
 
@@ -608,7 +609,17 @@ def scrub_package(path: Path):
                         root.remove(override)
                 data = xml_bytes(root)
             dst.writestr(info, data)
-    temp.replace(path)
+    # Windows scanners/indexers can briefly deny replacement after all of our
+    # ZIP handles have closed. Never unlink/chmod the destination to bypass it;
+    # retain both files and raise the original error if three attempts fail.
+    for attempt in range(3):
+        try:
+            temp.replace(path)
+            break
+        except PermissionError as error:
+            if getattr(error, "winerror", None) not in {5, 32, 33} or attempt == 2:
+                raise
+            time.sleep(0.1 * (attempt + 1))
 
 
 def etree_from_bytes(data):
