@@ -120,6 +120,26 @@ out={'count':len(x),'minimum':min(x),'variance':statistics.pvariance(x),
     return root, service, plan
 
 
+def test_failed_production_is_dispatched_to_diagnosis_on_resume(case, monkeypatch):
+    root, service, plan = case
+    (root / "code/regression.py").write_text("raise RuntimeError('workflow failure fixture')", encoding="utf-8")
+    first = service.advance(plan, interpreter=sys.executable)
+    assert first["performed"]["action"] == "run-main", first
+    progress = read_json(root / "workflow_progress.json")["questions"]["Q1"]
+    failed = read_json(root / progress["main_run"])
+    assert failed["status"] == "FAIL"
+    captured = []
+    def capture(schedule):
+        captured.append(schedule)
+        return {"status": "BLOCKED", "executed": [], "blocked": {"fixture": ["No live reasoning in this capture"]}}
+    monkeypatch.setattr(service.agents, "advance", capture)
+    second = service.advance(plan, interpreter=sys.executable)
+    assert second["next_owner"] == "failure-reviewer", second
+    assert captured[0]["tasks"][0]["outputs"][0]["contract"] == "failure_diagnosis"
+    assert progress["main_run"] in captured[0]["tasks"][0]["inputs"]
+    assert read_json(root / "workflow_progress.json")["questions"]["Q1"] == progress
+
+
 def test_real_lifecycle_stops_for_semantic_review_then_freezes(case, monkeypatch):
     root, service, plan = case
     assert Workflow(root).observe(plan)["gates"]["G2"]["status"] == "BLOCKED", "Authored fixture files cannot replace a real reasoning handoff"

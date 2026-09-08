@@ -95,7 +95,7 @@ class CodexCliBackend(AgentBackend):
             "--output-last-message", str(directory / "response.json")]
         if self.model:
             argv.extend(["--model", self.model])
-        argv.append("Read AGENTS.md, task.json and input_map.json together; then batch-read only the supplied input snapshots and required schemas. Return the structured proposal. Do not read execution logs/transcripts, modify files or invoke other agents.")
+        argv.append("Read AGENTS.md, task.json and input_map.json together; then batch-read only the supplied input snapshots and required schemas. Explicitly supplied historical log snapshots are evidence. Return the structured proposal. Do not read this task's own execution logs/transcripts, modify files or invoke other agents.")
         execution = LocalSubprocessBackend().execute(argv, cwd=directory, environment=environment,
             timeout=timeout, stdout=directory / "events.jsonl", stderr=directory / "stderr.txt")
         session_id = None

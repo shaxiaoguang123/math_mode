@@ -185,6 +185,16 @@ class Workflow:
         schedule = read_json(safe_path(self.root, plan["agent_schedule"]))
         return self.agents.advance(schedule, max_tasks=1)
 
+    def _failure(self, plan, job, spec_path, role):
+        from .repairs import latest_failure, diagnose_failure
+        relative = latest_failure(self.root, spec_path, role)
+        if relative is None:
+            return None
+        result = diagnose_failure(self, plan, job, relative)
+        return {**self.observe(plan), "performed": {"question_id": job["question_id"],
+            "action": "diagnose-failure", "result": result} if result["executed"] else None,
+            "failure_diagnosis": result, "next_owner": result["next_owner"]}
+
     def _reference_requests(self, plan):
         """Process one ready host-declared URL; failed/interrupted requests are preserved."""
         from .reference_retrieval import retrieve_reference, verify_retrieval
@@ -490,6 +500,9 @@ class Workflow:
                             self._contract(spec_path, "model_spec")
                         except (ValueError, OSError, ValidationError):
                             continue
+                        failure = self._failure(plan, job, spec_path, "probe")
+                        if failure is not None:
+                            return failure
                         run = self._matching_run({**job, "probe_spec": spec_path}, "probe")
                         adopted = run is not None
                         if run is None:
@@ -506,6 +519,9 @@ class Workflow:
             if action in {"run-main", "run-fallback", "run-baseline"}:
                 execution_role = action.removeprefix("run-")
                 role = "main" if execution_role == "fallback" else execution_role
+                failure = self._failure(plan, job, job[role + "_spec"], execution_role)
+                if failure is not None:
+                    return failure
                 # Existing/stale executions require an explicit repair/retry decision.
                 run = self._matching_run(job, role)
                 if record[role + "_run"] and run is None:

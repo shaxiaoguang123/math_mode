@@ -108,6 +108,9 @@ def main(argv=None) -> int:
     assessment_check = commands.add_parser("verify-assumptions", help="Recompute an assumption assessment from actual independent evidence")
     assessment_check.add_argument("--workspace", type=Path, required=True)
     assessment_check.add_argument("--assessment", required=True)
+    diagnosis = commands.add_parser("verify-diagnosis", help="Verify independent terminal failure diagnosis; does not approve a repair")
+    diagnosis.add_argument("--workspace", type=Path, required=True)
+    diagnosis.add_argument("--diagnosis", required=True)
     probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
     probe.add_argument("--workspace", type=Path, required=True)
     probe.add_argument("--manifest", required=True)
@@ -239,6 +242,11 @@ def main(argv=None) -> int:
         elif args.command == "verify-assumptions":
             from .assessments import verify_assessment
             result = verify_assessment(args.workspace, args.assessment)
+        elif args.command == "verify-diagnosis":
+            from .repairs import verify_diagnosis, OWNERS
+            record = verify_diagnosis(args.workspace, args.diagnosis)
+            result = {"status": "PASS", "scope": "independent_failure_diagnosis", "diagnosis": record,
+                      "next_owner": OWNERS[record["failure_class"]], "scientific_acceptance": "NOT_RUN"}
         elif args.command == "probe-report":
             from .probes import measured_probe
             record = measured_probe(args.workspace, args.manifest)

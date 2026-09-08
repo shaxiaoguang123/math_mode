@@ -191,7 +191,7 @@ Visual/paper/package producers add their own downstream edges during T08–T09.
 
 ## Agent transport and measured preflight (T08 in progress)
 
-Twenty-one additional contracts bring the catalog to 41: `assumption_plan`,
+Twenty-two additional contracts bring the catalog to 42: `failure_diagnosis`, `assumption_plan`,
 `assumption_report`, `issue_disposition`,
 `disposition_review`, `human_decision_request`,
 `human_decision_event`, `reference_retrieval`, `workflow_plan`,
@@ -562,3 +562,24 @@ consumers, and changes affected gate observations to BLOCKED. Merely refreshing 
 broken frozen chain does not authorize canonical changes: an explicit thaw is
 still required. Batch graph registration validates all references and commits one
 revision, so a failed batch publishes no partial state.
+
+
+## Terminal failure diagnosis (T08)
+
+`failure_diagnosis` is an independent reviewer contract with `diagnosis_id`,
+`actor_id`, `question_id`, a hashed `failure_source`, `created_at`, `failure_class`,
+`cause_id`, `rationale`, `evidence_refs` and ordered `repair_steps`. The class is
+one of ENV/DATA/CODE/MODEL/VALIDATION/POLICY_FAILURE. It describes a supported
+underlying diagnosis, which may differ from the runner's process symptom.
+
+Publication requires the complete verified historical execution bundle and the
+actual different failed producer in the task. The source must be a terminal FAIL
+manifest with matching question and hash, and the diagnosis must cite it. The
+role cannot produce a diagnosis using an authored success claim, a partial log
+bundle or a source owned by itself. The usual scoped evidence citations and real
+backend-session provenance remain required. Canonical model/code repairs do not
+rewrite this historical bundle; corrupted snapshots still block verification.
+The deterministic owner map and remaining attempt count are workflow outputs,
+not agent-controlled budget changes. This contract neither approves the proposed
+steps nor establishes that they fix the model. See workflow_v2.md for current
+automatic dispatch and remaining repair application limitations.

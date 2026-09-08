@@ -93,7 +93,7 @@ def _check_response(task, response, root=None):
                         raise ValueError("Human decisions must enter through an actual host user event")
                 if declaration["contract"] in {"semantic_review", "disposition_review"} and value["reviewed_actor_id"] != task["reviewed_actor_id"]:
                     raise ValueError("Review changed the reviewed producer identity")
-                if declaration["contract"] in {"semantic_review", "method_proposal", "method_decision", "issue_disposition", "disposition_review"}:
+                if declaration["contract"] in {"semantic_review", "method_proposal", "method_decision", "issue_disposition", "disposition_review", "failure_diagnosis"}:
                     refs = value.get("artifact_refs", []) + value.get("evidence_refs", [])
                     for finding in value.get("findings", []):
                         refs.extend(finding["evidence_refs"])
@@ -106,6 +106,11 @@ def _check_response(task, response, root=None):
                     keys = ("source", "frame") if declaration["contract"] == "issue_disposition" else ("proposal",)
                     if any(supplied.get(value[key]["path"]) != value[key]["sha256"] for key in keys):
                         raise ValueError("Disposition pins must match actual supplied input snapshots")
+                if declaration["contract"] == "failure_diagnosis":
+                    if root is None:
+                        raise ValueError("Failure diagnosis requires verified execution evidence")
+                    from .repairs import validate_diagnosis
+                    validate_diagnosis(root, value, task=task)
                 if declaration["contract"] == "assumption_plan":
                     supplied = {item["path"]: item["sha256"] for item in task["inputs"]}
                     if any(supplied.get(ref["path"]) != ref["sha256"] for ref in [value["ledger"], *value["models"].values()]):

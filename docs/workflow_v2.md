@@ -83,7 +83,31 @@ blocks execution before a new run directory is created. Failed runs remain FAIL.
 Damaged snapshots require explicit diagnosis rather than automatic retries, and
 historical fallback runs still require valid fallback authorization. This is a
 trusted local evidence check, not protection against coordinated rewriting of all
-files. Automatic repair dispatch and cross-method root-cause budgets remain pending.
+files. Automatic repair application and cross-method root-cause budgets remain pending.
+
+On resume, a terminal failed main/baseline/fallback or probe run now dispatches an
+independent reviewer through the actual agent scheduler. The task receives the
+verified failed manifest, complete historical code/input/spec/sidecar snapshots,
+recorded outputs, logs and controls, plus the framed question DAG. It produces a pinned
+`failure_diagnosis` with a stable cause identifier, rationale, evidence citations
+and ordered repair steps. Its classification selects the responsible owner from
+the table above; a process `CODE_FAILURE` symptom may have a data/model cause.
+The diagnosis remains a scientific judgment, not deterministic root-cause proof.
+
+The fixed task/output identity derives from the failed run. Resuming reuses a
+verified diagnosis rather than soliciting another verdict. Failed, interrupted or
+unverified diagnostic tasks stay blocked and require explicit repair. Altered
+historical evidence blocks dispatch. Canonical code changes do not erase its
+historical diagnosis. No backend means WAITING_AGENT, never an invented review.
+`verify-diagnosis --workspace <root> --diagnosis reviews/<file>.json` checks actual
+role provenance, source pins and historical execution integrity. Its PASS scope
+is the diagnostic handoff only; the source remains FAIL. The workflow reports
+the next owner, repair steps and remaining run attempts but does not yet apply
+those steps or authorize a retry. Validation-summary failures, preflight errors
+without terminal manifests, automatic repair review/application and exhaustion
+escalation are subsequent integrations. Existing evidence gates remain blocked.
+Unregistered partial/invalid output files are not added as though the old manifest
+had hashed them; insufficient recorded evidence must yield a diagnostic blocker.
 
 The T08 recovery service now records owner PID/creation time, local child identity
 and observed descendants. `mathmode recover` rejects live recorded processes and

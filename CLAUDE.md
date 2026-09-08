@@ -18,6 +18,7 @@
 | 人工模型选择 | `human_gate` 等待已展示证据的终端响应；`human-decision`、`verify-human-decision`，详见工作流文档 |
 | 真实执行和独立验证 | `mathmode run`、`verify-run`、`independent-validate`、`evidence` |
 | 分阶段推进与恢复 | `mathmode workflow` 按真实证据观察/推进；`recover`、`recover-lock` 保留中断记录，详见工作流文档 |
+| 终止失败诊断 | workflow 自动分派独立 `failure_diagnosis`；`verify-diagnosis` 核验证据和角色来源，诊断不放行失败结果 |
 | 冻结和过期检查 | `mathmode freeze`、`verify-freeze`、`thaw`、`refresh` |
 | 参考资料与盲测 | `seal-baseline`、`seal-case-baseline`、`verify-baseline`、`admit-reference`、`retrieve-reference`、`verify-reference`；整题盲测与显式非盲测模式见工作流文档 |
 | 普通科学结果图 | 完整读取绘图规范，调用 `.claude/skills/academic-figure-skill/SKILL.md`，按需读取其 references/scripts/assets |

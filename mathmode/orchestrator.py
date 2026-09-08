@@ -83,6 +83,13 @@ class Orchestrator:
 
     def _kind(self, relative: str) -> tuple[str | None, object]:
         path = safe_path(self.root, relative)
+        if relative.startswith("runs/"):
+            if len(relative.split("/")) == 3 and path.name == "run_manifest.json":
+                from .runner import verify_run
+                return "run_manifest", verify_run(self.root, relative, require_success=False, current_sources=False)
+            # Historical bundle files are opaque evidence, not current role
+            # handoffs. Their JSON may contain arbitrary user data or fragments.
+            return None, None
         if relative.startswith("decisions/") and path.suffix == ".jsonl":
             entries = read_ledger(path, "method_decision")
             if entries and entries[-1]["decided_by"] == "human":
@@ -148,7 +155,16 @@ class Orchestrator:
         if role in {"critic", "validator", "reviewer"}:
             registered = {entry["artifact_id"]: entry for entry in self.registry.store.load()["artifacts"]}
             if not any(registered[item["artifact_id"]]["producer"] == task["reviewed_actor_id"] for item in task["inputs"]):
-                raise ValueError("Review must include work from the declared different producer")
+                # The runner owns historical snapshots, while the failed spec
+                # records the actual solver author reviewed by diagnosis.
+                historical_author = False
+                if role == "reviewer" and any(item["contract"] == "failure_diagnosis" for item in task["outputs"]):
+                    for item in task["inputs"]:
+                        kind, value = self._kind(item["path"])
+                        if kind == "run_manifest" and value["status"] == "FAIL" and value["actor_id"] == task["reviewed_actor_id"]:
+                            historical_author = True
+                if not historical_author:
+                    raise ValueError("Review must include work from the declared different producer")
         kinds = {}
         for item in task["inputs"]:
             kind, value = self._kind(item["path"])
@@ -190,7 +206,7 @@ class Orchestrator:
             validate_modeling_bundle({name: kinds[name][0] for name in
                 ("input_manifest", "problem_frame", "problem_dag", "symbol_table", "ambiguity_register")}, root=self.root)
         qid = task["question_id"]
-        for kind in ("method_card", "risk_probe", "method_decision", "model_spec", "validation_criteria"):
+        for kind in ("method_card", "risk_probe", "method_decision", "model_spec", "validation_criteria", "run_manifest"):
             if any(value["question_id"] != qid for value in kinds.get(kind, [])):
                 raise ValueError("Phase prerequisite belongs to another question")
         for register in kinds.get("ambiguity_register", []):

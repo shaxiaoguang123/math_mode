@@ -337,3 +337,16 @@ may invent successful execution, independent validation or a frozen value.
 Historical figures and private competition workspaces must remain distinguishable
 from engineering fixtures. Release notes will identify the final schema migration,
 verified CLI sequence, actual historical run, tests and rollback commit.
+
+
+### Terminal failure diagnosis
+
+The additive 2.0 `failure_diagnosis` contract is an allowed reviewer output under
+`reviews/`. Existing workflow plans and run/progress manifests retain their
+schemas. On resume, a failed production/probe execution now schedules a fixed
+independent diagnostic task instead of trying another implicit numerical run.
+The actual historical snapshots/logs/control files are required; migration does
+not reconstruct missing failure evidence or fabricate a reviewer. Authored legacy
+diagnostics need an actual independent handoff. Old successful runs remain
+usable under their existing verification rules. Diagnostic PASS is confined to
+provenance/integrity and does not mean successful repair or scientific acceptance.
