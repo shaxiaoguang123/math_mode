@@ -1,0 +1,21 @@
+{
+  "schema_version": "2.0",
+  "case_id": "runner-fixture",
+  "question_dag": null,
+  "tasks": [
+    {
+      "task_id": "council-scheduled",
+      "actor_id": "council-actor",
+      "role": "council",
+      "question_id": "Q1",
+      "instructions": "Do not execute unless the actual phase prerequisites are present.",
+      "inputs": ["input_manifest.json", "framing/deterministic_data_audit.json"],
+      "outputs": [{"path": "methods/proposal.json", "format": "json", "contract": "method_proposal"}],
+      "reviewed_actor_id": null,
+      "view": "statistics",
+      "depends_on": [],
+      "attempt": 1,
+      "supersedes_task_id": null
+    }
+  ]
+}

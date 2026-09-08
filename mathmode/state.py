@@ -9,20 +9,30 @@ from .contracts import validate
 from .io import file_hash, now, read_json, safe_path, write_json, canonical_bytes, canonical_root
 
 
+LOCK_FILES = {"state": ".mathmode.lock", "workflow": ".workflow.advance.lock"}
+
+
 @contextmanager
-def workspace_lock(root: Path):
+def workspace_lock(root: Path, *, scope="state"):
     """A crashed writer leaves a visible lock; never silently steal it."""
-    lock = root / ".mathmode.lock"
+    root = canonical_root(root)
+    if scope not in LOCK_FILES:
+        raise ValueError("Unknown workspace lock scope")
+    lock = safe_path(root, LOCK_FILES[scope], exists=False)
+    from .processes import identity
+    from uuid import uuid4
+    ownership = {"owner": identity(), "created_at": now(), "token": uuid4().hex}
     try:
         handle = lock.open("x", encoding="utf-8")
     except FileExistsError as exc:
         raise ValueError(f"Workspace is locked; inspect interrupted writer: {lock}") from exc
     try:
         with handle:
-            handle.write(now())
+            handle.write(canonical_bytes(ownership).decode("utf-8"))
         yield
     finally:
-        lock.unlink()
+        if lock.exists() and read_json(lock).get("token") == ownership["token"]:
+            lock.unlink()
 
 
 def initial_state(case_id: str, kind="competition", mode="autopilot", profile="lean") -> dict:

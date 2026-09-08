@@ -72,6 +72,53 @@ def main(argv=None) -> int:
     frozen.add_argument("--question-id", required=True)
     stale = commands.add_parser("refresh", help="Persist transitive STALE status and block affected gates")
     stale.add_argument("--workspace", type=Path, required=True)
+    agent = commands.add_parser("agent", help="Execute a scoped role task through the configured Codex CLI")
+    agent.add_argument("--workspace", type=Path, required=True)
+    agent.add_argument("--task", type=Path, required=True)
+    agent.add_argument("--timeout", type=float, default=300)
+    agent_check = commands.add_parser("verify-agent", help="Recheck a real reasoning handoff and all recorded hashes")
+    agent_check.add_argument("--workspace", type=Path, required=True)
+    agent_check.add_argument("--task-id", required=True)
+    schedule = commands.add_parser("advance-agents", help="Advance a role DAG with fresh phase prerequisites")
+    schedule.add_argument("--workspace", type=Path, required=True)
+    schedule.add_argument("--schedule", type=Path, required=True)
+    schedule.add_argument("--max-tasks", type=int, default=1)
+    schedule.add_argument("--timeout", type=float, default=300)
+    data = commands.add_parser("data-audit", help="Compute and register actual original-input statistics")
+    data.add_argument("--workspace", type=Path, required=True)
+    probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
+    probe.add_argument("--workspace", type=Path, required=True)
+    probe.add_argument("--manifest", required=True)
+    probe.add_argument("--report", type=Path)
+    baseline = commands.add_parser("seal-baseline", help="Seal actual frame/models/code/results/paper before same-problem references")
+    baseline.add_argument("--workspace", type=Path, required=True)
+    baseline.add_argument("--question-id", required=True)
+    baseline.add_argument("--framer-task", required=True)
+    baseline.add_argument("--frame", required=True)
+    baseline.add_argument("--writer-task", required=True)
+    baseline.add_argument("--paper", action="append", required=True)
+    reference = commands.add_parser("admit-reference", help="Record explicit reference classification before retrieval")
+    reference.add_argument("--workspace", type=Path, required=True)
+    reference.add_argument("--question-id", required=True)
+    reference.add_argument("--source", required=True)
+    reference.add_argument("--classification", choices=["general", "same-problem"], required=True)
+    reference.add_argument("--baseline-id")
+    recovery = commands.add_parser("recover", help="Archive an interrupted execution after observing stopped owner/child processes")
+    recovery.add_argument("--workspace", type=Path, required=True)
+    recovery.add_argument("--kind", choices=["run", "agent"], required=True)
+    recovery.add_argument("--execution-id", required=True)
+    recovery.add_argument("--reason", required=True)
+    lock_recovery = commands.add_parser("recover-lock", help="Preserve and release a lock only after its recorded owner has stopped")
+    lock_recovery.add_argument("--workspace", type=Path, required=True)
+    lock_recovery.add_argument("--reason", required=True)
+    lock_recovery.add_argument("--scope", choices=["state", "workflow"], default="state")
+    workflow = commands.add_parser("workflow", help="Observe all evidence gates or advance one admissible numerical transition")
+    workflow.add_argument("--workspace", type=Path, required=True)
+    workflow.add_argument("--plan", type=Path, required=True)
+    workflow.add_argument("--advance", action="store_true")
+    workflow.add_argument("--no-agent", action="store_true", help="Run deterministic transitions and pause for missing role handoffs")
+    workflow.add_argument("--interpreter")
+    workflow.add_argument("--report", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "policy":
@@ -108,6 +155,60 @@ def main(argv=None) -> int:
             result = {"status": "PASS", "scope": "freeze_integrity", "freeze_id": record["freeze_id"]}
         elif args.command == "refresh":
             result = ArtifactRegistry(args.workspace).refresh()
+        elif args.command == "agent":
+            from .agent_backends import CodexCliBackend
+            from .agents import run_agent_task
+            record = run_agent_task(args.workspace, read_json(args.task), CodexCliBackend(), timeout=args.timeout)
+            result = {"status": "PASS" if record["status"] == "PRODUCED" else "BLOCKED",
+                      "scope": "agent_transport", "task_id": record["task_id"], "blockers": record["blockers"],
+                      "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "verify-agent":
+            from .agents import verify_agent_result
+            record = verify_agent_result(args.workspace, args.task_id)
+            result = {"status": "PASS", "scope": "agent_handoff_integrity", "task_id": record["task_id"],
+                      "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "advance-agents":
+            from .agent_backends import CodexCliBackend
+            from .orchestrator import Orchestrator
+            result = Orchestrator(args.workspace, CodexCliBackend()).advance(read_json(args.schedule),
+                        max_tasks=args.max_tasks, timeout=args.timeout)
+        elif args.command == "data-audit":
+            from .orchestrator import Orchestrator
+            result = Orchestrator(args.workspace, None).prepare_inputs()
+        elif args.command == "probe-report":
+            from .probes import measured_probe
+            record = measured_probe(args.workspace, args.manifest)
+            if args.report:
+                write_json(args.report, record)
+                args.report = None  # Keep the contract report distinct from the CLI envelope.
+            result = {"status": record["verdict"], "scope": "measured_risk_probe", "probe": record}
+        elif args.command == "seal-baseline":
+            from .reference_access import seal_baseline
+            record = seal_baseline(args.workspace, args.question_id, framer_task=args.framer_task,
+                                   frame_path=args.frame, writer_task=args.writer_task, paper_paths=args.paper)
+            result = {"status": "PASS", "scope": record["scope"], "baseline_id": record["baseline_id"],
+                      "paper_acceptance": "NOT_RUN"}
+        elif args.command == "admit-reference":
+            from .reference_access import admit_reference
+            result = admit_reference(args.workspace, source=args.source, question_id=args.question_id,
+                                     same_problem=args.classification == "same-problem", baseline_id=args.baseline_id)
+        elif args.command == "recover":
+            from .recovery import recover_execution
+            event = recover_execution(args.workspace, args.execution_id, kind=args.kind, reason=args.reason)
+            result = {"status": "PASS", "scope": "interrupted_execution_recovery", "event": event,
+                      "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "recover-lock":
+            from .recovery import recover_lock
+            result = recover_lock(args.workspace, reason=args.reason, scope=args.scope)
+        elif args.command == "workflow":
+            from .workflow import Workflow
+            backend = None
+            if args.advance and not args.no_agent:
+                from .agent_backends import CodexCliBackend
+                backend = CodexCliBackend()
+            service = Workflow(args.workspace, backend)
+            plan = read_json(args.plan)
+            result = service.advance(plan, interpreter=args.interpreter) if args.advance else service.observe(plan)
         elif args.contract == "modeling_bundle":
             result = validate_modeling_bundle(read_json(args.path), root=args.workspace)
         else:

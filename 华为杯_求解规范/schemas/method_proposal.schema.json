@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/method_proposal.schema.json",
+  "title": "MathMode method_proposal 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "actor_id",
+    "question_id",
+    "view",
+    "applicable",
+    "reason",
+    "main_idea",
+    "baseline_idea",
+    "assumption_refs",
+    "evidence_refs",
+    "risks",
+    "validation_plan"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "view": {
+      "enum": [
+        "mechanism",
+        "statistics",
+        "optimization",
+        "engineering",
+        "innovation"
+      ]
+    },
+    "applicable": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "main_idea": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "baseline_idea": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "assumption_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "validation_plan": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    }
+  }
+}

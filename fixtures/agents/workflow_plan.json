@@ -1,0 +1,38 @@
+{
+  "schema_version": "2.0",
+  "case_id": "validation-fixture",
+  "policy_path": null,
+  "agent_schedule": null,
+  "framing": {
+    "problem_frame": "framing/problem_frame.json",
+    "problem_dag": "framing/problem_dag.json",
+    "symbol_table": "framing/symbol_table.json",
+    "ambiguity_register": "framing/ambiguity_register.json",
+    "assumption_ledger": "framing/assumptions.jsonl",
+    "review": "reviews/framing.json"
+  },
+  "questions": [
+    {
+      "question_id": "Q1",
+      "method_card": "methods/card.json",
+      "probe_reports": ["probes/report.json"],
+      "probe_specs": ["probes/spec.json"],
+      "decision": "decisions/decision.jsonl",
+      "main_spec": "main_spec.json",
+      "baseline_spec": "baseline_spec.json",
+      "code_review": "reviews/code.json",
+      "validation_review": "reviews/validation.json",
+      "frozen_numbers": [
+        {
+          "frozen_number_id": "Q1-MSE",
+          "claim_id": "Q1-fit",
+          "source": "validation",
+          "output_name": null,
+          "locator": "/measurements/main_mse",
+          "unit": "fixture-dimensionless",
+          "precision": 6
+        }
+      ]
+    }
+  ]
+}

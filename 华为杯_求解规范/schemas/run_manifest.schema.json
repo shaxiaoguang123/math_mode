@@ -507,6 +507,96 @@
       "minItems": 1,
       "uniqueItems": false
     },
+    "contract_snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "source_path",
+          "snapshot_path",
+          "sha256",
+          "size_bytes"
+        ],
+        "properties": {
+          "contract": {
+            "enum": [
+              "validation_criteria",
+              "risk_probe_plan",
+              "method_card",
+              "risk_probe",
+              "run_manifest"
+            ]
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "snapshot_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "upstream_freezes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question_id",
+          "freeze_id",
+          "source_path",
+          "snapshot_path",
+          "sha256",
+          "size_bytes"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "freeze_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "snapshot_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
     "scientific_acceptance": {
       "const": "NOT_RUN"
     }

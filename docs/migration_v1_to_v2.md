@@ -156,6 +156,66 @@ each derived figure/paper/package with its frozen artifact dependencies using
 `ArtifactRegistry`; otherwise it is unregistered and cannot serve as V2 lineage.
 V1 numbers/graphs have no automatically inferred provenance and need recomputation.
 
+## T08 contract refinements (in progress)
+
+Generated validation criteria and risk plans are pinned before execution through
+`model_spec.validation_plan` and the runner's `contract_snapshots`; no original
+manifest rewrite is necessary. Original imported criteria remain supported. Old
+runs without these optional sidecars retain the older integrity checks; adding
+criteria to an existing run is not migration and requires actual re-execution.
+
+`upstream_freezes` and `fallback_authorization` are optional model-spec extensions.
+They are enforced whenever present. A dependent question pins an active parent
+freeze; a fallback needs a trigger card pinned before the measured probe. Legacy
+files do not gain an implied upstream or fallback authorization.
+
+T08 experimental agent results now require a hashed `bundle` and registered
+transport provenance. Earlier smoke-call records remain historical evidence of
+those actual calls, but cannot pass the new handoff verifier. Rerun the role to
+obtain current provenance; do not backfill or fabricate a session/bundle record.
+The successful early council smoke is not claimed to pass this newer verifier.
+
+AGENTS/CLAUDE are generated thin routers from `docs/agent_router.md`, with shared
+rules in `docs/runtime_rules.md`. Generate with `tools/sync_agent_assets.py` and
+check using `--check`. Both complete figure skill trees are hash-checked without
+copying or deleting assets. Historical full routers remain available in Git.
+
+The new `reference_baseline` captures independent read-only copies of all five
+pre-reference artifact groups. Existing `blind_reference_mode=true` values do not
+authorize same-problem access. Use real framer/writer handoffs and a validated freeze
+to seal the baseline before `admit-reference`. This is not a retroactive migration:
+already recorded same-problem access prevents reconstructing an alleged blind run.
+Method source records must reference supplied snapshots and prior explicit host
+admission; arbitrary historic citations do not gain verified retrieval provenance.
+
+New runtime requests record owner/process identities and runner request fingerprints.
+Existing completed manifests remain readable; successful new local runs additionally
+hash owner/process metadata as execution controls. Recovery records are separate
+ABANDONED events, never backfilled run PASS/FAIL evidence. `recover-lock` can release
+only a lock whose recorded owner has stopped. Old timestamp-only locks and interrupted
+launches without process identities retain an explicit diagnostic blocker; do not
+invent missing PID, process birth time, returncode or model session information.
+Pre-launch interrupted requests can be distinguished by the absence of a persisted
+launch marker. Post-recovery retries require the actual predecessor and retain the
+original attempt count. Install the newly declared psutil dependency in the selected
+runtime environment; the user's Conda test environment already contained psutil 7.2.2.
+
+The new optional lifecycle coordinator adds `workflow_plan` and `workflow_progress`
+to the 33-schema catalog. Existing private workspaces remain usable through their
+individual services; adopting the coordinator requires a plan naming actual
+role-proven framing/spec/review artifacts for every question. No legacy file is
+retroactively assigned reasoning provenance. The example plan under
+`fixtures/agents/` contains paths/claim locators only, not invented run IDs or values.
+
+Progress is an atomic resume index. The coordinator rechecks hashes and may adopt
+actual matching prior runs/validation after pointer loss. Repaired successful runs
+replace stale pointers and invalidate their old validation/evidence pointers.
+After thaw, unchanged code still requires new main/baseline runs. Existing failed
+runs require explicit repair/retry; do not edit their manifests to clear the failure.
+The separate workflow lock has the same owner identity rules as the state lock;
+`recover-lock --scope workflow` handles only a stopped coordinator. The default
+`recover-lock` scope remains state, preserving existing CLI usage.
+
 ## Compatibility boundaries to finish in T08–T12
 
 V1 visual/support/paper manifests will have explicit lineage adapters; no adapter

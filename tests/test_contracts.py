@@ -21,7 +21,9 @@ def sample(name):
 
 @pytest.mark.parametrize("name", [name for name in catalog() if name not in {
     "run_manifest", "validation_criteria", "validation_summary", "evidence_gate",
-    "freeze_request", "frozen_numbers", "freeze_event", "freeze_index"}])
+    "freeze_request", "frozen_numbers", "freeze_event", "freeze_index",
+    "agent_task", "agent_schedule", "workflow_plan", "workflow_progress", "reference_baseline", "recovery_event", "agent_response", "agent_result", "semantic_review", "method_proposal",
+    "data_audit", "method_sources", "risk_probe_plan"}])
 def test_standalone_examples_and_schema_distribution(name):
     Draft202012Validator.check_schema(catalog()[name])
     validate(name, sample(name))

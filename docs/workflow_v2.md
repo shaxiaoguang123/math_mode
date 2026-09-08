@@ -74,6 +74,16 @@ persists across resume. A new traceback spelling or run ID does not reset it.
 After exhaustion, return upstream or report an actionable blocker. Every actual
 retry uses a fresh output directory and preserves failed evidence.
 
+The T08 recovery service now records owner PID/creation time, local child identity
+and observed descendants. `mathmode recover` rejects live recorded processes and
+preserves a separate ABANDONED event, with no invented returncode or completed run
+manifest. An explicit subsequent retry retains the original attempt count. Locks
+can be archived/released by `recover-lock` only after their recorded owner stops.
+Pre-launch interruption differs from a launch whose process identity was never
+recorded; the latter and legacy timestamp-only locks remain diagnostic blockers.
+Local process-tree observation remains best effort and cannot prove universal
+descendant quiescence. Automatic orchestration of recovery routes remains pending.
+
 ## Profiles, reference blindness and disclosure
 
 `autopilot` lets a real reasoning agent decide with `decided_by=agent`.
@@ -90,6 +100,60 @@ actual provider/model/activity/artifact scope and any real human postprocessing;
 disclosure is derived from events and the verified policy.
 
 ## Engineering completion
+
+T08 implementation is in progress. The `agent_schedule` contract and
+`mathmode advance-agents --workspace <root> --schedule <file> --max-tasks <n>`
+execute a bounded number of ready role tasks with fresh prerequisite checks.
+Task blueprints list paths; the dispatcher resolves actual registered input
+hashes after dependencies are produced. Every resume rechecks prior handoffs.
+Completed task inputs/instructions cannot be changed through the schedule.
+
+`mathmode data-audit` registers original inputs and authoritative deterministic
+statistics. `agent` is the lower-level scoped transport API; `verify-agent` checks
+an actual session and its bundle. `probe-report` computes the six-category risk
+report from actual run outputs. `mathmode workflow` now coordinates the separate
+run/validation/freeze services and observes G0–G8, with G7/G8 explicitly BLOCKED
+pending T09 integration. A schedule PASS explicitly does not award scientific
+acceptance or official compliance.
+
+For a private workspace with actual role-produced framing/spec/review artifacts,
+create a `workflow_plan` covering every framed question. The structural example
+`fixtures/agents/workflow_plan.json` is exercised by actual numerical fixture tests;
+its paths and synthetic case identity must be adapted to the workspace. It does
+not create missing evidence or provide authored PASS records.
+
+```powershell
+python -m mathmode workflow --workspace ../competitions/case-id --plan workflow_plan.json
+python -m mathmode workflow --workspace ../competitions/case-id --plan workflow_plan.json --advance --no-agent --interpreter <python-path>
+python -m mathmode workflow --workspace ../competitions/case-id --plan workflow_plan.json --advance
+```
+
+`--plan` is resolved from the CLI working directory; artifact paths inside it are
+relative to the private workspace. `--advance` performs one transition. With a
+configured backend it can dispatch one ready scheduled role or generate an
+independent semantic validation task. `--no-agent` pauses at missing role handoffs.
+An overall BLOCKED result can accompany a successful intermediate transition;
+inspect `performed`, per-question `next_action` and the gate blockers. CLI exit 0
+requires all gates PASS, including final official and paper checks.
+
+Missing progress pointers adopt reverified existing runs/validation without new
+computation. Changed/repaired runs replace obsolete pointers and clear previous
+validation/evidence pointers. A recorded failed run still needs an explicit repair
+and retry; new IDs do not reset budgets. After thaw, both model runs must be new.
+Only an independent current semantic review permits numerical freezing. Warnings
+and LIMITED verdicts remain blocked pending explicit disposition integration.
+
+Each advance holds a distinct workflow owner lock through dispatch and progress
+publication. Concurrent coordinators are refused. After an observed coordinator
+exit, use `recover-lock --scope workflow --reason <diagnosis>`; separately recover
+interrupted runner/agent executions. Releasing a coordinator lock does not certify
+that unobserved child processes have stopped.
+
+The first actual scheduled framer call timed out and remained FAILED. Its explicit
+second attempt succeeded after instructions excluded runtime transcript reads and
+batched input/schema reads. A subsequent resume executed zero new tasks and verified
+the successful handoff. This is synthetic backend integration evidence, not a
+completed historical contest run. Details are in `audit/t08_agent_runtime_progress.md`.
 
 T02 **PASS** establishes this state machine, ownership boundaries, contract
 catalog, stale graph and implementation sequence before runtime code. Later stage

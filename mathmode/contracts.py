@@ -95,6 +95,20 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
                     raise ValueError(f"Original input changed: {item['input_id']}")
                 if path.stat().st_mode & 0o222:
                     raise ValueError(f"Original input is writable: {item['input_id']}")
+    elif name == "semantic_review":
+        if value["actor_id"] == value["reviewed_actor_id"]:
+            raise ValueError("Review requires an independent actor")
+        if any(f["severity"] == "error" for f in value["findings"]) and value["verdict"] != "BLOCKED":
+            raise ValueError("Error findings must block semantic acceptance")
+        if value["verdict"] == "SUPPORTED" and (value["limitations"] or any(f["severity"] == "warning" for f in value["findings"])):
+            raise ValueError("Warnings/limitations require a limited or blocked verdict")
+        if value["verdict"] == "LIMITED" and not value["limitations"]:
+            raise ValueError("Limited review must state its limitations")
+        if value["verdict"] == "BLOCKED" and not value["findings"]:
+            raise ValueError("Blocked review must state its findings")
+    elif name == "method_proposal":
+        if value["applicable"] and (not value["main_idea"] or not value["baseline_idea"] or not value["validation_plan"]):
+            raise ValueError("Applicable proposal requires main, baseline and validation plan")
     elif name == "problem_frame":
         unique(value["questions"], "question_id")
         for question in value["questions"]:
@@ -188,6 +202,15 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
             references(train | test, groups, "sample group")
             if {groups[key] for key in train} & {groups[key] for key in test}:
                 raise ValueError("Group leakage across train and holdout")
+    elif name == "workflow_plan":
+        unique(value["questions"], "question_id")
+        unique([number for job in value["questions"] for number in job["frozen_numbers"]], "frozen_number_id")
+        for job in value["questions"]:
+            if "probe_specs" in job and len(job["probe_specs"]) != len(job["probe_reports"]):
+                raise ValueError("Workflow probe specs must map one-to-one to report paths")
+            for number in job["frozen_numbers"]:
+                if (number["source"] == "main_output") != (number["output_name"] is not None):
+                    raise ValueError("Frozen output locators require exactly one declared output name")
     elif name == "workflow_state":
         artifacts = unique(value["artifacts"], "artifact_id")
         if len({a["path"].casefold() for a in artifacts.values()}) != len(artifacts):

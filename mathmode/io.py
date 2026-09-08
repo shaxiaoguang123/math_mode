@@ -100,7 +100,11 @@ def safe_path(root: Path, relative: str, *, exists: bool = True) -> Path:
 
 
 def write_json(path: Path, value, *, exclusive: bool = False) -> None:
-    content = canonical_bytes(value)
+    write_bytes(path, canonical_bytes(value), exclusive=exclusive)
+
+
+def write_bytes(path: Path, content: bytes, *, exclusive: bool = False) -> None:
+    """Atomically publish validated content; same primitive for JSON and source."""
     path.parent.mkdir(parents=True, exist_ok=True)
     if exclusive:
         with path.open("xb") as handle:

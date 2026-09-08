@@ -6,7 +6,7 @@ from pathlib import Path
 import uuid
 
 from .contracts import validate, unique
-from .io import file_hash, now, read_json, safe_path, write_json, canonical_root
+from .io import file_hash, now, read_json, safe_path, write_json, canonical_root, object_hash
 from .runner import execute_model, verify_run
 from .workspace import initialize
 from .units import verify_formula_units
@@ -19,6 +19,21 @@ REQUIRED_METRICS = {
     "mechanism": {"main_analytic_error", "main_mass_residual", "main_negativity", "baseline_mass_residual", "baseline_negativity"},
     "graph": {"main_feasibility_error", "baseline_feasibility_error", "main_reported_cost_error", "baseline_reported_cost_error", "optimality_gap"},
 }
+
+
+def upstream_input_id(question_id):
+    return "upstream-" + object_hash(question_id)[:16]
+
+
+def verify_evidence_report(root: Path, report_relative: str) -> dict:
+    root = canonical_root(root)
+    actual = validate("evidence_gate", read_json(safe_path(root, report_relative)), root=root)
+    fresh = audit_evidence(root, actual["validation"]["path"])
+    if fresh["status"] != "PASS":
+        raise ValueError("Independent evidence failed: " + "; ".join(fresh["blockers"]))
+    if any(actual[key] != value for key, value in fresh.items() if key not in {"evidence_id", "created_at"}):
+        raise ValueError("Stored evidence disagrees with the current independent audit")
+    return actual
 
 
 def validate_criteria(criteria):
@@ -63,6 +78,8 @@ def _compatible(root, main, baseline):
             raise ValueError(f"Main and baseline are not comparable: {field}")
     if main["input_manifest_sha256"] != baseline["input_manifest_sha256"]:
         raise ValueError("Main/baseline original input manifests differ")
+    if main_spec.get("upstream_freezes", []) != baseline_spec.get("upstream_freezes", []):
+        raise ValueError("Main/baseline upstream frozen inputs differ")
     criteria_ref = main_spec["validation_plan"].get("criteria")
     if not criteria_ref or baseline_spec["validation_plan"].get("criteria") != criteria_ref:
         raise ValueError("Both models must pin identical criteria before execution")
@@ -70,7 +87,8 @@ def _compatible(root, main, baseline):
     if file_hash(criteria_path) != criteria_ref["sha256"]:
         raise ValueError("Predeclared validation criteria changed")
     for run in (main, baseline):
-        if not any(item["source_path"] == criteria_ref["path"] and item["sha256"] == criteria_ref["sha256"] for item in run["inputs"]):
+        if not any(item["source_path"] == criteria_ref["path"] and item["sha256"] == criteria_ref["sha256"]
+                   for item in [*run["inputs"], *run.get("contract_snapshots", [])]):
             raise ValueError("Validation criteria were not frozen before each execution")
     criteria = validate_criteria(read_json(criteria_path))
     verify_formula_units(main_spec, criteria["symbol_dimensions"])
@@ -109,6 +127,8 @@ def independently_validate(root: Path, main_relative: str, baseline_relative: st
         ("baseline-result", baseline_outputs[criteria["baseline_output_name"]]["path"], "data"),
         ("solver-spec", main["spec"]["snapshot_path"], "description"),
         ("validation-criteria", criteria_ref["path"], "rule")]
+    selected.extend((upstream_input_id(item["question_id"]), item["snapshot_path"], "description")
+                    for item in main.get("upstream_freezes", []))
     declarations = [{"input_id": key, "path": str(safe_path(root, relative)), "role": role,
         "source": {"uri": f"workspace-artifact:{relative}", "accessed_at": now(),
                    "license": "Private workspace evidence; original rights unchanged"}} for key, relative, role in selected]
@@ -124,6 +144,9 @@ def independently_validate(root: Path, main_relative: str, baseline_relative: st
         code_files.append(output.relative_to(child).as_posix())
     copied_inputs = read_json(child / "input_manifest.json")
     validator_spec = deepcopy(spec)
+    # Upstream frozen evidence is passed as explicit input snapshots below; the
+    # validator's independent workspace does not contain the parent's registry.
+    validator_spec.pop("upstream_freezes", None)
     validator_spec.update(method_id="independent-validator", actor_id=actor_id,
         inputs=[item["input_id"] for item in copied_inputs["files"]],
         implementation={"entrypoint": "validator/entry.py", "code_files": code_files, "language": "python"},
@@ -193,6 +216,7 @@ def audit_evidence(root: Path, summary_relative: str) -> dict:
             "main-result": unique(main["outputs"], "name")[criteria["main_output_name"]]["sha256"],
             "baseline-result": unique(baseline["outputs"], "name")[criteria["baseline_output_name"]]["sha256"],
             "solver-spec": main["spec"]["sha256"], "validation-criteria": criteria_ref["sha256"]}
+        expected.update({upstream_input_id(item["question_id"]): item["sha256"] for item in main.get("upstream_freezes", [])})
         if set(supplied) != {*expected, "problem"} or any(supplied[key]["sha256"] != value for key, value in expected.items()):
             raise ValueError("Validator did not consume the original inputs/spec/final outputs")
         if solver_hashes & {item["sha256"] for item in supplied.values()}:

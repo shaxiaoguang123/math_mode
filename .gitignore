@@ -15,6 +15,16 @@ __pycache__/
 /workspaces/
 /benchmark_cache/
 /runs/
+/agent_runs/
+/validations/
+/freezes/
+/recovery/
+/.mathmode.lock
+/.workflow.advance.lock
+/workflow_state.json
+/workflow_progress.json
+/frozen_numbers.json
+/ai_usage.jsonl
 /题目/*
 !/题目/.gitkeep
 /数据/*

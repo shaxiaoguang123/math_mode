@@ -3,7 +3,8 @@
 All new contracts use `schema_version: "2.0"`, JSON Schema Draft 2020-12 and strict
 object fields. This catalog defines responsibilities before implementation.
 T04 implements modeling contracts, T05 the run manifest, T06 independent
-validation/evidence and T07 freeze/lineage. Agent contracts remain scheduled for T08.
+validation/evidence and T07 freeze/lineage. T08 agent contracts are implemented,
+while workflow-wide integration remains in progress.
 Schemas/tests are executable definitions; changed contracts must update
 this catalog, examples and migration together.
 
@@ -121,16 +122,19 @@ Local file owners can rewrite the disk; hashes do not authenticate such an attac
 Retries require the latest failed run ID and changed code/spec/inputs/environment.
 The current conservative bound is three total attempts per unresolved failure
 chain, even if error wording changes. A successful run starts a new chain.
-Interrupted runs remain visible and block a silent retry; inspect the recorded
-process before explicit recovery (workflow recovery integration is T08).
+Interrupted runs remain visible and block a silent retry. `recover` observes the
+recorded owner/child/descendant identities and preserves an ABANDONED event before
+admitting an explicit changed retry. It never synthesizes a completed run manifest.
 
 ## Independent validation and computed evidence (T06)
 
 Three new schemas describe `validation_criteria`, `validation_summary` and
 `evidence_gate`. A V2 spec may omit `validation_plan.criteria` for draft/execution
 compatibility, but evidence cannot pass without it. Both main and baseline must
-pin identical criteria path/hash and select that frozen original input before
-execution. Changing tolerances after seeing results requires new specs and runs.
+pin identical criteria path/hash before execution. Criteria can be generated after
+framing and snapshotted separately in `contract_snapshots`; they need not alter
+the original input manifest. Imported original-rule criteria remain readable.
+Changing tolerances after seeing results requires new specs and runs.
 Check IDs cover mandatory task residuals, exact coverage/leakage checks and every
 declared hard-constraint validator. Required robustness needs measured checks.
 
@@ -184,6 +188,158 @@ The registry binds original/code/spec/snapshots to runs, run outputs to independ
 inputs, validator measurements to the summary/evidence, and evidence to freeze.
 Existing model/assumption/parameter dependencies are retained when binding runs.
 Visual/paper/package producers add their own downstream edges during T08–T09.
+
+## Agent transport and measured preflight (T08 in progress)
+
+Thirteen additional contracts bring the catalog to 33: `workflow_plan`,
+`workflow_progress`, `recovery_event`, `reference_baseline`, `agent_schedule`, `agent_task`, `agent_response`,
+`agent_result`, `semantic_review`, `method_proposal`, `data_audit`, `method_sources`
+and `risk_probe_plan`. Task actors, question/view identities, role directories,
+exact output sets and input evidence scope are checked before publication. Error
+findings block semantic acceptance; warnings/limitations cannot claim SUPPORTED.
+
+`run_agent_task` materializes hashed read-only inputs and role instructions, calls
+the backend, and validates its proposal before canonical publication. Successful
+transport does not imply mathematical acceptance. `verify_agent_result` rechecks
+the registered request/result/response/logs, complete input/control bundle and
+current canonical input/output hashes. Reasoning handoffs require an actual
+backend session; fixture transports cannot satisfy them. These hashes operate
+within the trusted local filesystem boundary, not as provider-signed attestations.
+
+Fresh task IDs or actor names cannot restart a failed logical role/question/view
+chain. Three total attempts are permitted. Interrupted tasks block resume pending
+explicit recovery. Backend exceptions produce a failed result; exception details
+are not copied because they may contain credentials. Provider/model/session fields
+record observed information, preserving unknown values. The Codex CLI transport
+has been actually exercised; unsupported transport-schema restrictions remain
+enforced by the canonical parent validator.
+
+`audit_inputs` deterministically inspects original files. `measured_probe` computes
+the six risk categories from actual outputs or recorded process returncode/duration
+using a pre-execution `risk_probe_plan`. Its report can be recomputed; manually
+edited measurements or thresholds cannot pass verification.
+
+Fallback execution requires `model_spec.fallback_authorization` with hashed card,
+probe report and probe-run references. The card and trigger must already have been
+pinned as `validation_plan.screening_card` in that main-method probe. The runner
+recomputes the trigger before admission and rechecks its evidence on verification.
+The run snapshots all authorization contracts. Changing the card after seeing
+probe results, inactive conditions or a different method cannot authorize fallback.
+Workflow-level fallback decision/review integration remains pending.
+
+Dependent questions declare `model_spec.upstream_freezes` with exact question and
+freeze IDs. The runner snapshots each current parent and supplies `context.upstream`;
+the independent validator receives an attributed parent snapshot without solver
+source. Freeze lineage binds these copies to the parent. Thawing Q1 invalidates Q2
+runs, evidence and freeze transitively. Dependency order alone is not a content
+change; registry comparisons use ID/hash associations rather than list ordering.
+
+`agent_schedule` supplies a task DAG with explicit role, inputs, outputs and retry
+predecessors. `Orchestrator.advance` resolves current registered hashes at dispatch,
+verifies prior real reasoning handoffs on resume, and checks role prerequisites.
+Council inputs receive cross-contract frame/DAG/source checks. Code/validation
+work must use the actual framed question DAG and current upstream freezes. Human
+decision/code dispatch stays WAITING_HUMAN pending a real host event adapter.
+The deterministic data report is authoritative; model-proposed counts cannot
+replace it. Actual scheduling and no-repeat resume have been exercised through
+the configured Codex backend, after a preserved initial timeout.
+
+CLI entry points are `agent`, `verify-agent`, `advance-agents`, `data-audit` and
+`probe-report`. A scheduler PASS has scope `agent_schedule` and leaves scientific
+acceptance and official compliance NOT_RUN. `Workflow` now coordinates the separate
+services through G6 as described below. Successful critic rounds are also bounded:
+at most three per question/view for unchanged original/framing input hashes. New
+proposal/task/actor IDs do not reset this count. Source/admission review, honest host
+human-event admission, complete retrieval integration and automatic repair routing
+remain required before T08 is declared complete.
+
+## Evidence-derived lifecycle (T08)
+
+`workflow_plan` names real framing/review contracts, every question's method card,
+measured probe reports, decision, main/baseline specs, independent code/validation
+reviews and frozen claim locators. It contains no supplied numerical values.
+Optional `agent_schedule` dispatches ready roles; optional paired `probe_specs`
+let the coordinator execute or reuse actual probes before screening. Different
+baseline authors require their own `baseline_code_review`. Each spec pins the same
+independent criteria and preserves the original question requirements.
+
+`workflow_progress` contains per-question main/baseline run, validation and evidence
+paths. These are resume hints, never evidence by themselves. `Workflow.observe`
+revalidates actual provenance, cross-contract identity, current inputs/code/results,
+numerical evidence, semantic reviews and frozen claim coverage. Each dependent
+question must consume the exact current upstream freeze. G0 audits official policy;
+G1–G6 are computed from their corresponding artifacts. G7/G8 remain BLOCKED until
+T09 supplies actual paper/visual/final audit adapters. Development can continue with
+unverified official policy; no final compliance is inferred from numerical PASS.
+
+`Workflow.advance` performs one admissible transition. Missing progress pointers
+adopt only verified matching executions; manually repaired stale/failed pointers
+can likewise adopt new successful runs and discard the old validation pointers.
+It does not silently relaunch a recorded failed run. Explicit thaw requires new
+main and baseline executions even when canonical bytes are unchanged. Generated
+semantic validation tasks receive originals, framing/assumptions, both specs,
+criteria, final outputs and independent numerical evidence, without solver source
+or intermediates. Historical stale outputs remain excluded without blocking current
+repaired runs. An unfavorable current review is not repeatedly queried for PASS.
+Verified explicit agent recovery preserves the validator retry predecessor/budget.
+
+A separate `.workflow.advance.lock` serializes the complete coordinator transition,
+including model dispatch and progress publication, while short revisioned state
+transactions retain `.mathmode.lock`. It prevents competing `Workflow.advance`
+calls, not arbitrary filesystem editing or unrelated direct service invocations.
+Owner identity is preserved after a crash; `recover-lock --scope workflow` releases
+only an observed stopped owner. Interrupted child executions retain their separate
+recovery checks. Progress writes are atomic; a crash between service completion and
+pointer publication is recovered by verified adoption.
+
+Current lifecycle tests use actual probe/main/baseline/independent numerical runs
+and freezes, with explicitly mocked role provenance. The unpatched coordinator
+rejects those authored semantic files. These tests do not claim a live full-agent
+historical run. LIMITED/data-warning disposition and workflow fallback integration
+remain incomplete and therefore block those cases instead of manufacturing PASS.
+
+`reference_baseline` now seals independent immutable copies of the actual frame,
+executed main/baseline specs and code, results/validation/freeze and writer-produced
+TeX. `seal-baseline` requires real framer/writer handoffs and a current numerical
+freeze before any same-problem access is recorded. Subsequent canonical edits do
+not erase this historical baseline; altered snapshot bytes block further admission.
+
+`admit-reference` requires explicit general/same-problem classification. The latter
+requires a registered checkpoint covering all five groups. Admission appends a host
+event before retrieval; it does not itself fetch a URL. Method-source proposals must
+bind an actual supplied snapshot/hash and an admission preceding both retrieval and
+task dispatch. Access outside this trusted host cannot be reconstructed and remains
+explicitly UNVERIFIABLE. Baseline sealing is not final paper/scientific acceptance.
+
+## Interrupted execution recovery (T08)
+
+New workspace locks record owner PID, process creation time and a unique token.
+Each reserved run/task records `owner.json`. The local backend records actual
+child PID/creation time and observed descendants in `process.json`. The `psutil`
+dependency supports Windows and POSIX observation. A reused PID is distinguished
+from its original owner; missing permission or malformed metadata fails closed.
+
+`recover-lock --workspace <root> --reason <diagnosis>` preserves an archive and
+releases a lock only after its recorded owner has stopped. Legacy timestamp-only
+locks lack ownership evidence and are not silently removed. `recover --kind run`
+or `--kind agent` additionally checks the recorded child and all observed descendants.
+The service does not kill processes or infer that a timed-out tool observation means
+an execution stopped. Recovery before backend launch is distinct from the ambiguous
+window after launch starts but before a child identity is persisted; the latter
+cannot be automatically recovered from insufficient evidence.
+
+`recovery_event` records status ABANDONED, reason, request/process-evidence hashes,
+attempt and actual observation. Returncode remains null and scientific acceptance
+NOT_RUN. Old logs, outputs and request files remain untouched. Recovery never
+creates a fabricated run_manifest or agent_result. The next run must explicitly
+reference the abandoned predecessor, change its code/spec/input/environment and
+continue the three-attempt budget. Agent retries likewise preserve predecessor
+and attempt identity; new task IDs cannot restart the failed chain.
+
+Process-tree observation and termination remain best effort. The local backend is
+not an OS sandbox and cannot prove that unobserved/detached descendants never existed;
+recovery records descendant_quiescence=NOT_PROVEN. This boundary is explicit rather
+than claiming universal process isolation. Known live descendants block recovery.
 `refresh` rehashes and persists transitive STALE states, including cross-question
 consumers, and changes affected gate observations to BLOCKED. Merely refreshing a
 broken frozen chain does not authorize canonical changes: an explicit thaw is

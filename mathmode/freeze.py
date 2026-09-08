@@ -6,13 +6,16 @@ import math
 from pathlib import Path
 import stat
 import uuid
+from contextvars import ContextVar
 
 from .contracts import validate, unique
 from .io import canonical_bytes, canonical_root, file_hash, loads, now, object_hash, read_json, safe_path, write_json
 from .lineage import ArtifactRegistry, artifact_id, descendants, mark_stale
 from .runner import verify_run
 from .state import StateStore
-from .validation import audit_evidence
+from .validation import audit_evidence, upstream_input_id
+
+_VERIFY_STACK = ContextVar("mathmode_freeze_verification", default=())
 
 
 def json_pointer(value, pointer: str):
@@ -76,7 +79,7 @@ def _register_run(registry, root, base, record, aliases=None):
     aliases = aliases or {}
     local = lambda relative: (base / relative).relative_to(root).as_posix()
     dependencies = []
-    for item in [record["spec"], *record["inputs"], *record["code"]]:
+    for item in [record["spec"], *record["inputs"], *record["code"], *record.get("contract_snapshots", []), *record.get("upstream_freezes", [])]:
         source = local(item["source_path"])
         source_id = registry.register(source, producer="runner", dependencies=aliases.get(source))
         dependencies.append(source_id)
@@ -111,6 +114,8 @@ def _bind_evidence_records(registry, root, summary_relative, evidence_relative):
         "baseline-result": baseline_outputs[by_name(baseline)[criteria["baseline_output_name"]]["path"]],
         "solver-spec": artifact_id(main["spec"]["source_path"]),
         "validation-criteria": artifact_id(summary["criteria"]["path"])}
+    source_ids.update({upstream_input_id(item["question_id"]): artifact_id(item["source_path"])
+                       for item in main.get("upstream_freezes", [])})
     aliases = {(child / item["source_path"]).relative_to(root).as_posix(): [source_ids[item["input_id"]]]
                for item in child_record["inputs"] if item["input_id"] in source_ids}
     aliases[(child / child_record["spec"]["source_path"]).relative_to(root).as_posix()] = [artifact_id(main["spec"]["source_path"])]
@@ -126,6 +131,8 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
     validate("freeze_request", request, root=root)
     unique(request["numbers"], "frozen_number_id")
     evidence = validate("evidence_gate", read_json(safe_path(root, evidence_relative)), root=root)
+    if evidence["question_id"] != request["question_id"]:
+        raise ValueError("Freeze evidence belongs to another question")
     summary_relative = evidence["validation"]["path"]
     if evidence["status"] != "PASS" or file_hash(safe_path(root, summary_relative)) != evidence["validation"]["sha256"]:
         raise ValueError("Freeze requires current passing evidence")
@@ -250,7 +257,19 @@ def thaw(root: Path, question_id: str, *, actor_id: str, reason: str) -> dict:
     return outcome
 
 
-def verify_freeze(root: Path, question_id: str) -> dict:
+def verify_freeze(root: Path, question_id: str, *, refresh=True) -> dict:
+    key = (str(canonical_root(root)), question_id)
+    stack = _VERIFY_STACK.get()
+    if key in stack:
+        raise ValueError("Cyclic upstream freeze dependency")
+    token = _VERIFY_STACK.set((*stack, key))
+    try:
+        return _verify_freeze(root, question_id, refresh=refresh)
+    finally:
+        _VERIFY_STACK.reset(token)
+
+
+def _verify_freeze(root: Path, question_id: str, *, refresh=True) -> dict:
     root = canonical_root(root)
     pointer = _index(root)["questions"].get(question_id)
     if not pointer or pointer["status"] != "FROZEN":
@@ -265,7 +284,7 @@ def verify_freeze(root: Path, question_id: str) -> dict:
     if not events or events[-1]["kind"] != "FREEZE" or events[-1]["snapshot_sha256"] != pointer["sha256"]:
         raise ValueError("Freeze history does not authorize this snapshot")
     registry = ArtifactRegistry(root)
-    observation = registry.refresh()
+    observation = registry.refresh() if refresh else registry.store.inspect_freshness()
     state = registry.store.load()
     registered = {a["artifact_id"]: a for a in state["artifacts"]}
     key = snapshot["registry_artifact_id"]

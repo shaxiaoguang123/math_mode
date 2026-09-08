@@ -1,4 +1,4 @@
-# MathMode 项目入口（Claude Code）
+# MathMode 项目入口（{{runtime}}）
 
 <!-- Generated from docs/agent_router.md by tools/sync_agent_assets.py. -->
 
@@ -16,7 +16,7 @@
 | 真实执行和独立验证 | `mathmode run`、`verify-run`、`independent-validate`、`evidence` |
 | 分阶段推进与恢复 | `mathmode workflow` 按真实证据观察/推进；`recover`、`recover-lock` 保留中断记录，详见工作流文档 |
 | 冻结和过期检查 | `mathmode freeze`、`verify-freeze`、`thaw`、`refresh` |
-| 普通科学结果图 | 完整读取绘图规范，调用 `.claude/skills/academic-figure-skill/SKILL.md`，按需读取其 references/scripts/assets |
+| 普通科学结果图 | 完整读取绘图规范，调用 `{{skill_path}}/SKILL.md`，按需读取其 references/scripts/assets |
 | 机理图和流程图 | 项目 Schematic/Flowchart Plan、真实结构审查、TikZ/XeLaTeX 门禁 |
 | 论文与提交材料 | 论文规范、LaTeX 工具、视觉审计、支撑材料构建审计，见共享规则 |
 

@@ -82,7 +82,9 @@ class ArtifactRegistry:
                 "size_bytes": path.stat().st_size, "created_at": now(), "producer": producer,
                 "depends_on": [{"artifact_id": dep, "sha256": registry[dep]["sha256"]} for dep in sorted(set(resolved_dependencies))], "status": status}
             if previous:
-                changed = previous["sha256"] != record["sha256"] or previous["depends_on"] != record["depends_on"]
+                previous_dependencies = {dep["artifact_id"]: dep["sha256"] for dep in previous["depends_on"]}
+                current_dependencies = {dep["artifact_id"]: dep["sha256"] for dep in record["depends_on"]}
+                changed = previous["sha256"] != record["sha256"] or previous_dependencies != current_dependencies
                 if not changed and previous["status"] in {"VALID", "FROZEN"}:
                     return
                 affected = descendants(state["artifacts"], {key})
