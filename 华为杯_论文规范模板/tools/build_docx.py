@@ -13,8 +13,12 @@ import argparse
 import json
 import re
 import shutil
+import sys
 import zipfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from mathmode.policy import load_policy, toc_settings
 
 from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
@@ -245,7 +249,7 @@ def add_heading(document, text, level, number=None, *, role=None):
     return p, rendered
 
 
-def add_toc_field(document):
+def add_toc_field(document, depth=3):
     """Insert a dynamic Word TOC field with heading levels 1--3."""
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -259,7 +263,7 @@ def add_toc_field(document):
     begin.set(qn("w:dirty"), "true")
     instr = OxmlElement("w:instrText")
     instr.set(qn("xml:space"), "preserve")
-    instr.text = ' TOC \\o "1-3" \\h \\z \\u '
+    instr.text = f' TOC \\o "1-{depth}" \\h \\z \\u '
     separate = OxmlElement("w:fldChar")
     separate.set(qn("w:fldCharType"), "separate")
     placeholder = OxmlElement("w:t")
@@ -524,7 +528,7 @@ def read_tex_source(path: Path, root: Path, seen=None) -> str:
     return re.sub(r"(?m)^\s*\\input\s*\{([^{}]+)\}\s*$", expand, text)
 
 
-def read_input(path: Path):
+def read_input(path: Path, policy: dict | None = None):
     data = json.loads(path.read_text(encoding="utf-8-sig"))
     for key in ("title", "abstract_tex_path", "keywords", "chapters"):
         if key not in data:
@@ -554,7 +558,7 @@ def read_input(path: Path):
         read_tex_source(chapter_path, root)
     read_tex_source(abstract_path, root)
     leaked = [value for value in identity_values if IDENTITY_RE.search(value)]
-    if leaked:
+    if leaked and (policy or load_policy())["official"]["anonymity_policy"]["scope"] != "none":
         raise ValueError("输入疑似含身份信息，请清理学校/队号/姓名/路径后再生成")
     return data
 
@@ -619,9 +623,24 @@ def xml_bytes(root):
 
 def build(args):
     input_path = args.input.resolve()
-    data = read_input(input_path)
+    policy = load_policy(getattr(args, "policy", None))
+    include_toc, toc_depth = toc_settings(policy)
+    data = read_input(input_path, policy)
     template = args.template.resolve()
     output = args.output.resolve()
+    if template == output:
+        raise ValueError("Cannot overwrite the original DOCX template")
+    cover_mode = policy["official"]["cover_policy"]["mode"]
+    cover_tex = getattr(args, "cover_tex", None)
+    if bool(cover_tex) != (cover_mode == "identity_cover"):
+        raise ValueError("identity_cover policy requires --cover-tex; other modes forbid it")
+    cover_content = None
+    if cover_tex:
+        cover_path = resolve_tex_path(input_path.parent, cover_tex, "cover_tex")
+        body_paths = [data["abstract_tex_path"], *(c["tex_path"] for c in data["chapters"])]
+        if cover_path in [(input_path.parent / p).resolve() for p in body_paths]:
+            raise ValueError("Cover and anonymous body sources must be distinct")
+        cover_content = read_tex_source(cover_path, input_path.parent)
     output.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(template, output)
     document = Document(str(output))
@@ -631,12 +650,23 @@ def build(args):
     configure_styles(document)
     enable_update_fields(document)
 
-    # Official front matter: no school/team/member fields and no identity cover.
-    for text, size in [
+    if cover_content is not None:
+        add_tex_content(document, cover_content, input_path.parent, skip_first_section=False)
+        boundary = document.add_paragraph()
+        marker = OxmlElement("w:bookmarkStart")
+        marker.set(qn("w:id"), "0")
+        marker.set(qn("w:name"), "MathModeAnonymousStart")
+        end = OxmlElement("w:bookmarkEnd")
+        end.set(qn("w:id"), "0")
+        boundary._p.extend([marker, end])
+        document.add_page_break()
+
+    # Existing style preserved; edition and inclusion come from policy.
+    for text, size in ([
         ("中国研究生创新实践系列大赛", 18),
-        ("“华为杯”第二十三届中国研究生", 22),
+        (f"“华为杯”第{policy['edition']}届中国研究生", 22),
         ("数学建模竞赛", 22),
-    ]:
+    ] if cover_mode == "title_only" else []):
         p = document.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.first_line_indent = Inches(0)
@@ -678,14 +708,15 @@ def build(args):
     # the body.  The second page break keeps the first heading out of the TOC
     # page even when Word has not refreshed the field yet.
     document.add_page_break()
-    toc_title = document.add_paragraph(style="Huawei TOC Title")
-    toc_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    toc_title.paragraph_format.first_line_indent = Inches(0)
-    toc_title.paragraph_format.space_before = Pt(0)
-    toc_title.paragraph_format.space_after = Pt(12)
-    add_body_run(toc_title, "目录", bold=True)
-    add_toc_field(document)
-    document.add_page_break()
+    if include_toc:
+        toc_title = document.add_paragraph(style="Huawei TOC Title")
+        toc_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        toc_title.paragraph_format.first_line_indent = Inches(0)
+        toc_title.paragraph_format.space_before = Pt(0)
+        toc_title.paragraph_format.space_after = Pt(12)
+        add_body_run(toc_title, "目录", bold=True)
+        add_toc_field(document, toc_depth)
+        document.add_page_break()
 
     chapter_manifest = []
     problem_number = 0
@@ -734,7 +765,9 @@ def build(args):
         "body_start_rule": "first page after the abstract/keywords page break",
         "body_end_rule": "page before references or appendix",
     }, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"output": str(output), "manifest": str(manifest_out)}, ensure_ascii=False, indent=2))
+    print(json.dumps({"output": str(output), "manifest": str(manifest_out),
+                      "policy_status": policy["verification"]["status"],
+                      "scope": "Limited TeX derivative; verify actual cover pagination and formatting in rendered PDF"}, ensure_ascii=False, indent=2))
 
 
 def main():
@@ -743,6 +776,8 @@ def main():
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest-out", type=Path)
+    parser.add_argument("--policy", type=Path)
+    parser.add_argument("--cover-tex", help="Same reviewed cover TeX source as the LaTeX build")
     args = parser.parse_args()
     build(args)
 

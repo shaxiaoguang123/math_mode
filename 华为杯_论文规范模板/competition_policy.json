@@ -1,0 +1,31 @@
+{
+  "schema_version": "2.0",
+  "competition": "中国研究生数学建模竞赛（本地模板待核验配置）",
+  "year": null,
+  "edition": "二十三",
+  "verification": {
+    "status": "unverified",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "note": "届次仅来自现有模板；尚未根据当届官方文档核验。此配置只能用于草稿，不能通过 G0/G8。"
+  },
+  "official_sources": [],
+  "official_template_path": null,
+  "official_template_sha256": null,
+  "official": {
+    "cover_policy": {"mode": "title_only", "pages": 0},
+    "anonymity_policy": {"scope": "all", "identity_terms": []},
+    "abstract_policy": {"max_pages": null},
+    "toc_policy": {"mode": "optional", "depth": 3},
+    "page_policy": {
+      "min_body_pages": null,
+      "max_total_pages": null,
+      "body_definition": "first_body_heading_to_before_references_or_appendix"
+    },
+    "reference_policy": [],
+    "ai_policy": [],
+    "attachment_policy": [],
+    "submission_policy": []
+  },
+  "project_recommendations": {"include_toc": false, "note": "目录按论文需要启用；经验页数仅供提醒，不能用来制造官方要求。"}
+}

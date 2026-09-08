@@ -5,8 +5,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from mathmode.policy import load_policy, toc_settings, validate_policy
 
 INPUT_RE = re.compile(r"\\input\s*\{([^{}]+)\}")
 GRAPHICS_RE = re.compile(r"\\includegraphics(?:\[[^]]*\])?\s*\{([^{}]+)\}")
@@ -29,7 +32,16 @@ def inside(root: Path, raw: str) -> Path:
 
 
 def remove_comments(text: str) -> str:
-    return "\n".join(line.split("%", 1)[0] for line in text.splitlines())
+    lines = []
+    for line in text.splitlines():
+        escaped = False
+        for index, char in enumerate(line):
+            if char == "%" and not escaped:
+                line = line[:index]
+                break
+            escaped = not escaped if char == "\\" else False
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def brace_balance(text: str) -> int:
@@ -45,6 +57,8 @@ def brace_balance(text: str) -> int:
             balance += 1
         elif char == "}":
             balance -= 1
+            if balance < 0:
+                return -1
     return balance
 
 
@@ -81,7 +95,10 @@ def expand_tex_inputs(root: Path, roots: list[Path]) -> tuple[list[Path], list[s
     return ordered, errors
 
 
-def audit(manifest_path: Path, main_path: Path) -> dict:
+def audit(manifest_path: Path, main_path: Path, policy: dict | None = None,
+          cover_tex_path: str | None = None, stage: str = "source") -> dict:
+    policy = validate_policy(policy) if policy is not None else load_policy()
+    include_toc, toc_depth = toc_settings(policy)
     root = manifest_path.parent.resolve()
     project_root = root.parent
     manifest = read_manifest(manifest_path)
@@ -102,6 +119,11 @@ def audit(manifest_path: Path, main_path: Path) -> dict:
     expected = [str(manifest["abstract_tex_path"]).replace("\\", "/")]
     for chapter in manifest.get("chapters", []):
         expected.append(str(chapter["tex_path"]).replace("\\", "/"))
+    cover_mode = policy["official"]["cover_policy"]["mode"]
+    add("cover_policy", bool(cover_tex_path) == (cover_mode == "identity_cover"))
+    if cover_tex_path:
+        add("cover_is_distinct", cover_tex_path not in expected)
+        expected.insert(0, cover_tex_path)
     actual = INPUT_RE.findall(remove_comments(main_text))
     add("input_order_matches_manifest", actual == expected, expected=expected, actual=actual)
     add("main_has_no_markdown_input", not any(path.lower().endswith(".md") for path in actual), actual=actual)
@@ -115,10 +137,10 @@ def audit(manifest_path: Path, main_path: Path) -> dict:
     first_input_match = re.search(r"\\input\s*\{", after_abstract)
     first_input_pos = abstract_end + len(r"\end{abstract}") + first_input_match.start() if abstract_end >= 0 and first_input_match else -1
     toc_order_ok = bool(toc_match and abstract_end >= 0 and first_input_pos >= 0 and abstract_end < toc_match.start() < first_input_pos)
-    add("toc_command_order", toc_order_ok, maketoc_position=toc_match.start() if toc_match else None,
+    add("toc_command_order", toc_order_ok if include_toc else toc_match is None, maketoc_position=toc_match.start() if toc_match else None,
         abstract_end=abstract_end, first_body_input=first_input_pos)
     depth_values = [int(value) for value in TOC_DEPTH_RE.findall(clean_main)]
-    add("toc_depth_is_three", depth_values == [3], values=depth_values)
+    add("toc_depth_matches_policy", depth_values == ([toc_depth] if include_toc else []), values=depth_values)
     add("toc_hyperlinks_enabled", bool(re.search(r"\\hypersetup\s*\{[^}]*hidelinks", clean_main, re.S)),
         message="hyperref is configured for linked TOC/bookmarks")
 
@@ -174,11 +196,11 @@ def audit(manifest_path: Path, main_path: Path) -> dict:
     # pre-compilation audit remains useful and reports this check as pending
     # rather than manufacturing a failure from a missing build artifact.
     toc_path = main_path.with_suffix(".toc")
-    if toc_path.is_file():
+    if include_toc and stage == "render" and toc_path.is_file():
         toc_text = toc_path.read_text(encoding="utf-8", errors="replace")
         toc_levels = {
             level: bool(re.search(rf"\\contentsline\s*\{{{level}\}}", toc_text))
-            for level in ("section", "subsection", "subsubsection")
+            for level in ("section", "subsection", "subsubsection")[:toc_depth]
         }
         expected_levels = {
             level: bool(re.search(rf"\\{level}\*?\s*(?:\[[^]]*\])?\s*\{{", remove_comments(all_text)))
@@ -186,9 +208,12 @@ def audit(manifest_path: Path, main_path: Path) -> dict:
         }
         toc_content_ok = all((not expected_levels[level]) or toc_levels[level] for level in toc_levels)
         add("toc_auxiliary_content", toc_content_ok, path=str(toc_path), expected=expected_levels, found=toc_levels)
+    elif include_toc and stage == "render":
+        add("toc_auxiliary_content", False, available=False, path=str(toc_path),
+            message=".toc missing for rendered audit")
     else:
-        add("toc_auxiliary_content", True, available=False, path=str(toc_path),
-            message=".toc not present; run XeLaTeX before auxiliary-content validation")
+        checks.append({"code": "toc_auxiliary_content", "ok": None, "status": "NOT_RUN",
+                       "message": "Source-only audit or TOC disabled by policy"})
 
     missing_graphics: list[str] = []
     for raw in GRAPHICS_RE.findall(all_text):
@@ -205,7 +230,26 @@ def audit(manifest_path: Path, main_path: Path) -> dict:
             missing_graphics.append(raw)
     add("graphics_paths_exist", not missing_graphics, missing=missing_graphics)
 
-    identity_hits = sorted(set(re.findall(r"学校|学院|实验室|参赛队号|队员姓名|指导教师|学号|邮箱|C:\\Users\\", all_text, re.I)))
+    anonymous_text = all_text
+    anonymity_scope = policy["official"]["anonymity_policy"]["scope"]
+    if anonymity_scope == "none":
+        anonymous_text = ""
+    elif anonymity_scope == "after_cover" and cover_tex_path:
+        cover_path = inside(root, cover_tex_path)
+        # Reconstruct scope; replacing the cover's text could also remove an
+        # identical identity leak in the anonymous body.
+        anonymous_text = main_text + "\n" + "\n".join(
+            path.read_text(encoding="utf-8-sig") for path in audit_paths if path != cover_path)
+        nested_cover = False
+        for path in audit_paths:
+            if path == cover_path:
+                continue
+            for raw in INPUT_RE.findall(remove_comments(path.read_text(encoding="utf-8-sig"))):
+                if any(candidate.resolve() == cover_path for candidate in (root / raw, path.parent / raw)):
+                    nested_cover = True
+        add("cover_not_reused_in_body", not nested_cover)
+    identity_hits = sorted(set(re.findall(r"学校|学院|实验室|参赛队号|队员姓名|指导教师|学号|邮箱|C:\\Users\\", anonymous_text, re.I)))
+    identity_hits += [term for term in policy["official"]["anonymity_policy"]["identity_terms"] if term in anonymous_text]
     add("anonymous_source", not identity_hits, matches=identity_hits)
     add("no_markdown_chapter_sources", not any(path.suffix.lower() == ".md" for path in audit_paths), files=[str(path) for path in audit_paths if path.suffix.lower() == ".md"])
 
@@ -227,7 +271,8 @@ def audit(manifest_path: Path, main_path: Path) -> dict:
     italic_commands = sorted(set(re.findall(r"\\(?:itshape|textit|emph)\b", remove_comments(all_text))))
     add("no_explicit_body_italic", not italic_commands, commands=italic_commands)
 
-    return {"status": "PASS" if not failures else "FAIL", "manifest": str(manifest_path), "main": str(main_path), "checks": checks, "failures": failures}
+    return {"status": "PASS" if not failures else "FAIL", "scope": f"TeX {stage} checks only; policy/PDF/evidence gates are separate",
+            "manifest": str(manifest_path), "main": str(main_path), "checks": checks, "failures": failures}
 
 
 def main() -> None:
@@ -235,8 +280,11 @@ def main() -> None:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--main", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--policy", type=Path)
+    parser.add_argument("--cover-tex")
+    parser.add_argument("--stage", choices=["source", "render"], default="source")
     args = parser.parse_args()
-    result = audit(args.manifest.resolve(), args.main.resolve())
+    result = audit(args.manifest.resolve(), args.main.resolve(), load_policy(args.policy), args.cover_tex, args.stage)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))
