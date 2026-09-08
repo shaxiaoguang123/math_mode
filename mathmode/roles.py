@@ -32,7 +32,7 @@ ROLES = {
         "Implement only the approved main/baseline, or a fallback with a recorded measured trigger. Use one explicit entrypoint, the supplied run context, fixed seed and complete code bundle. Separate computation from plotting. Never write final measurements or approve results.", may_write_code=True, activity="coding"),
     "validator": Role(frozenset({"semantic_review"}), ("reviews/",),
         "Independently review original inputs, criteria/spec and final outputs. For fallback execution, review and cite the actual decision, predeclared trigger card and both screening reports. Preserve the fallback attribution and judge its claims against the same task and baseline. Do not request or import solver source or intermediate state. Check assumptions, units, limitations and applicability of independent numerical checks.", activity="review"),
-    "reviewer": Role(frozenset({"semantic_review", "disposition_review"}), ("reviews/",),
+    "reviewer": Role(frozenset({"semantic_review", "disposition_review", "assumption_plan"}), ("reviews/",),
         "Review a different actor's work against original requirements and actual evidence. State supported/limited/exploratory conclusions, unresolved warnings and missing coverage. Your opinion cannot override deterministic failures.", activity="review"),
     "visual": Role(frozenset({"visual_handoff"}), ("visuals/",),
         "Use verified frozen numbers and the existing complete academic-figure-skill for ordinary scientific figures. Follow separate TikZ flowchart rules. Do not create numerical facts or assert visual QA without rendering and inspection.", activity="visualization"),

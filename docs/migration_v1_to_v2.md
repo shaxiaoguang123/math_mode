@@ -252,6 +252,29 @@ The separate workflow lock has the same owner identity rules as the state lock;
 
 ## Compatibility boundaries to finish in T08–T12
 
+Assumption assessment adds `assumption_plan` and `assumption_report` (2.0), optional
+`workflow_plan.questions[].assumption_plan`, `model_spec.validation_plan.assumptions`,
+and optional `assumption_reports` pins on freeze requests/snapshots. Run manifests
+can now snapshot an `assumption_plan`. Existing optional-field-free specs, manifests
+and numerical freezes remain readable; old recorded numerical integrity does not
+establish assumption acceptance. Update distributed schemas together with readers.
+
+Workflow G5 now requires current evidence for every assumption used by the selected
+main/fallback and baseline. Legacy plans that merely set `sensitivity_status=tested`
+need a real independently reviewed plan and its executed assessment. A pending
+ledger flag may remain as the pre-experiment planning observation: machine TESTED
+status comes from the report, not rewriting the ledger after the experiment.
+If sensitivity is inapplicable, the independent plan must give a concrete reason;
+the report explicitly records NOT_APPLICABLE with no invented measurements.
+
+Assessment plans pin the full current ledger and both production model hashes.
+Changing either requires a new current plan and assessment; stable plan IDs cannot
+silently replace completed experiments. Use a new plan ID for revised context and
+preserve the prior report. The workflow provides `assess-assumptions` as a real
+transition before semantic validation. Final semantic reviews must cite the plan
+and report. Existing frozen results require explicit thaw and the normal fresh
+run/validate/refreeze sequence to add missing assumption evidence.
+
 Reviewed dispositions add two standalone 2.0 contracts, `issue_disposition` and
 `disposition_review`, plus optional fields `workflow_plan.dispositions`,
 `freeze_request.qualification_sources` and `frozen_numbers.qualifications`. Existing

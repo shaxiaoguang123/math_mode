@@ -526,7 +526,8 @@
               "risk_probe_plan",
               "method_card",
               "risk_probe",
-              "run_manifest"
+              "run_manifest",
+              "assumption_plan"
             ]
           },
           "source_path": {

@@ -183,6 +183,10 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
     baseline = verify_run(root, summary["baseline_run"]["path"])
     qualifications, qualification_dependencies = derive_qualifications(root, request["question_id"],
         request.get("qualification_sources", []), [main, baseline])
+    from .assessments import bind_assessment_reports
+    model_pins = {role: {"path": run["spec"]["source_path"], "sha256": run["spec"]["source_sha256"]}
+                  for role, run in (("main", main), ("baseline", baseline))}
+    assumption_dependencies = bind_assessment_reports(root, request.get("assumption_reports", []), request["question_id"], model_pins=model_pins)
     freeze_id = "freeze-" + uuid.uuid4().hex
     relative = f"freezes/{freeze_id}/frozen_numbers.json"
     key = artifact_id(relative)
@@ -193,6 +197,8 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
         "main_run": summary["main_run"], "baseline_run": summary["baseline_run"], "numbers": numbers, "registry_artifact_id": key}
     if qualifications:
         snapshot["qualifications"] = qualifications
+    if request.get("assumption_reports"):
+        snapshot["assumption_reports"] = request["assumption_reports"]
     validate("frozen_numbers", snapshot, root=root)
     state = registry.store.load()
     def publish(state):
@@ -205,6 +211,8 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
             request.get("qualification_sources", []), [main, baseline])
         if current_qualifications != qualifications or current_dependencies != qualification_dependencies:
             raise ValueError("Reviewed qualifications changed before freeze publication")
+        if bind_assessment_reports(root, request.get("assumption_reports", []), request["question_id"], model_pins=model_pins) != assumption_dependencies:
+            raise ValueError("Assumption evidence changed before freeze publication")
         if {evidence_id, summary_id, *qualification_dependencies} & set(registry.store.inspect_freshness()["stale"]):
             raise ValueError("Registered evidence changed before freeze publication")
         for item in numbers:
@@ -232,7 +240,7 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
         state["artifacts"].append({"artifact_id": key, "path": relative, "sha256": digest,
             "size_bytes": path.stat().st_size, "created_at": now(), "producer": "freeze-service", "status": "FROZEN",
             "depends_on": [{"artifact_id": dep, "sha256": by_id[dep]["sha256"]}
-                           for dep in sorted({evidence_id, summary_id, *qualification_dependencies})]})
+                           for dep in sorted({evidence_id, summary_id, *qualification_dependencies, *assumption_dependencies})]})
     registry.store.update(publish, expected_revision=state["revision"])
     return snapshot
 
@@ -311,11 +319,16 @@ def _verify_freeze(root: Path, question_id: str, *, refresh=True) -> dict:
         if file_hash(source) != item["source_sha256"] or json_pointer(read_json(source), item["locator"]) != item["value"]:
             raise ValueError("Frozen number differs from its source locator")
     from .dispositions import derive_qualifications
+    model_runs = {role: verify_run(root, snapshot[role + "_run"]["path"]) for role in ("main", "baseline")}
     qualifications, dependencies = derive_qualifications(root, question_id,
-        snapshot.get("qualifications", {}).get("sources", []),
-        [verify_run(root, snapshot[role + "_run"]["path"]) for role in ("main", "baseline")])
+        snapshot.get("qualifications", {}).get("sources", []), list(model_runs.values()))
     if snapshot.get("qualifications") != qualifications:
         raise ValueError("Frozen qualifications differ from reviewed or inherited restrictions")
     if not set(dependencies) <= {dep["artifact_id"] for dep in registered[key]["depends_on"]}:
         raise ValueError("Freeze lineage omits qualification dependencies")
+    from .assessments import bind_assessment_reports
+    model_pins = {role: {"path": run["spec"]["source_path"], "sha256": run["spec"]["source_sha256"]} for role, run in model_runs.items()}
+    dependencies = bind_assessment_reports(root, snapshot.get("assumption_reports", []), question_id, model_pins=model_pins)
+    if not set(dependencies) <= {dep["artifact_id"] for dep in registered[key]["depends_on"]}:
+        raise ValueError("Freeze lineage omits assumption evidence")
     return snapshot

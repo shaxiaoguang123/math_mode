@@ -142,6 +142,35 @@ class Workflow:
             raise ValueError("Workflow progress belongs to another case")
         return progress
 
+    def _assumption_plan(self, plan, job, card, decision):
+        from .assessments import _plan
+        from .dispositions import pin
+        selected = {decision["main_method_id"], decision["baseline_method_id"]}
+        required = {key for method in card["methods"] if method["method_id"] in selected for key in method["assumption_ids"]}
+        if not required:
+            return None
+        if not job.get("assumption_plan"):
+            raise ValueError("Selected assumptions require an independently reviewed assessment plan and actual evidence")
+        assessment, _ = _plan(self.root, pin(self.root, job["assumption_plan"]))
+        if assessment["ledger"] != pin(self.root, plan["framing"]["assumption_ledger"]) or assessment["models"] != {
+                role: pin(self.root, job[role + "_spec"]) for role in ("main", "baseline")}:
+            raise ValueError("Assumption assessment does not cover the current workflow models/ledger")
+        if {item["assumption_id"] for item in assessment["assumptions"]} != required:
+            raise ValueError("Assumption assessment must cover exactly the selected methods' assumptions")
+        return assessment
+
+    def _assumptions(self, plan, job, card, decision):
+        from .assessments import report_path, verify_assessment
+        from .dispositions import pin
+        assessment = self._assumption_plan(plan, job, card, decision)
+        if assessment is None:
+            return []
+        path = report_path(assessment)
+        report = verify_assessment(self.root, path)
+        if report["status"] != "PASS":
+            raise ValueError("Assumption assessment failed: " + "; ".join(report["blockers"]))
+        return [pin(self.root, path)]
+
     def _evidence(self, summary_path, evidence_path):
         actual = verify_evidence_report(self.root, evidence_path)
         if actual["validation"]["path"] != summary_path:
@@ -188,12 +217,19 @@ class Workflow:
                 pass  # Re-review changed inputs, never repeatedly solicit a better verdict.
             else:
                 required = {artifact_id(path) for path in (record["validation"], record["evidence"], job["main_spec"], job["baseline_spec"], *selection)}
+                if job.get("assumption_plan"):
+                    from .assessments import report_path
+                    required.update(artifact_id(path) for path in (job["assumption_plan"], report_path(self._contract(job["assumption_plan"], "assumption_plan"))))
                 if required <= set(existing["artifact_refs"]):
                     return None
         inputs = ["input_manifest.json", job["main_spec"], job["baseline_spec"], spec["validation_plan"]["criteria"]["path"],
                   record["validation"], record["evidence"], *selection]
         inputs.extend(path for name, path in plan["framing"].items() if name != "review")
         inputs.extend(item["path"] for item in read_json(self.root / "input_manifest.json")["files"])
+        if job.get("assumption_plan"):
+            from .assessments import report_path
+            assessment = self._contract(job["assumption_plan"], "assumption_plan")
+            inputs.extend([job["assumption_plan"], report_path(assessment)])
         # The independent validator sees approved data boundaries and their
         # evidence. Do not include code-review proposals containing solver code.
         for binding in plan.get("dispositions", []):
@@ -270,7 +306,7 @@ class Workflow:
                 continue
         return max(matches, key=lambda value: value["created_at"]) if matches else None
 
-    def _freeze_request(self, job, record, qualification_sources=()):
+    def _freeze_request(self, job, record, qualification_sources=(), assumption_reports=()):
         numbers = []
         run = verify_run(self.root, record["main_run"])
         outputs = unique(run["outputs"], "name")
@@ -287,6 +323,8 @@ class Workflow:
                    "decision_id": spec["decision_id"], "numbers": numbers}
         if qualification_sources:
             request["qualification_sources"] = list(qualification_sources)
+        if assumption_reports:
+            request["assumption_reports"] = list(assumption_reports)
         return request
 
     def observe(self, plan: dict, *, persist=True) -> dict:
@@ -328,6 +366,7 @@ class Workflow:
                 phase = "G3"
                 next_action = "screen-method"
                 qualifications = list(framing_qualifications)
+                assumption_reports = []
                 limited = bool(qualifications)
                 try:
                     card = self._screened(job)
@@ -365,10 +404,13 @@ class Workflow:
                     summary = read_json(self.root / record["validation"])
                     if summary["main_run"]["path"] != record["main_run"] or summary["baseline_run"]["path"] != record["baseline_run"]:
                         raise ValueError("Validation belongs to different workflow runs")
+                    next_action = "assess-assumptions"
+                    assumption_reports = self._assumptions(plan, job, card, decision)
                     next_action = "review-validation"
                     selection = [job["method_card"], job["decision"], *job["probe_reports"]] if decision.get("execution_role", "main") == "fallback" else []
                     review = self._review(job["validation_review"], [record["validation"], record["evidence"], job["main_spec"], job["baseline_spec"],
-                                 specs[0]["validation_plan"]["criteria"]["path"], *selection], qid, specs[0]["actor_id"],
+                                 specs[0]["validation_plan"]["criteria"]["path"], *selection,
+                                 *([job["assumption_plan"], *(ref["path"] for ref in assumption_reports)] if assumption_reports else [])], qid, specs[0]["actor_id"],
                                  plan=plan, qualifications=qualifications)
                     if review["actor_id"] in {spec["actor_id"] for spec in specs}:
                         raise ValueError("Independent semantic reviewer cannot be either solver producer")
@@ -376,6 +418,8 @@ class Workflow:
                     status["G5"] = {"status": "LIMITED" if limited else "PASS", "blockers": []}
                     phase, next_action = "G6", "freeze"
                     snapshot = verify_freeze(self.root, qid)
+                    if snapshot.get("assumption_reports", []) != assumption_reports:
+                        raise ValueError("Active freeze omits current assumption evidence; explicit thaw is required")
                     expected, _ = derive_qualifications(self.root, qid, qualifications,
                         [verify_run(self.root, record[role + "_run"]) for role in ("main", "baseline")])
                     if snapshot.get("qualifications") != expected:
@@ -393,7 +437,8 @@ class Workflow:
                     status[phase] = {"status": "BLOCKED", "blockers": [str(exc)]}
                 for gate in ("G3", "G3.5", "G4", "G5", "G6"):
                     status.setdefault(gate, {"status": "BLOCKED", "blockers": ["Prior question phase is not current"]})
-                per_question[qid] = {"gates": status, "next_action": next_action, "qualification_sources": qualifications}
+                per_question[qid] = {"gates": status, "next_action": next_action, "qualification_sources": qualifications,
+                                     "assumption_reports": assumption_reports}
         for gate in ("G3", "G3.5", "G4", "G5", "G6"):
             blockers = [f"{qid}: {message}" for qid, item in per_question.items() for message in item["gates"][gate]["blockers"]]
             if not per_question:
@@ -491,7 +536,15 @@ class Workflow:
                 if evidence["status"] == "PASS":
                     _bind_evidence(self.registry, self.root, record["validation"], record["evidence"])
             elif action == "freeze":
-                freeze_results(self.root, self._freeze_request(job, record, item["qualification_sources"]), record["evidence"])
+                freeze_results(self.root, self._freeze_request(job, record, item["qualification_sources"], item["assumption_reports"]), record["evidence"])
+            elif action == "assess-assumptions" and job.get("assumption_plan"):
+                from .assessments import _assess_assumptions
+                try:
+                    self._assumption_plan(plan, job, self._contract(job["method_card"], "method_card"),
+                                          self._contract(job["decision"], "method_decision"))
+                except (ValueError, OSError, ValidationError):
+                    continue  # Await the actual current independent plan handoff.
+                _assess_assumptions(self.root, job["assumption_plan"], interpreter=interpreter)
             elif action == "review-validation":
                 scheduled = self._review_validation(plan, job, record)
                 if scheduled:

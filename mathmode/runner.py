@@ -152,7 +152,7 @@ def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=No
     if set(spec["inputs"]) - input_records.keys():
         raise ValueError("Spec references an unregistered original input")
     sidecars = []
-    for field, contract_name in (("criteria", "validation_criteria"), ("probe", "risk_probe_plan"), ("screening_card", "method_card")):
+    for field, contract_name in (("criteria", "validation_criteria"), ("probe", "risk_probe_plan"), ("screening_card", "method_card"), ("assumptions", "assumption_plan")):
         reference = spec["validation_plan"].get(field)
         if reference:
             path = safe_path(root, reference["path"])
@@ -360,7 +360,7 @@ def verify_run(root: Path, manifest_relative: str, *, require_success=True, curr
                 raise ValueError("Upstream question has been refrozen")
     sidecars = unique(record.get("contract_snapshots", []), "contract")
     expected_sidecars = {}
-    for field, contract_name in (("criteria", "validation_criteria"), ("probe", "risk_probe_plan"), ("screening_card", "method_card")):
+    for field, contract_name in (("criteria", "validation_criteria"), ("probe", "risk_probe_plan"), ("screening_card", "method_card"), ("assumptions", "assumption_plan")):
         reference = frozen_spec["validation_plan"].get(field)
         if reference:
             expected_sidecars[contract_name] = reference

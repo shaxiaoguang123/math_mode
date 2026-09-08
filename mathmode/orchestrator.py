@@ -117,6 +117,9 @@ class Orchestrator:
         # Probe reports have independently recomputable process provenance.
         if path.suffix == ".json":
             value = read_json(path)
+            if isinstance(value, dict) and value.get("scope") == "declared_assumption_checks":
+                from .assessments import verify_assessment
+                return "assumption_report", verify_assessment(self.root, relative)
             if isinstance(value, dict) and {"retrieval_id", "requests", "snapshot"} <= value.keys():
                 from .reference_retrieval import verify_retrieval
                 return "reference_retrieval", verify_retrieval(self.root, relative)
@@ -235,7 +238,7 @@ class Orchestrator:
                 if kind in {"input_manifest", "problem_frame", "problem_dag", "symbol_table", "ambiguity_register", "assumption_ledger",
                             "method_card", "method_decision", "risk_probe",
                             "model_spec", "validation_criteria", "validation_summary", "evidence_gate",
-                            "data_audit", "issue_disposition", "disposition_review"}:
+                            "data_audit", "issue_disposition", "disposition_review", "assumption_plan", "assumption_report"}:
                     allowed.add(item["path"])
             from .runner import verify_run
             for run_path in (self.root / "runs").glob("*/run_manifest.json"):

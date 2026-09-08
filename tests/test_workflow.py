@@ -6,7 +6,7 @@ import pytest
 
 from test_validation import prepared
 from mathmode.contracts import validate, read_ledger
-from mathmode.io import read_json, write_json, file_hash, now
+from mathmode.io import read_json, write_json, file_hash, now, object_hash
 from mathmode.lineage import artifact_id
 from mathmode.probes import measured_probe
 from mathmode.runner import execute_model
@@ -18,9 +18,34 @@ FIXTURES = Path(__file__).resolve().parents[1] / "fixtures/contracts"
 
 
 def review(root, path, producer, required):
+    required = list(required)
+    for candidate in (root / "reviews").glob("fixture-assumptions-*.json"):
+        assessment = read_json(candidate)
+        if all(file_hash(root / ref["path"]) == ref["sha256"] for ref in [assessment["ledger"], *assessment["models"].values()]):
+            from mathmode.assessments import report_path
+            if (root / report_path(assessment)).exists():
+                required.extend([candidate.relative_to(root).as_posix(), report_path(assessment)])
     write_json(root / path, {"schema_version": "2.0", "review_id": "fixture-review", "actor_id": "fixture-independent-reviewer",
         "reviewed_actor_id": producer, "question_id": "Q1", "artifact_refs": [artifact_id(p) for p in sorted(set(required))],
         "findings": [], "verdict": "SUPPORTED", "limitations": [], "created_at": now()})
+
+
+def na_assumptions(root, service, plan):
+    """Explicit N/A judgment double for analytic routing fixtures, not real acceptance."""
+    from mathmode.assessments import assess_assumptions
+    from mathmode.dispositions import pin
+    job = plan["questions"][0]
+    refs = {"ledger": pin(root, plan["framing"]["assumption_ledger"]),
+            "models": {role: pin(root, job[role + "_spec"]) for role in ("main", "baseline")}}
+    key = "fixture-assumptions-" + object_hash(refs)[:16]
+    job["assumption_plan"] = f"reviews/{key}.json"
+    assessment = {"schema_version": "2.0", "plan_id": key, "question_id": job["question_id"],
+        "actor_id": "fixture-assumption-reviewer", "created_at": now(), **refs,
+        "assumptions": [{"assumption_id": "linearity", "mode": "not_applicable", "scenario_ids": [],
+            "rationale": "Routing fixture with an exactly constructed affine law; this is a declared semantic test double. Actual perturbation checks are exercised separately."}],
+        "scenarios": []}
+    write_json(root / job["assumption_plan"], assessment)
+    assert assess_assumptions(root, job["assumption_plan"])["assessments"][0]["status"] == "NOT_APPLICABLE"
 
 
 @pytest.fixture
@@ -89,6 +114,9 @@ out={'count':len(x),'minimum':min(x),'variance':statistics.pvariance(x),
             return read_ledger(root / path, name)[-1]
         return validate(name, read_json(root / path), root=root)
     monkeypatch.setattr(service, "_contract", fixture_contract)
+    from mathmode import assessments
+    monkeypatch.setattr(assessments, "_contract", lambda root, path, name: fixture_contract(path, name))
+    na_assumptions(root, service, plan)
     return root, service, plan
 
 

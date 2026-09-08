@@ -101,6 +101,13 @@ def main(argv=None) -> int:
     disposition.add_argument("--proposal", required=True)
     disposition.add_argument("--review", required=True)
     disposition.add_argument("--question-id")
+    assessment = commands.add_parser("assess-assumptions", help="Execute predeclared perturbations and independently assess assumptions")
+    assessment.add_argument("--workspace", type=Path, required=True)
+    assessment.add_argument("--plan", required=True)
+    assessment.add_argument("--interpreter")
+    assessment_check = commands.add_parser("verify-assumptions", help="Recompute an assumption assessment from actual independent evidence")
+    assessment_check.add_argument("--workspace", type=Path, required=True)
+    assessment_check.add_argument("--assessment", required=True)
     probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
     probe.add_argument("--workspace", type=Path, required=True)
     probe.add_argument("--manifest", required=True)
@@ -226,6 +233,12 @@ def main(argv=None) -> int:
             record = verify_disposition(args.workspace, {key: getattr(args, key) for key in ("source", "proposal", "review")},
                                         question_id=args.question_id)
             result = {"status": "LIMITED", "scope": "reviewed_bounded_continuation", **record}
+        elif args.command == "assess-assumptions":
+            from .assessments import assess_assumptions
+            result = assess_assumptions(args.workspace, args.plan, interpreter=args.interpreter)
+        elif args.command == "verify-assumptions":
+            from .assessments import verify_assessment
+            result = verify_assessment(args.workspace, args.assessment)
         elif args.command == "probe-report":
             from .probes import measured_probe
             record = measured_probe(args.workspace, args.manifest)

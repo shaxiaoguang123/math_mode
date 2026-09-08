@@ -7,7 +7,7 @@ import pytest
 from jsonschema import ValidationError
 
 from test_validation import prepared
-from test_workflow import case, review
+from test_workflow import case, review, na_assumptions
 from test_workflow_fallback import fallback_case
 from mathmode.contracts import read_ledger
 from mathmode.freeze import _register_run, verify_freeze
@@ -100,6 +100,7 @@ def test_terminal_event_resumes_schedule_and_binds_real_execution(case, monkeypa
         spec["decision_id"] = decision["decision_id"]
         write_json(root / path, spec)
         ArtifactRegistry(root).register(path, producer=spec["actor_id"], dependencies=[artifact_id(job["decision"])])
+    na_assumptions(root, workflow, plan)
     for action in ("run-main", "run-baseline", "independent-validate"):
         result = workflow.advance(plan, interpreter=sys.executable)
         assert result["performed"]["action"] == action, result

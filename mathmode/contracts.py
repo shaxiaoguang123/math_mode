@@ -95,6 +95,28 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
                     raise ValueError(f"Original input changed: {item['input_id']}")
                 if path.stat().st_mode & 0o222:
                     raise ValueError(f"Original input is writable: {item['input_id']}")
+    elif name == "assumption_plan":
+        scenarios = unique(value["scenarios"], "scenario_id")
+        unique(value["assumptions"], "assumption_id")
+        if {"control", "baseline"} & scenarios.keys() or len(scenarios) > 20:
+            raise ValueError("Assumption plan reserves control and permits at most twenty perturbations")
+        used = set()
+        for item in value["assumptions"]:
+            if (item["mode"] == "sensitivity") != bool(item["scenario_ids"]):
+                raise ValueError("Sensitivity needs scenarios; not-applicable assessments cannot claim tests")
+            references(item["scenario_ids"], scenarios, "assumption scenario")
+            used.update(item["scenario_ids"])
+        if used != scenarios.keys():
+            raise ValueError("Every sensitivity scenario must serve a declared assumption")
+        changes = {(item["field"], item["parameter"], item["value"]) for item in scenarios.values()}
+        if len(changes) != len(scenarios):
+            raise ValueError("Duplicate perturbations do not provide distinct sensitivity scenarios")
+        for scenario in scenarios.values():
+            unique(scenario["metrics"], "metric")
+            if (scenario["field"] == "parameter") != (scenario["parameter"] is not None):
+                raise ValueError("Only parameter perturbations name a parameter")
+            if scenario["field"] == "seed" and (int(scenario["value"]) != scenario["value"] or not 0 <= scenario["value"] <= 4294967295):
+                raise ValueError("Sensitivity seed must be an integer in the runner's supported range")
     elif name == "issue_disposition":
         unique(value["items"], "locator")
     elif name == "disposition_review":

@@ -106,6 +106,10 @@ def _check_response(task, response, root=None):
                     keys = ("source", "frame") if declaration["contract"] == "issue_disposition" else ("proposal",)
                     if any(supplied.get(value[key]["path"]) != value[key]["sha256"] for key in keys):
                         raise ValueError("Disposition pins must match actual supplied input snapshots")
+                if declaration["contract"] == "assumption_plan":
+                    supplied = {item["path"]: item["sha256"] for item in task["inputs"]}
+                    if any(supplied.get(ref["path"]) != ref["sha256"] for ref in [value["ledger"], *value["models"].values()]):
+                        raise ValueError("Assumption plan must pin the actual ledger and model input snapshots")
                 if declaration["contract"] == "method_proposal" and value["view"] != task["view"]:
                     raise ValueError("Proposal changed its council view")
                 if declaration["contract"] == "method_sources":

@@ -420,3 +420,20 @@ Conda test; full compileall, all 39 schemas and both 263-file mirrors pass. The 
 remains Windows symlink privilege. No protected assets changed, no changed-file
 privacy-pattern matches or new large files were found, and diff whitespace checks
 pass. This remains feature-branch progress, not final release/CI acceptance.
+
+## Predeclared assumption evidence checkpoint
+
+The next checkpoint adds actual main-model parameter/seed experiments, independent
+numerical comparison, explicit independent N/A judgments, G5 evidence coverage and
+freeze/report lineage. The catalog now has 41 contracts. `tested` in the ledger
+does not satisfy the gate by itself. Completed experiments/validation reports are
+adopted on resume; unfinished requests preserve the attempt instead of silently
+restarting it. Engineering evidence and the remaining adapters/release work are
+documented in `t08_assumption_evidence.md`. T08 remains IN PROGRESS.
+
+Verification: broad regression **232 passed, 1 skipped** in 987.42s; after the final
+fixed-baseline and production-model association guards, the final-source assessment,
+freeze and disposition suites passed **24 tests** in 306.15s. The broad run predates
+those two guards; the focused run verifies them. Current compileall, all 41 schemas
+and both 263-file mirrors pass. The one broad-suite skip is Windows symlink privilege.
+No release/CI/historical scientific acceptance is inferred from these checks.

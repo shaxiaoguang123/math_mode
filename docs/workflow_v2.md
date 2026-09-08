@@ -297,4 +297,58 @@ numerical integrity only, not complete semantic or scientific acceptance.
 
 This mechanism accounts for retained limitations; it does not implement data
 cleaning or turn missing essential values into valid numerical inputs. Actual
-repair/preprocessing and measured assumption sensitivity remain required work.
+repair/preprocessing and additional input-perturbation adapters remain required work.
+
+## Assumption sensitivity execution
+
+G5 additionally checks every assumption used by the selected production method
+(main or fallback) and usable baseline. A ledger's accepted/tested fields alone
+cannot meet this gate. An independent `reviewer` produces an `assumption_plan`
+under `reviews/`, consuming the actual accepted ledger and both production specs
+in its hashed input bundle. The planner must differ from both solver authors.
+Set the question's `assumption_plan` path in the host workflow plan. Its assumption
+IDs must exactly cover the selected methods; rejected assumptions belonging only
+to an unselected candidate do not become evidence obligations for the fallback.
+
+The plan either assigns named sensitivity scenarios or gives a specific rationale
+for NOT_APPLICABLE. Each scenario changes one existing numeric parameter or the
+random seed of the main production model and declares a maximum absolute change
+for independently checked metrics and units. Original inputs, split, constraints,
+criteria, implementation and the baseline remain unchanged. Up to twenty distinct
+perturbations are permitted per plan. This supports numerical parameter/seed
+sensitivity; it does not claim input-noise, missingness or arbitrary structural
+alternative-model coverage. Those require additional reviewed experiment adapters.
+
+```powershell
+python -m mathmode assess-assumptions --workspace ../competitions/case-id --plan reviews/assumptions.json --interpreter <python-path>
+python -m mathmode verify-assumptions --workspace ../competitions/case-id --assessment assessments/<plan-id>/assumption_report.json
+```
+
+The service creates derived study specs under `assessments/<plan-id>/`, adding the
+plan hash as a pre-execution sidecar. It executes a control, a fixed usable baseline
+and the actual perturbed production models with the normal runner. Each production
+output is independently validated without the solver source/intermediates. Reported
+changes come from those verified numerical summaries. A failing independent check
+or an excessive change yields FAIL and cannot enter a frozen assumption claim.
+NOT_APPLICABLE reports contain no fake trials and remain a separately identified
+independent judgment, subject to the later semantic validation of applicability.
+
+Resume reuses verified runs, validation summaries and completed reports. It does
+not silently rerun failed/stale work or relax thresholds. Model/ledger/plan changes
+invalidate the current assessment. `Workflow.advance` calls the same service while
+holding its workflow lock, and pauses for a missing/invalid independent plan. The
+generated semantic-validator task receives the plan and report; its final review
+must cite both. Frozen snapshots bind `assumption_reports`, and subsequent report
+or upstream evidence changes make the snapshot and its dependent artifacts stale.
+All scenarios reuse the actual control baseline run. A report can bind a freeze
+only when its production-model pins match both of that freeze's actual source
+specs, not merely the question ID.
+These checks establish the declared experiment's evidence, not the scientific truth
+of the assumption or final official compliance.
+
+The service records each validation request before dispatch. A completed numerical
+summary can be adopted after interruption; a previous request without a completed
+summary requires diagnosis/explicit repair, instead of launching another validator
+under a fresh ID. A report written before registry publication is independently
+recomputed before its interrupted registration can resume. Neither case invents
+an execution result for an unobserved process.

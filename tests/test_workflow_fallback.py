@@ -5,7 +5,7 @@ import sys
 import pytest
 
 from test_validation import prepared
-from test_workflow import case, review
+from test_workflow import case, review, na_assumptions
 from mathmode.io import read_json, write_json, file_hash, now
 from mathmode.lineage import artifact_id
 from mathmode.probes import measured_probe, screening_options, verify_screened_decision
@@ -94,6 +94,7 @@ out=[{'id':k,'prediction':slope*rows[k]['x']+intercept} for k in s['data_split']
     review(root, job["code_review"], solution["actor_id"], [job["main_spec"], job["baseline_spec"],
         "code/fallback.py", "code/regression.py", solution["validation_plan"]["criteria"]["path"],
         job["method_card"], job["decision"], *job["probe_reports"]])
+    na_assumptions(root, service, plan)
     return root, service, plan, decision
 
 
