@@ -12,7 +12,7 @@ from .io import canonical_root, read_json, write_json, safe_path, file_hash, now
 from .lineage import ArtifactRegistry, artifact_id
 from .orchestrator import Orchestrator
 from .policy import load_policy, audit_policy
-from .probes import verify_probe, measured_probe
+from .probes import measured_probe, screening_options, verify_screened_decision, verify_fallback_authorization
 from .runner import execute_model, verify_run
 from .state import workspace_lock
 from .validation import independently_validate, audit_evidence, validate_criteria, verify_evidence_report
@@ -70,20 +70,7 @@ class Workflow:
         card = self._contract(job["method_card"], "method_card")
         if card["question_id"] != job["question_id"]:
             raise ValueError("Method card belongs to another question")
-        main = next(method for method in card["methods"] if method["role"] == "main_candidate")
-        reports = []
-        for path in job["probe_reports"]:
-            report = read_json(safe_path(self.root, path))
-            verified = verify_probe(self.root, path, f"runs/{report['run_id']}/run_manifest.json")
-            run = verify_run(self.root, f"runs/{report['run_id']}/run_manifest.json")
-            if not any(item["contract"] == "method_card" and item["source_path"] == job["method_card"]
-                       and item["sha256"] == file_hash(self.root / job["method_card"]) for item in run.get("contract_snapshots", [])):
-                raise ValueError("Risk probe did not pin the current screened method card before execution")
-            if verified["question_id"] != job["question_id"]:
-                raise ValueError("Risk probe belongs to another question")
-            reports.append(verified)
-        if not any(report["method_id"] == main["method_id"] and report["verdict"] == "PASS" for report in reports):
-            raise ValueError("Screened main method has no passing actual risk probe")
+        screening_options(self.root, job["method_card"], job["probe_reports"])
         return card
 
     def _decided(self, job, card):
@@ -93,12 +80,8 @@ class Workflow:
             raise ValueError("WAITING_HUMAN: host event admission is required before execution")
         if decision["decided_by"] != "agent" or decision["question_id"] != job["question_id"]:
             raise ValueError("Decision owner or question identity is invalid")
-        for field, role in (("main_method_id", "main_candidate"), ("baseline_method_id", "usable_baseline")):
-            method = next(method for method in card["methods"] if method["role"] == role)
-            if decision[field] != method["method_id"]:
-                raise ValueError("Decision does not select the current screened main/baseline")
-        if {artifact_id(path) for path in job["probe_reports"]} - set(decision["evidence_refs"]):
-            raise ValueError("Decision omits its actual measured probes")
+        screening = screening_options(self.root, job["method_card"], job["probe_reports"])
+        verify_screened_decision(decision, screening, job["probe_reports"])
         return decision
 
     def _code(self, job, bundle, assumptions, card, decision):
@@ -110,6 +93,11 @@ class Workflow:
         selected_events = [entry for entry in assumptions if entry["assumption_id"] in used]
         validate_modeling_bundle({**bundle, "assumption_events": selected_events,
             "method_cards": [card], "method_decisions": [decision], "model_specs": specs}, root=self.root)
+        if decision.get("execution_role", "main") == "fallback":
+            verify_fallback_authorization(self.root, specs[0])
+            screening = screening_options(self.root, job["method_card"], job["probe_reports"])
+            if specs[0]["fallback_authorization"] != screening["options"]["fallback"]["authorization"]:
+                raise ValueError("Fallback spec does not bind the selected decision's screening evidence")
         for spec, field in zip(specs, ("main_method_id", "baseline_method_id")):
             if spec["method_id"] != decision[field]:
                 raise ValueError("Model spec is assigned to the wrong execution role")
@@ -119,15 +107,16 @@ class Workflow:
             validate_criteria(read_json(self.root / reference["path"]))
         if specs[0]["validation_plan"]["criteria"] != specs[1]["validation_plan"]["criteria"]:
             raise ValueError("Main/baseline must pin identical independent criteria")
+        selection = [job["method_card"], job["decision"], *job["probe_reports"]] if decision.get("execution_role", "main") == "fallback" else []
         if specs[0]["actor_id"] == specs[1]["actor_id"]:
-            required = [job["main_spec"], job["baseline_spec"], specs[0]["validation_plan"]["criteria"]["path"]]
+            required = [job["main_spec"], job["baseline_spec"], specs[0]["validation_plan"]["criteria"]["path"], *selection]
             required.extend(path for spec in specs for path in spec["implementation"]["code_files"])
             self._review(job["code_review"], required, job["question_id"], specs[0]["actor_id"])
         else:
             if not job.get("baseline_code_review"):
                 raise ValueError("A different baseline producer needs its own independent code review")
             for spec, field, review_path in zip(specs, ("main_spec", "baseline_spec"), (job["code_review"], job["baseline_code_review"])):
-                self._review(review_path, [job[field], spec["validation_plan"]["criteria"]["path"], *spec["implementation"]["code_files"]],
+                self._review(review_path, [job[field], spec["validation_plan"]["criteria"]["path"], *spec["implementation"]["code_files"], *selection],
                              job["question_id"], spec["actor_id"])
         return specs
 
@@ -154,6 +143,8 @@ class Workflow:
     def _review_validation(self, plan, job, record):
         if self.agents.backend is None:
             return None
+        spec = self._contract(job["main_spec"], "model_spec")
+        selection = [job["method_card"], job["decision"], *job["probe_reports"]] if "fallback_authorization" in spec else []
         review_path = safe_path(self.root, job["validation_review"], exists=False)
         if review_path.exists():
             try:
@@ -161,12 +152,11 @@ class Workflow:
             except (ValueError, OSError, ValidationError):
                 pass  # Re-review changed inputs, never repeatedly solicit a better verdict.
             else:
-                required = {artifact_id(path) for path in (record["validation"], record["evidence"], job["main_spec"], job["baseline_spec"])}
+                required = {artifact_id(path) for path in (record["validation"], record["evidence"], job["main_spec"], job["baseline_spec"], *selection)}
                 if required <= set(existing["artifact_refs"]):
                     return None
-        spec = self._contract(job["main_spec"], "model_spec")
         inputs = ["input_manifest.json", job["main_spec"], job["baseline_spec"], spec["validation_plan"]["criteria"]["path"],
-                  record["validation"], record["evidence"]]
+                  record["validation"], record["evidence"], *selection]
         inputs.extend(path for name, path in plan["framing"].items() if name != "review")
         inputs.extend(item["path"] for item in read_json(self.root / "input_manifest.json")["files"])
         for role in ("main", "baseline"):
@@ -211,11 +201,12 @@ class Workflow:
 
     def _matching_run(self, job, role):
         after = self._run_after(job["question_id"])
+        execution_role = self._contract(job["decision"], "method_decision").get("execution_role", "main") if role == "main" else role
         candidates = []
         for path in (self.root / "runs").glob("*/run_manifest.json"):
             try:
                 record = verify_run(self.root, path.relative_to(self.root).as_posix())
-                if (record["question_id"], record["role"], record["spec"]["source_path"]) != (job["question_id"], role, job[role + "_spec"]):
+                if (record["question_id"], record["role"], record["spec"]["source_path"]) != (job["question_id"], execution_role, job[role + "_spec"]):
                     continue
                 if after and datetime.fromisoformat(record["started_at"]) <= after:
                     continue
@@ -302,7 +293,8 @@ class Workflow:
                                 raise ValueError("Dependent model does not consume the current parent freeze")
                     record = progress["questions"].get(qid, {})
                     for role, spec in zip(("main", "baseline"), specs):
-                        next_action = "run-" + role
+                        execution_role = decision.get("execution_role", "main") if role == "main" else role
+                        next_action = "run-" + execution_role
                         path = record.get(role + "_run")
                         if not path:
                             raise ValueError("Missing actual " + role + " execution")
@@ -310,7 +302,7 @@ class Workflow:
                         after = self._run_after(qid)
                         if after and datetime.fromisoformat(run["started_at"]) <= after:
                             raise ValueError("Explicit thaw requires new main/baseline executions")
-                        if run["question_id"] != qid or run["role"] != role or run["spec"]["source_path"] != job[role + "_spec"]:
+                        if run["question_id"] != qid or run["role"] != execution_role or run["spec"]["source_path"] != job[role + "_spec"]:
                             raise ValueError("Workflow run does not implement the selected spec/role")
                     status["G4"] = {"status": "PASS", "blockers": []}
                     phase, next_action = "G5", "independent-validate"
@@ -321,8 +313,9 @@ class Workflow:
                     if summary["main_run"]["path"] != record["main_run"] or summary["baseline_run"]["path"] != record["baseline_run"]:
                         raise ValueError("Validation belongs to different workflow runs")
                     next_action = "review-validation"
+                    selection = [job["method_card"], job["decision"], *job["probe_reports"]] if decision.get("execution_role", "main") == "fallback" else []
                     review = self._review(job["validation_review"], [record["validation"], record["evidence"], job["main_spec"], job["baseline_spec"],
-                                 specs[0]["validation_plan"]["criteria"]["path"]], qid, specs[0]["actor_id"])
+                                 specs[0]["validation_plan"]["criteria"]["path"], *selection], qid, specs[0]["actor_id"])
                     if review["actor_id"] in {spec["actor_id"] for spec in specs}:
                         raise ValueError("Independent semantic reviewer cannot be either solver producer")
                     status["G5"] = {"status": "PASS", "blockers": []}
@@ -402,16 +395,17 @@ class Workflow:
                             self.registry.register(report_path, producer="probe-service", dependencies=[run_id])
                         return {**self.observe(plan), "performed": {"question_id": qid, "action": "adopt-probe" if adopted else "probe"}}
                 continue
-            if action in {"run-main", "run-baseline"}:
-                role = action.removeprefix("run-")
+            if action in {"run-main", "run-fallback", "run-baseline"}:
+                execution_role = action.removeprefix("run-")
+                role = "main" if execution_role == "fallback" else execution_role
                 # Existing/stale executions require an explicit repair/retry decision.
                 run = self._matching_run(job, role)
                 if record[role + "_run"] and run is None:
                     continue
                 if run:
-                    action = "adopt-" + role
+                    action = "adopt-" + execution_role
                 else:
-                    run = execute_model(self.root, job[role + "_spec"], role=role, interpreter=interpreter)
+                    run = execute_model(self.root, job[role + "_spec"], role=execution_role, interpreter=interpreter)
                 record[role + "_run"] = f"runs/{run['run_id']}/run_manifest.json"
                 # A repaired run invalidates the old pair's numerical/semantic evidence.
                 record["validation"] = record["evidence"] = None

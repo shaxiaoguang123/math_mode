@@ -143,6 +143,16 @@ and retry; new IDs do not reset budgets. After thaw, both model runs must be new
 Only an independent current semantic review permits numerical freezing. Warnings
 and LIMITED verdicts remain blocked pending explicit disposition integration.
 
+When the main probe activates a predeclared fallback trigger, the fallback's own
+probe must also pass. An attributed `execution_role=fallback` decision selects it
+and the normal usable baseline. Point the plan's `main_spec` at the reviewed
+fallback spec; it must pin that exact trigger authorization. The coordinator then
+performs `run-fallback` → `run-baseline` → `independent-validate` → semantic review
+→ freeze. The code and validation reviews must cite the card, decision and both
+probe reports. Existing field names `main_run` and `main_mse` denote the selected
+production solution; its actual manifest role remains fallback. A lost progress
+pointer reports `adopt-fallback` when adopting its verified completed execution.
+
 Each advance holds a distinct workflow owner lock through dispatch and progress
 publication. Concurrent coordinators are refused. After an observed coordinator
 exit, use `recover-lock --scope workflow --reason <diagnosis>`; separately recover

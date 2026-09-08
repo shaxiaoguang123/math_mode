@@ -93,7 +93,7 @@ def _check_response(task, response, root=None):
                         raise ValueError("Human decisions must enter through an actual host user event")
                 if declaration["contract"] == "semantic_review" and value["reviewed_actor_id"] != task["reviewed_actor_id"]:
                     raise ValueError("Review changed the reviewed producer identity")
-                if declaration["contract"] in {"semantic_review", "method_proposal"}:
+                if declaration["contract"] in {"semantic_review", "method_proposal", "method_decision"}:
                     refs = value.get("artifact_refs", []) + value.get("evidence_refs", [])
                     for finding in value.get("findings", []):
                         refs.extend(finding["evidence_refs"])

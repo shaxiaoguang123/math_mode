@@ -218,6 +218,23 @@ The separate workflow lock has the same owner identity rules as the state lock;
 
 ## Compatibility boundaries to finish in T08–T12
 
+`method_decision.execution_role` now optionally distinguishes `main` from
+`fallback`; existing records default to main and are not rewritten. To adopt a
+fallback, append a real new decision citing the actual triggered main probe and
+the fallback's own passing probe. The selected solution stays in `main_method_id`
+and the plan's `main_spec` slot; its run is explicitly `role=fallback`. Update both
+selected solution and baseline specs to that decision, obtain current independent
+reviews, and execute them. A frozen prior solution requires explicit thaw first.
+Never relabel an old main run or graft fallback authorization onto its manifest.
+
+Existing `main_run` pointers and metric names are retained for reader compatibility
+and refer to the selected production solution. The new workflow reports
+`run-fallback`/`adopt-fallback` actions and preserves the actual manifest role.
+Previously executed fallback runs can use the independent validator if they pass
+their existing authorization/integrity checks; full workflow acceptance additionally
+requires the actual decision, both screening reports and independent semantic
+reviews. Missing old provenance must be obtained through real new work.
+
 V1 visual/support/paper manifests will have explicit lineage adapters; no adapter
 may invent successful execution, independent validation or a frozen value.
 Historical figures and private competition workspaces must remain distinguishable

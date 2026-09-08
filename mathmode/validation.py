@@ -69,7 +69,7 @@ def compare_metrics(criteria, measurements):
 
 
 def _compatible(root, main, baseline):
-    if main["role"] != "main" or baseline["role"] != "baseline" or main["method_id"] == baseline["method_id"]:
+    if main["role"] not in {"main", "fallback"} or baseline["role"] != "baseline" or main["method_id"] == baseline["method_id"]:
         raise ValueError("Evidence requires distinct main and usable baseline executions")
     main_spec = read_json(root / main["spec"]["snapshot_path"])
     baseline_spec = read_json(root / baseline["spec"]["snapshot_path"])
@@ -147,6 +147,7 @@ def independently_validate(root: Path, main_relative: str, baseline_relative: st
     # Upstream frozen evidence is passed as explicit input snapshots below; the
     # validator's independent workspace does not contain the parent's registry.
     validator_spec.pop("upstream_freezes", None)
+    validator_spec.pop("fallback_authorization", None)
     validator_spec.update(method_id="independent-validator", actor_id=actor_id,
         inputs=[item["input_id"] for item in copied_inputs["files"]],
         implementation={"entrypoint": "validator/entry.py", "code_files": code_files, "language": "python"},

@@ -174,7 +174,7 @@ Still required before T08 can be committed as complete:
 - Extend the numerical coordinator to complete live multi-question role chains and
   reviewed stage examples; G7/G8 visual/paper observations require T09 adapters.
 - Complete reference retrieval integration and honest host human-event boundary.
-- Workflow-level triggered fallback decision/review and automatic recovery routing.
+- Automatic repair/recovery routing beyond explicit recovered-task resume.
 - Complete role semantic checks/examples, deterministic data/probe disposition,
   validator criteria admission, method source access controls and framing assumption
   review. Visual/paper dispatch intentionally requires the pending T09 handoff adapter.
@@ -184,3 +184,50 @@ Still required before T08 can be committed as complete:
 T09 legacy visual/paper/support integration, T10 CI/computed five-case benchmark,
 T11 complete public historical dry run, and T12 release/PR/CI acceptance all remain
 required. Do not merge. The overall goal remains active.
+
+## Follow-up: measured fallback lifecycle
+
+The next T08 checkpoint connects fallback selection through code review, actual
+execution, independent validation and freeze. The additive optional decision field
+`execution_role` preserves old main decisions while recording fallback explicitly.
+The main probe must activate a trigger pinned before execution and the fallback's
+own six-category probe must pass. All reports bind the same current card/question;
+the attributed decision cites both reports. There is no automatic choice merely
+because a fallback is eligible.
+
+Fallback code/semantic reviews must include the decision, card and both reports.
+The source-free validator bundle admits those selection artifacts and retains the
+actual fallback role. Independent recomputation uses the same original task,
+constraints, split, units, criteria and usable baseline. A validator's own spec
+does not inherit the solver's execution authorization. Resume can adopt actual
+fallback runs, and altered screening evidence breaks their freeze lineage.
+
+The unselected main's rejected assumptions and historical formula references stay
+in the ledger without forcing abandoned formulae into the selected fallback model.
+An active method still cannot rely on rejected assumptions or unknown formulae.
+Decision proposals now reject evidence references outside their actual input scope.
+
+The new synthetic lifecycle fixture uses a median pairwise training-slope solver,
+a training-mean baseline and actual independent holdout metrics (0 and 26 MSE).
+Its main probe uses a deliberately strict variance threshold to exercise the
+trigger; it does not claim least squares is scientifically invalid for those
+data. The independent review provenance is explicitly doubled for engineering
+tests, while numerical execution, checks, frozen values and tamper detection are
+real. A static fallback-decision example provides structure only, not admission.
+
+This implements fallback from completed measured probes. A production crash or
+timeout without such evidence still requires explicit repair/re-probing and a new
+attributed decision; automatic failure routing is not yet implemented. T08 human
+event admission, retrieval integration, LIMITED/data-warning disposition and full
+live role-chain examples still remain before T08 PASS. G7/G8 and all T09–T12
+deliverables remain pending.
+
+Verification: full regression **168 passed, 1 skipped** in 379.62s in Conda test.
+The Windows symlink-privilege skip is unchanged. With implementation unchanged,
+two additional decision-artifact scope tests passed in 1.85s, and an additional
+fallback-validator guard test passed in 8.19s. The latter independently exercises
+missing decision/probe refusal and solver-source exclusion with the role authorship
+fixture double. Compileall, all 33 distributed schemas, the structural decision
+example and router/mirror checks pass. Protected assets remain unchanged and the
+changed-file credential/email/phone pattern scan reports no matches. These local
+checks do not establish live historical completion or GitHub CI acceptance.

@@ -114,6 +114,28 @@ def test_raw_agent_api_cannot_impersonate_host_human_gate(task_root):
         validate_task(task)
 
 
+@pytest.mark.parametrize("known_evidence", [True, False])
+def test_decision_artifact_cannot_cite_unseen_probe_evidence(task_root, known_evidence):
+    root, task = task_root
+    path = "decisions/choice.jsonl"
+    task.update(role="decision", view=None,
+        outputs=[{"path": path, "format": "jsonl", "contract": "method_decision"}])
+    def decision_response(response, directory):
+        decision = read_json(Path(__file__).resolve().parents[1] / "fixtures/agents/fallback_decision.json")
+        decision.update(actor_id=task["actor_id"], decided_at=now(),
+            evidence_refs=[task["inputs"][0]["artifact_id"] if known_evidence else "invented-probe"])
+        response["artifacts"] = [{"path": path, "content": json.dumps(decision)}]
+    result = run_agent_task(root, task, FixtureBackend(decision_response))
+    assert result["status"] == ("PRODUCED" if known_evidence else "FAILED")
+    assert (root / path).exists() is known_evidence
+    if known_evidence:
+        # Valid scoped transport remains synthetic; it cannot establish screening.
+        with pytest.raises(ValueError, match="actual backend session"):
+            verify_agent_result(root, task["task_id"])
+    else:
+        assert "outside its input scope" in result["blockers"][0]
+
+
 def test_backend_input_mutation_invalidates_response(task_root):
     root, task = task_root
     result = run_agent_task(root, task, FixtureBackend(lambda response, directory: (directory / "AGENTS.md").write_text("changed", encoding="utf-8")))

@@ -14,7 +14,7 @@ from .data_audit import audit_inputs
 from .freeze import verify_freeze
 from .io import canonical_root, read_json, safe_path, now, write_json
 from .lineage import ArtifactRegistry
-from .probes import verify_probe
+from .probes import verify_probe, screening_options, verify_screened_decision
 
 
 REQUIRED_CONTRACTS = {
@@ -156,17 +156,25 @@ class Orchestrator:
         for register in kinds.get("ambiguity_register", []):
             if any(item["severity"] == "high" and item["status"] != "resolved" for item in register["items"]):
                 raise ValueError("Unresolved high-severity ambiguity blocks modeling")
-        if role in {"decision", "code"}:
-            card = kinds["method_card"][0]
-            main = next(method for method in card["methods"] if method["role"] == "main_candidate")
-            probes = kinds["risk_probe"]
-            if not any(probe["method_id"] == main["method_id"] and probe["verdict"] == "PASS" for probe in probes):
-                raise ValueError("Chosen main method needs a passing actual risk probe")
-            if role == "code":
+        fallback_validation = role == "validator" and any("fallback_authorization" in spec for spec in kinds.get("model_spec", []))
+        if fallback_validation and {"method_card", "risk_probe", "method_decision"} - kinds.keys():
+            raise ValueError("Fallback validation requires its actual decision, trigger card and both screening reports")
+        if role in {"decision", "code"} or fallback_validation:
+            if len(kinds["method_card"]) != 1:
+                raise ValueError("Decision/code requires exactly one current method card")
+            card_path = next(item["path"] for item in task["inputs"] if self._kind(item["path"])[0] == "method_card")
+            report_paths = [item["path"] for item in task["inputs"] if self._kind(item["path"])[0] == "risk_probe"]
+            screening = screening_options(self.root, card_path, report_paths)
+            if role == "code" or fallback_validation:
+                if len(kinds["method_decision"]) != 1:
+                    raise ValueError("Code requires exactly one current decision")
                 decision = kinds["method_decision"][0]
-                baseline = next(method for method in card["methods"] if method["role"] == "usable_baseline")
-                if decision["decided_by"] != "agent" or decision["main_method_id"] != main["method_id"] or decision["baseline_method_id"] != baseline["method_id"]:
+                if decision["decided_by"] != "agent":
                     raise ValueError("Code task does not consume the current screened agent decision")
+                selected_role = verify_screened_decision(decision, screening, report_paths)
+                if fallback_validation and (selected_role != "fallback" or any(
+                        spec["method_id"] != decision["main_method_id"] for spec in kinds["model_spec"] if "fallback_authorization" in spec)):
+                    raise ValueError("Fallback validation does not consume the selected production spec")
         if role in {"code", "validator", "reviewer"} and qid:
             if schedule["question_dag"] is None:
                 raise ValueError("Question execution requires an explicit framed DAG")
@@ -182,13 +190,14 @@ class Orchestrator:
             for item in task["inputs"]:
                 kind, _ = self._kind(item["path"])
                 if kind in {"input_manifest", "problem_frame", "problem_dag", "symbol_table", "ambiguity_register", "assumption_ledger",
+                            "method_card", "method_decision", "risk_probe",
                             "model_spec", "validation_criteria", "validation_summary", "evidence_gate"}:
                     allowed.add(item["path"])
             from .runner import verify_run
             for run_path in (self.root / "runs").glob("*/run_manifest.json"):
                 relative = run_path.relative_to(self.root).as_posix()
                 record = read_json(safe_path(self.root, relative))
-                if record["question_id"] == qid and record["role"] in {"main", "baseline"}:
+                if record["question_id"] == qid and record["role"] in {"main", "fallback", "baseline"}:
                     try:
                         verified = verify_run(self.root, relative)
                     except (ValueError, OSError, ValidationError):

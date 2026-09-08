@@ -150,7 +150,7 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
         for method in value["methods"]:
             if (method["role"] == "conditional_fallback") != (method["fallback_trigger"] is not None):
                 raise ValueError("Only a fallback must have an explicit measured trigger")
-            if method["role"] == "conditional_fallback" and (not method["completes_task"] or set(method["outputs"]) != set(chosen[0]["outputs"])):
+            if method["role"] == "conditional_fallback" and (not method["completes_task"] or method["rejection_reason"] or set(method["outputs"]) != set(chosen[0]["outputs"])):
                 raise ValueError("Fallback must complete all required outputs")
     elif name == "risk_probe":
         checks = unique(value["checks"], "category")
@@ -324,9 +324,18 @@ def validate_modeling_bundle(bundle: dict, *, root: Path | None = None) -> dict:
     validate_events(events)
     assumptions = {event["assumption_id"]: event for event in events}
     formula_ids = {f["formula_id"] for spec in bundle.get("model_specs", []) for f in spec["formulae"]}
+    active_assumptions = set()
+    for qid, card in cards.items():
+        decision = decisions.get(qid)
+        selected = {decision["main_method_id"], decision["baseline_method_id"]} if decision else None
+        active_assumptions.update(key for method in card["methods"] if selected is None or method["method_id"] in selected
+                                  for key in method["assumption_ids"])
     for assumption in assumptions.values():
         references(assumption["question_ids"], questions, "assumption question")
-        references(assumption["formula_ids"], formula_ids, "assumption formula")
+        # Unselected/rejected-method history remains in the ledger, while active
+        # assumptions must still name formulae in the implemented model bundle.
+        if assumption["assumption_id"] in active_assumptions or not cards:
+            references(assumption["formula_ids"], formula_ids, "assumption formula")
         citations(assumption["source_refs"])
     for question_id, card in cards.items():
         validate("method_card", card, root=root)
@@ -335,7 +344,9 @@ def validate_modeling_bundle(bundle: dict, *, root: Path | None = None) -> dict:
         for method in card["methods"]:
             references(method["assumption_ids"], assumptions, "method assumption")
             citations(method["source_refs"])
-            if any(assumptions[key]["status"] == "rejected" for key in method["assumption_ids"]):
+            selected = decisions.get(question_id)
+            is_active = selected is None or method["method_id"] in {selected["main_method_id"], selected["baseline_method_id"]}
+            if is_active and any(assumptions[key]["status"] == "rejected" for key in method["assumption_ids"]):
                 raise ValueError("Selected candidate uses a rejected assumption")
             if method["role"] != "diagnostic_reference" and set(method["outputs"]) != expected:
                 raise ValueError("Method output coverage differs from question")
@@ -343,7 +354,8 @@ def validate_modeling_bundle(bundle: dict, *, root: Path | None = None) -> dict:
         validate("method_decision", decision, root=root)
         references([question_id], cards, "decision question card")
         methods = unique(cards[question_id]["methods"], "method_id")
-        for field, role in (("main_method_id", "main_candidate"), ("baseline_method_id", "usable_baseline")):
+        selected_role = "conditional_fallback" if decision.get("execution_role", "main") == "fallback" else "main_candidate"
+        for field, role in (("main_method_id", selected_role), ("baseline_method_id", "usable_baseline")):
             references([decision[field]], methods, "selected method")
             if methods[decision[field]]["role"] != role:
                 raise ValueError("Method selection role mismatch")
@@ -359,6 +371,9 @@ def validate_modeling_bundle(bundle: dict, *, root: Path | None = None) -> dict:
         decision = decisions[qid]
         if spec["decision_id"] != decision["decision_id"] or spec["method_id"] not in {decision["main_method_id"], decision["baseline_method_id"]}:
             raise ValueError("Spec does not implement the approved main/baseline decision")
+        selected_fallback = decision.get("execution_role", "main") == "fallback" and spec["method_id"] == decision["main_method_id"]
+        if selected_fallback != ("fallback_authorization" in spec):
+            raise ValueError("Only the selected fallback spec must carry measured authorization")
         references(spec["variables"], symbols, "model variable")
         for variable in spec["variables"]:
             if qid not in symbols[variable]["question_ids"]:

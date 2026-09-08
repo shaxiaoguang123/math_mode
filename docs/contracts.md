@@ -225,7 +225,9 @@ pinned as `validation_plan.screening_card` in that main-method probe. The runner
 recomputes the trigger before admission and rechecks its evidence on verification.
 The run snapshots all authorization contracts. Changing the card after seeing
 probe results, inactive conditions or a different method cannot authorize fallback.
-Workflow-level fallback decision/review integration remains pending.
+The numerical workflow now consumes this authorization through an explicitly
+attributed fallback decision, independent code/semantic review and the same
+validation/freeze services used by the primary candidate; details follow below.
 
 Dependent questions declare `model_spec.upstream_freezes` with exact question and
 freeze IDs. The runner snapshots each current parent and supplies `context.upstream`;
@@ -295,8 +297,57 @@ pointer publication is recovered by verified adoption.
 Current lifecycle tests use actual probe/main/baseline/independent numerical runs
 and freezes, with explicitly mocked role provenance. The unpatched coordinator
 rejects those authored semantic files. These tests do not claim a live full-agent
-historical run. LIMITED/data-warning disposition and workflow fallback integration
-remain incomplete and therefore block those cases instead of manufacturing PASS.
+historical run. LIMITED/data-warning disposition remains incomplete and therefore
+blocks those cases instead of manufacturing PASS.
+
+### Fallback production decisions
+
+`method_decision.execution_role` is an optional `main`/`fallback` discriminator;
+absent means `main` for existing workspaces. `main_method_id` continues to name the
+selected production solution, while `execution_role=fallback` explicitly selects
+the card's conditional fallback. `baseline_method_id` still selects the usable
+baseline. The run manifest always retains its actual `fallback` role.
+
+`screening_options` reaudits one declared current report per method. Every probe
+must bind the same question and method card before execution. Main selection needs
+its passing probe. Fallback selection additionally needs an active predeclared
+trigger measured by the main probe and a passing six-category probe of the fallback
+itself. Both reports must be cited by the decision. A duplicated/unknown-method
+report, missing fallback probe, changed card, inactive trigger or role mismatch
+cannot authorize fallback. Runner authorization must match that selected main
+probe/card exactly. An eligible fallback is not silently selected by the coordinator;
+an actual attributed decision remains necessary.
+
+This route uses completed measured probes. A production crash or timeout without
+that evidence still needs explicit repair/re-probing and a new decision; an
+arbitrary failed production run is not silently converted into fallback admission.
+
+The fallback code review and subsequent independent semantic review must cover
+the decision, card and both probe reports in addition to code/spec or numerical
+evidence respectively. Source-free validator tasks receive these selection
+artifacts; the scheduler rejects missing selection evidence. Decision-agent
+proposals cannot cite artifacts outside their input bundle. Rejected assumptions
+of an unselected method remain in history; only selected methods may rely on
+non-rejected assumptions and formula references in the implemented model bundle.
+Unselected historical formula references do not force the abandoned algorithm's
+formulae into the fallback spec.
+
+`main_spec`, `main_run` and measurement names such as `main_mse` are existing
+production-solution slots. They can point to an explicitly marked fallback; no run
+is relabeled as main and no measured values are copied from the failed candidate.
+Independent validation compares that actual fallback to the usable baseline using
+the same original question, outputs, split, constraints, units and pinned criteria.
+The validator's own spec does not inherit fallback execution authorization, since
+it performs independent measurement. Freeze and resume retain the actual fallback
+run/decision/hash lineage, and altered screening evidence invalidates its consumers.
+
+`tests/test_workflow_fallback.py` computes a median pairwise-slope fallback against
+a training-mean baseline on synthetic affine holdout data. The main screening
+threshold is deliberately strict to exercise rejection/trigger routing; it is not
+a scientific assertion that least squares fails on these data. Role provenance is
+explicitly mocked, while probes, solver/validator subprocesses, freeze and tamper
+checks are real. `fixtures/agents/fallback_decision.json` is only a structural
+example and does not supply valid screening evidence.
 
 `reference_baseline` now seals independent immutable copies of the actual frame,
 executed main/baseline specs and code, results/validation/freeze and writer-produced

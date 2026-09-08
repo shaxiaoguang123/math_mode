@@ -32,6 +32,14 @@ execution IDs. On an empty workspace it cannot pass the gates. Adapt its case,
 paths, questions and claim locators to actual artifacts before real use; the
 example does not supply live framing/modeling/semantic reasoning handoffs.
 
+`fallback_decision.json` demonstrates the optional `execution_role=fallback`
+decision field and is structural only. Its illustrative references cannot admit
+execution. `tests/test_workflow_fallback.py` creates actual main-trigger and
+fallback-probe reports, runs a median pairwise-slope solver plus baseline,
+independently recomputes their metrics and freezes the selected fallback. The
+test doubles only role provenance, preserves rejected main-method assumptions,
+and rejects missing/misassigned screening evidence and tampered frozen lineage.
+
 `blocked_schedule.json` is a portable structural example for the `runner-fixture`
 workspace created by the tests. It deliberately lacks framed problem/symbol/DAG
 contracts and therefore cannot dispatch a council call. It is not an end-to-end

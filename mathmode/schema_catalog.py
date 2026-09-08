@@ -100,7 +100,7 @@ def catalog():
         "method_decision": contract({"decision_id": ID, "question_id": ID, "main_method_id": ID,
             "baseline_method_id": ID, "rationale": TEXT, "evidence_refs": arr(ID, 1, True),
             "decided_by": enum("agent", "human"), "actor_id": ID, "decided_at": TIME,
-            "human_event_id": nullable(ID)}),
+            "human_event_id": nullable(ID), "execution_role": enum("main", "fallback")}, optional=("execution_role",)),
         "model_spec": contract({"question_id": ID, "method_id": ID, "decision_id": ID,
             "actor_id": ID, "task_type": TASK_TYPE, "variables": arr(ID, 1, True),
             "formulae": arr(obj({"formula_id": ID, "expression": TEXT,

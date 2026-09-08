@@ -5,6 +5,7 @@ from .contracts import validate, unique
 from .freeze import json_pointer
 from .io import canonical_root, read_json, file_hash, safe_path
 from .runner import verify_run
+from .lineage import artifact_id
 
 
 def measured_probe(root: Path, run_relative: str) -> dict:
@@ -67,6 +68,58 @@ def verify_probe(root: Path, report_relative: str, run_relative: str) -> dict:
     if expected != actual:
         raise ValueError("Risk report differs from executed measurements and pinned thresholds")
     return actual
+
+
+def screening_options(root: Path, card_relative: str, report_relatives: list[str]) -> dict:
+    """Recompute admissible production choices from pre-execution screening evidence."""
+    root = canonical_root(root)
+    card = validate("method_card", read_json(safe_path(root, card_relative)), root=root)
+    methods = unique(card["methods"], "method_id")
+    reports = {}
+    for relative in report_relatives:
+        raw = read_json(safe_path(root, relative))
+        run_relative = f"runs/{raw['run_id']}/run_manifest.json"
+        report = verify_probe(root, relative, run_relative)
+        run = verify_run(root, run_relative)
+        if not any(item["contract"] == "method_card" and item["source_path"] == card_relative
+                   and item["sha256"] == file_hash(root / card_relative) for item in run.get("contract_snapshots", [])):
+            raise ValueError("Risk probe did not pin the current screened method card before execution")
+        method_id = report["method_id"]
+        if report["question_id"] != card["question_id"] or method_id not in methods:
+            raise ValueError("Risk probe belongs to another question or an unknown method")
+        if method_id in reports:
+            raise ValueError("Screening requires one declared current probe report per method")
+        reports[method_id] = {"report": report, "path": relative, "run_path": run_relative}
+    main = next(method for method in methods.values() if method["role"] == "main_candidate")
+    main_probe = reports.get(main["method_id"])
+    options = {}
+    if main_probe and main_probe["report"]["verdict"] == "PASS":
+        options["main"] = {"method_id": main["method_id"], "authorization": None}
+    fallback = next((method for method in methods.values() if method["role"] == "conditional_fallback"), None)
+    if main_probe and fallback:
+        trigger = fallback_triggered(card, main_probe["report"])
+        own_probe = reports.get(fallback["method_id"])
+        if trigger["triggered"] and own_probe and own_probe["report"]["verdict"] == "PASS":
+            options["fallback"] = {"method_id": fallback["method_id"], "authorization": {
+                field: {"path": path, "sha256": file_hash(root / path)} for field, path in
+                (("card", card_relative), ("probe_report", main_probe["path"]), ("probe_run", main_probe["run_path"]))}}
+    if not options:
+        raise ValueError("No screened production method: need passing main, or triggered fallback with its own passing probe")
+    return {"card": card, "options": options}
+
+
+def verify_screened_decision(decision: dict, screening: dict, report_relatives: list[str]) -> str:
+    validate("method_decision", decision)
+    card = screening["card"]
+    role = decision.get("execution_role", "main")
+    option = screening["options"].get(role)
+    baseline = next(method for method in card["methods"] if method["role"] == "usable_baseline")
+    if (decision["question_id"] != card["question_id"] or option is None
+            or decision["main_method_id"] != option["method_id"] or decision["baseline_method_id"] != baseline["method_id"]):
+        raise ValueError("Decision does not select an eligible screened production method and baseline")
+    if {artifact_id(path) for path in report_relatives} - set(decision["evidence_refs"]):
+        raise ValueError("Decision omits its actual measured probes")
+    return role
 
 
 def fallback_triggered(card: dict, probe: dict) -> dict:
