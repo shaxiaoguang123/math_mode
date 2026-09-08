@@ -70,11 +70,20 @@ the harness input/tool boundary, with local OS trust limits stated explicitly.
 | VALIDATION_FAILURE | Validator diagnosis; then responsible data/code/model stage |
 | POLICY_FAILURE | Official source/scope/template verification |
 
-Each attempt records class, normalized root cause, changed artifacts, observation
-and repair owner. At most three retries for the same unresolved cause; the budget
+The target repair lifecycle records class, normalized root cause, changed artifacts,
+observation and repair owner. At most three total attempts for the same unresolved cause; the budget
 persists across resume. A new traceback spelling or run ID does not reset it.
 After exhaustion, return upstream or report an actionable blocker. Every actual
 retry uses a fresh output directory and preserves failed evidence.
+
+The runner verifies completed history against its snapshots, logs and execution
+controls before using it to select the predecessor or attempt budget. Canonical
+source changes are allowed for this historical check; altered historical evidence
+blocks execution before a new run directory is created. Failed runs remain FAIL.
+Damaged snapshots require explicit diagnosis rather than automatic retries, and
+historical fallback runs still require valid fallback authorization. This is a
+trusted local evidence check, not protection against coordinated rewriting of all
+files. Automatic repair dispatch and cross-method root-cause budgets remain pending.
 
 The T08 recovery service now records owner PID/creation time, local child identity
 and observed descendants. `mathmode recover` rejects live recorded processes and

@@ -115,6 +115,47 @@ def test_retries_require_changed_code_and_stop_at_three(workspace):
         run(workspace, retry_of=previous["run_id"])
 
 
+def test_retry_rejects_rewritten_attempt_budget(workspace):
+    code = workspace / "code/compute.py"
+    code.write_text("raise RuntimeError('first')", encoding="utf-8")
+    first = run(workspace)
+    code.write_text("raise RuntimeError('second')", encoding="utf-8")
+    second = run(workspace, retry_of=first["run_id"])
+    second["attempt"] = 1
+    second["retry_of"] = None
+    write_json(workspace / f"runs/{second['run_id']}/run_manifest.json", second)
+    code.write_text("raise RuntimeError('third')", encoding="utf-8")
+    before = set((workspace / "runs").iterdir())
+    with pytest.raises(ValueError, match="contradicts the recorded execution request"):
+        run(workspace, retry_of=second["run_id"])
+    assert set((workspace / "runs").iterdir()) == before
+
+
+def test_retry_rejects_changed_failure_log(workspace):
+    code = workspace / "code/compute.py"
+    code.write_text("raise RuntimeError('original failure')", encoding="utf-8")
+    failed = run(workspace)
+    (workspace / failed["logs"]["stderr"]["path"]).write_text("different diagnosis", encoding="utf-8")
+    code.write_bytes((FIXTURES / "runner/compute.py").read_bytes())
+    with pytest.raises(ValueError, match="artifact hash mismatch"):
+        run(workspace, retry_of=failed["run_id"])
+
+
+def test_repair_preserves_failure_and_accepts_changed_canonical_code(workspace):
+    code = workspace / "code/compute.py"
+    code.write_text("raise RuntimeError('repairable failure')", encoding="utf-8")
+    failed = run(workspace)
+    relative = f"runs/{failed['run_id']}/run_manifest.json"
+    original = file_hash(workspace / relative)
+    code.write_bytes((FIXTURES / "runner/compute.py").read_bytes())
+    repaired = run(workspace, retry_of=failed["run_id"])
+    assert repaired["status"] == "PASS" and repaired["attempt"] == 2
+    assert repaired["retry_of"] == failed["run_id"]
+    assert file_hash(workspace / relative) == original
+    assert verify_run(workspace, relative, require_success=False, current_sources=False)["status"] == "FAIL"
+    verify_run(workspace, f"runs/{repaired['run_id']}/run_manifest.json")
+
+
 def test_input_snapshot_modification_is_detected(workspace):
     code = """import argparse,json,pathlib,stat
 p=argparse.ArgumentParser();p.add_argument('--context')

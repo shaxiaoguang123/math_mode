@@ -123,6 +123,10 @@ def _history(root: Path, question: str, method: str, role: str) -> list[dict]:
         for path in runs.glob("*/run_manifest.json"):
             record = validate("run_manifest", read_json(path), root=root)
             if (record["question_id"], record["method_id"], record["role"]) == (question, method, role):
+                # A repair changes canonical sources, but must not rewrite the
+                # historical execution used to decide status and retry budget.
+                record = verify_run(root, path.relative_to(root).as_posix(),
+                                    require_success=False, current_sources=False)
                 histories.append(record)
     return sorted(histories, key=lambda record: (record["started_at"], record["run_id"]))
 
