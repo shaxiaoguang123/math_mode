@@ -107,13 +107,19 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
         if value["verdict"] == "BLOCKED" and not value["findings"]:
             raise ValueError("Blocked review must state its findings")
     elif name == "reference_retrieval":
-        if value["same_problem"] != (value["baseline_id"] is not None):
+        if (value["same_problem"] and value.get("blind_reference_mode", True)) != (value["baseline_id"] is not None):
             raise ValueError("Same-problem retrieval requires its baseline identity")
         if value["status"] == "RETRIEVED" and (not value["snapshot"] or value["failure_type"] or not value["requests"]):
             raise ValueError("Retrieved reference requires completed response evidence without a failure")
         if value["status"] == "FAILED" and (value["snapshot"] is not None or not value["failure_type"]):
             raise ValueError("Failed retrieval cannot claim a usable snapshot")
         unique(value["controls"], "path")
+    elif name == "reference_case_baseline":
+        baselines = unique(value["baselines"], "question_id")
+        unique(value["baselines"], "baseline_id")
+        unique(value["baselines"], "path")
+        if set(baselines) != set(value["question_ids"]):
+            raise ValueError("Case baseline must cover exactly all framed questions")
     elif name == "method_proposal":
         if value["applicable"] and (not value["main_idea"] or not value["baseline_idea"] or not value["validation_plan"]):
             raise ValueError("Applicable proposal requires main, baseline and validation plan")

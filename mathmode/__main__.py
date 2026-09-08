@@ -36,6 +36,8 @@ def main(argv=None) -> int:
     init.add_argument("--kind", choices=["competition", "fixture"], default="competition")
     init.add_argument("--mode", choices=["autopilot", "human_gate"], default="autopilot")
     init.add_argument("--profile", choices=["lean", "submission"], default="lean")
+    init.add_argument("--blind-reference-mode", action=argparse.BooleanOptionalAction, default=True,
+                      help="Fix reference blindness at workspace creation; disable explicitly for non-blind work")
     status = commands.add_parser("status", help="Recheck registered artifact hashes on resume")
     status.add_argument("--workspace", type=Path, required=True)
     status.add_argument("--report", type=Path)
@@ -97,6 +99,12 @@ def main(argv=None) -> int:
     baseline.add_argument("--frame", required=True)
     baseline.add_argument("--writer-task", required=True)
     baseline.add_argument("--paper", action="append", required=True)
+    case_baseline = commands.add_parser("seal-case-baseline", help="Bind all framed question checkpoints before same-problem access")
+    case_baseline.add_argument("--workspace", type=Path, required=True)
+    case_baseline.add_argument("--baseline-id", action="append", required=True)
+    baseline_check = commands.add_parser("verify-baseline", help="Check immutable question or whole-case baseline history")
+    baseline_check.add_argument("--workspace", type=Path, required=True)
+    baseline_check.add_argument("--baseline-id", required=True)
     reference = commands.add_parser("admit-reference", help="Record explicit reference classification before retrieval")
     reference.add_argument("--workspace", type=Path, required=True)
     reference.add_argument("--question-id", required=True)
@@ -138,7 +146,7 @@ def main(argv=None) -> int:
             result = audit_policy(load_policy(args.policy), args.workspace.resolve())
         elif args.command == "init":
             root = initialize(args.case_id, read_json(args.inputs), destination=args.destination,
-                              kind=args.kind, mode=args.mode, profile=args.profile)
+                              kind=args.kind, mode=args.mode, profile=args.profile, blind_reference_mode=args.blind_reference_mode)
             result = {"status": "PASS", "scope": "workspace_initialization", "workspace": str(root),
                       "scientific_acceptance": "NOT_RUN", "official_compliance": "NOT_RUN"}
         elif args.command == "status":
@@ -199,6 +207,12 @@ def main(argv=None) -> int:
             from .reference_access import seal_baseline
             record = seal_baseline(args.workspace, args.question_id, framer_task=args.framer_task,
                                    frame_path=args.frame, writer_task=args.writer_task, paper_paths=args.paper)
+            result = {"status": "PASS", "scope": record["scope"], "baseline_id": record["baseline_id"],
+                      "paper_acceptance": "NOT_RUN"}
+        elif args.command in {"seal-case-baseline", "verify-baseline"}:
+            from .reference_baselines import seal_case_baseline, verify_baseline
+            record = (seal_case_baseline(args.workspace, args.baseline_id) if args.command == "seal-case-baseline"
+                      else verify_baseline(args.workspace, args.baseline_id))
             result = {"status": "PASS", "scope": record["scope"], "baseline_id": record["baseline_id"],
                       "paper_acceptance": "NOT_RUN"}
         elif args.command == "admit-reference":

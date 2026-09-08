@@ -60,6 +60,9 @@
         }
       ]
     },
+    "blind_reference_mode": {
+      "type": "boolean"
+    },
     "started_at": {
       "type": "string",
       "format": "date-time"

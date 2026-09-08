@@ -95,6 +95,20 @@ density, not scientific correctness.
 `blind_reference_mode` is explicit for independent evaluation: frame/model/code/
 results/paper baseline first, freeze all baseline hashes, then record and permit
 same-problem reference access. Never infer past blindness from a hardcoded boolean.
+For multi-question problems seal each question with `seal-baseline`, then use
+`seal-case-baseline --workspace <root> --baseline-id <Q1-checkpoint> --baseline-id <Q2-checkpoint>`
+(repeat for every framed question). Pass the resulting case baseline ID to
+`admit-reference` or `retrieve-reference`. The complete frame and original inputs
+must agree across checkpoints; each question needs actual model/code/results and
+writer-produced TeX. A single-question checkpoint remains directly usable for a
+single-question frame. `verify-baseline` inspects either kind of immutable history.
+Any same-problem admission prevents claiming a new blind checkpoint for any question.
+
+Use `init --no-blind-reference-mode` when the host explicitly intends non-blind
+work; same-problem retrieval then needs no baseline and records that mode. The
+default remains blind for compatibility. The choice is immutable during a run,
+so changing it requires a new explicitly non-blind workspace, preserving the old
+history. Blind mode is for independent evaluation, not an official contest rule.
 General algorithm references remain permitted and logged. AI use events record
 actual provider/model/activity/artifact scope and any real human postprocessing;
 disclosure is derived from events and the verified policy.

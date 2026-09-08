@@ -302,6 +302,9 @@
                 "type": "null"
               }
             ]
+          },
+          "blind_reference_mode": {
+            "type": "boolean"
           }
         }
       },

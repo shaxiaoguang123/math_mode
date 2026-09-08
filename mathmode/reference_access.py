@@ -12,6 +12,7 @@ from .io import canonical_root, file_hash, now, read_json, safe_path, write_json
 from .lineage import ArtifactRegistry
 from .runner import verify_run
 from .state import StateStore
+from .reference_baselines import verify_blind_admission
 
 
 def _role_artifacts(root, task_id, role):
@@ -31,8 +32,7 @@ def seal_baseline(root: Path, question_id: str, *, framer_task: str, frame_path:
     root = canonical_root(root)
     store = StateStore(root)
     state = store.load()
-    if not state["blind_reference_mode"] or any(event["same_problem"] and event["question_id"] == question_id
-                                               for event in state["reference_access"]):
+    if not state["blind_reference_mode"] or any(event["same_problem"] for event in state["reference_access"]):
         raise ValueError("A pre-reference baseline cannot be reconstructed after reference admission")
     frame_outputs = _role_artifacts(root, framer_task, "framer")
     if frame_path not in frame_outputs:
@@ -70,8 +70,7 @@ def seal_baseline(root: Path, question_id: str, *, framer_task: str, frame_path:
     registry = ArtifactRegistry(root)
     revision = store.load()["revision"]
     def publish(current):
-        if not current["blind_reference_mode"] or any(event["same_problem"] and event["question_id"] == question_id
-                                                      for event in current["reference_access"]):
+        if not current["blind_reference_mode"] or any(event["same_problem"] for event in current["reference_access"]):
             raise ValueError("Reference admission raced with baseline sealing")
         for items in checkpoint["artifacts"].values():
             for item in items:
@@ -105,26 +104,9 @@ def admit_reference(root: Path, *, source: str, question_id: str, same_problem: 
     state = store.load()
     if type(same_problem) is not bool or not isinstance(source, str) or not source.strip():
         raise ValueError("Reference admission requires an explicit source and classification")
-    if same_problem:
-        if not baseline_id:
-            raise ValueError("Same-problem reference access requires a sealed blind baseline")
-        relative = f"reference_baselines/{baseline_id}.json"
-        baseline = validate("reference_baseline", read_json(safe_path(root, relative)), root=root)
-        registered = {item["path"]: item for item in state["artifacts"]}
-        entry = registered.get(relative)
-        freshness = store.inspect_freshness()
-        if not entry or entry["artifact_id"] in freshness["stale"] or entry["sha256"] != file_hash(root / relative):
-            raise ValueError("Reference baseline is stale or unregistered")
-        if (baseline["baseline_id"], baseline["question_id"], baseline["case_id"]) != (baseline_id, question_id, state["case_id"]):
-            raise ValueError("Reference baseline identity differs from requested access")
-        for items in baseline["artifacts"].values():
-            for item in items:
-                if file_hash(safe_path(root, item["path"])) != item["sha256"]:
-                    raise ValueError("Immutable reference baseline snapshot changed")
-    elif baseline_id is not None:
-        raise ValueError("General method references do not claim a same-problem baseline")
     event = {"source": source, "question_id": question_id, "same_problem": same_problem,
-             "at": now(), "baseline_freeze_id": baseline_id}
+             "at": now(), "baseline_freeze_id": baseline_id, "blind_reference_mode": state["blind_reference_mode"]}
+    verify_blind_admission(root, event)
     store.update(lambda current: current["reference_access"].append(event), expected_revision=state["revision"])
     return {"status": "PASS", "scope": "reference_access_admission", "event": event,
             "external_read_performed": False, "outside_host_blindness": "UNVERIFIABLE"}

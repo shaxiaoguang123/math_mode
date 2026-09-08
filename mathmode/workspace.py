@@ -16,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def initialize(case_id: str, inputs: list[dict], *, destination: Path | None = None,
-               kind="competition", mode="autopilot", profile="lean", producer="preflight") -> Path:
+               kind="competition", mode="autopilot", profile="lean", producer="preflight", blind_reference_mode=True) -> Path:
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,95}", case_id):
         raise ValueError("Case ID must be a portable contract identifier")
     target = (destination or REPO_ROOT.parent / "competitions" / case_id).absolute()
@@ -29,7 +29,7 @@ def initialize(case_id: str, inputs: list[dict], *, destination: Path | None = N
         raise ValueError("Formal competition workspace must stay outside the public template repository")
     if target.exists():
         raise ValueError("Refusing to overwrite an existing workspace")
-    state = initial_state(case_id, kind, mode, profile)
+    state = initial_state(case_id, kind, mode, profile, blind_reference_mode=blind_reference_mode)
     sources = []
     manifest = {"schema_version": "2.0", "case_id": case_id, "created_at": now(),
                 "producer": producer, "frozen": True, "files": []}

@@ -9,7 +9,8 @@ from mathmode.runner import execute_model, verify_run
 from mathmode.validation import independently_validate, audit_evidence, upstream_input_id
 
 
-def test_two_question_freeze_dependency_is_consumed_and_invalidated(frozen):
+def compute_child(frozen):
+    """Actually execute, independently validate and freeze Q2 from Q1's MSE."""
     root, parent, _, _ = frozen
     code = (root / "code/regression.py").read_text(encoding="utf-8")
     code = code.replace('predictions = [', 'prior = json.loads(Path(context["upstream"]["Q1"]).read_text(encoding="utf-8"))\noffset = prior["numbers"][0]["value"]\npredictions = [')
@@ -48,6 +49,11 @@ def test_two_question_freeze_dependency_is_consumed_and_invalidated(frozen):
             "locator": "/measurements/main_mse", "unit": "fixture-dimensionless", "precision": 6}]}
     child_freeze = freeze_results(root, request, "child_evidence.json")
     assert verify_freeze(root, "Q2")["freeze_id"] == child_freeze["freeze_id"]
+    return root, child_freeze, executions
+
+
+def test_two_question_freeze_dependency_is_consumed_and_invalidated(frozen):
+    root, child_freeze, executions = compute_child(frozen)
     outcome = thaw(root, "Q1", actor_id="orchestrator", reason="Revise upstream model")
     assert child_freeze["registry_artifact_id"] in outcome["affected"]
     with pytest.raises(ValueError, match="active"):

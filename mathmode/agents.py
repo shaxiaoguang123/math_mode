@@ -118,6 +118,8 @@ def _check_response(task, response, root=None):
                             and datetime.fromisoformat(event["at"]) <= datetime.fromisoformat(source["accessed_at"])]
                         if not admitted:
                             raise ValueError("Reference was not explicitly admitted before retrieval/task dispatch")
+                        from .reference_baselines import verify_blind_admission
+                        verify_blind_admission(root, admitted[0])
                         from urllib.parse import urlsplit
                         if urlsplit(source["uri"]).scheme in {"http", "https"} or source["snapshot_path"].startswith("references/") or "retrieval" in source:
                             from .reference_retrieval import verify_source_retrieval

@@ -289,3 +289,56 @@ rejection fixture; its literal placeholder was inspected and no actual credentia
 email identity or private contest content was found. Root reference ignore rules
 were checked directly. Fetch found only a new research survey/index change on
 `origin/main` (`5d7abb4`), with no runtime overlap. No merge to main is performed.
+
+## Follow-up: complete-case blindness and explicit non-blind work
+
+The catalog now contains 35 contracts. `reference_case_baseline` binds all framed
+questions' existing immutable checkpoints. Each question still needs a real
+framer/writer handoff and its actual independently validated numerical freeze;
+the aggregate additionally requires exact question coverage, identical full-frame
+and original-input-manifest hashes, and the current question freezes. It cannot
+be assembled after any same-problem access. Question sealing now also treats
+exposure to another question as exposure to the whole problem.
+
+`seal-case-baseline` and `verify-baseline` expose creation and historical checking.
+Single-question baseline records remain readable and directly admissible for
+single-question frames. Multi-question source admission requires the aggregate.
+Before first exposure, current frame/input identity must match the sealed history.
+HTTP receipts depend transitively on all question snapshots, and both HTTP and
+local source handoffs recheck admission semantics. Old partial-case admissions
+remain diagnostic records, not a migration path to restored blindness. Later
+reference-informed canonical revisions preserve the independent historical copies.
+
+`goal.md` explicitly limits mandatory blindness to independent evaluation, not
+every official competition. `init --no-blind-reference-mode` now selects non-blind
+work explicitly; the compatible default remains true. Ordinary `StateStore`
+mutations cannot change it in either direction. New events/HTTP receipts record
+the mode; legacy records default to true. Non-blind same-problem retrieval has no
+baseline ID and cannot claim one. The trusted host can still read outside the
+system or directly rewrite files; no OS-level blindness enforcement is claimed.
+
+The engineering regression computes Q1 and dependent Q2 with real subprocesses,
+independent validation and MSE freezes. Its framer/writer authorship and paper
+draft are explicit synthetic test doubles. It checks refusal before any network
+request when Q2 is missing, actual aggregate-admitted redirect/download, immutable
+history after canonical revisions, Q2 snapshot tampering propagating to receipts,
+mixed frames/forged original fingerprints/incomplete aggregates, legacy single
+question reads and old partial-case exposure, immutable mode and non-blind CLI
+initialization/download. The static aggregate fixture contains illustrative hashes
+for schema tests only. These tests do not complete a historical scientific run.
+
+T08 still requires host human-event admission, warning/LIMITED dispositions,
+automatic repair routing, source discovery and complete live role-chain examples.
+T09 visual/paper/support integration, T10 CI/benchmark, T11 full historical contest
+and T12 release/PR acceptance remain required. No T08 PASS or overall completion
+is claimed by this checkpoint.
+
+Verification: full regression **203 passed, 1 skipped** in 676.90s in Conda test.
+The skip is the existing Windows symlink-privilege test. Earlier focused reference
+tests passed 25/25; case/upstream/contract tests passed 61 with the same one skip.
+The full run also covers the subsequently added forged-original-fingerprint
+negative. Compileall, all 35 distributed schemas and both complete 263-file skill
+mirrors pass. The existing real SciPy download and actual method-retriever handoff
+still pass current CLI verification without refetching. Protected assets and
+large files are unchanged; changed-file credential/email/phone pattern scans found
+no matches. These are local checks, not GitHub CI or historical-contest acceptance.

@@ -35,12 +35,12 @@ def workspace_lock(root: Path, *, scope="state"):
             lock.unlink()
 
 
-def initial_state(case_id: str, kind="competition", mode="autopilot", profile="lean") -> dict:
+def initial_state(case_id: str, kind="competition", mode="autopilot", profile="lean", *, blind_reference_mode=True) -> dict:
     stamp = now()
     return validate("workflow_state", {
         "schema_version": "2.0", "case_id": case_id, "revision": 0,
         "created_at": stamp, "updated_at": stamp, "workspace_kind": kind,
-        "interaction_mode": mode, "rigor_profile": profile, "blind_reference_mode": True,
+        "interaction_mode": mode, "rigor_profile": profile, "blind_reference_mode": blind_reference_mode,
         "artifacts": [], "gates": [], "retry_history": [], "reference_access": []})
 
 
@@ -63,7 +63,7 @@ class StateStore:
                 raise ValueError("Concurrent state update: revision changed")
             state = deepcopy(previous)
             mutation(state)
-            for field in ("case_id", "created_at", "workspace_kind"):
+            for field in ("case_id", "created_at", "workspace_kind", "blind_reference_mode"):
                 if state[field] != previous[field]:
                     raise ValueError(f"Immutable state identity: {field}")
             for field in ("retry_history", "reference_access"):

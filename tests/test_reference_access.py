@@ -19,20 +19,30 @@ def test_same_problem_reference_cannot_be_admitted_by_a_boolean_flag(tmp_path):
     assert len(StateStore(tmp_path).load()["reference_access"]) == 1
 
 
-@pytest.fixture
-def sealed_baseline(frozen, monkeypatch):
-    """Real numerical freeze; role authorship is an explicit test double here."""
-    root, _, _, _ = frozen
+def role_sources(root, monkeypatch, *, two_questions=False):
+    """Explicit test-double authorship; never claims real reasoning/paper acceptance."""
     frame = read_json(Path(__file__).resolve().parents[1] / "fixtures/contracts/problem_frame.json")
     frame["case_id"] = StateStore(root).load()["case_id"]
+    if two_questions:
+        from copy import deepcopy
+        child = deepcopy(frame["questions"][0])
+        child["question_id"] = "Q2"
+        frame["questions"].append(child)
     write_json(root / "framing/frame.json", frame)
     (root / "paper").mkdir()
     (root / "paper/draft.tex").write_text("Synthetic checkpoint draft. No official or scientific acceptance claimed.", encoding="utf-8")
     write_json(root / "agent_runs/framer-fixture/agent_result.json", {"not_actual_reasoning": True})
     write_json(root / "agent_runs/writer-fixture/agent_result.json", {"not_actual_reasoning": True})
-    write_json(root / "agent_runs/writer-fixture/task.json", {"question_id": "Q1"})
+    write_json(root / "agent_runs/writer-fixture/task.json", {"question_id": None})
     monkeypatch.setattr("mathmode.reference_access._role_artifacts", lambda root, task, role:
                         {"framing/frame.json": {}} if role == "framer" else {"paper/draft.tex": {}})
+
+
+@pytest.fixture
+def sealed_baseline(frozen, monkeypatch):
+    """Real numerical freeze; role authorship is an explicit test double here."""
+    root, _, _, _ = frozen
+    role_sources(root, monkeypatch)
     baseline = seal_baseline(root, "Q1", framer_task="framer-fixture", frame_path="framing/frame.json",
                              writer_task="writer-fixture", paper_paths=["paper/draft.tex"])
     return root, baseline

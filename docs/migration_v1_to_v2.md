@@ -188,6 +188,23 @@ already recorded same-problem access prevents reconstructing an alleged blind ru
 Method source records must reference supplied snapshots and prior explicit host
 admission; arbitrary historic citations do not gain verified retrieval provenance.
 
+The additive `reference_case_baseline` contract now aggregates every question's
+existing checkpoint without rewriting any snapshot. Single-question checkpoints
+remain readable and can still admit references for truly single-question frames.
+For a multi-question frame, seal every current independent question baseline and
+run `seal-case-baseline` with their IDs **before** any same-problem access. Existing
+partial-case admissions remain historical diagnostics and fail the new complete-case
+admission verifier. They cannot be migrated into an assertion of restored blindness.
+
+New reference events/receipts add optional `blind_reference_mode`; missing legacy
+fields mean true. No old record is rewritten. New workspaces can explicitly select
+`init --no-blind-reference-mode`; old default behavior remains true. Normal state
+updates cannot change the mode in either direction. Preserve an existing workspace
+and create a separate non-blind workspace if changing evaluation intent; do not edit
+the state flag or backfill old events to hide prior exposure. A non-blind receipt
+cannot carry an alleged blind baseline ID. Schema fixtures illustrate structure
+only; actual admission requires the registered runtime snapshots.
+
 New runtime requests record owner/process identities and runner request fingerprints.
 Existing completed manifests remain readable; successful new local runs additionally
 hash owner/process metadata as execution controls. Recovery records are separate

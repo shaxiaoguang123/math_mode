@@ -191,8 +191,8 @@ Visual/paper/package producers add their own downstream edges during T08–T09.
 
 ## Agent transport and measured preflight (T08 in progress)
 
-Fourteen additional contracts bring the catalog to 34: `reference_retrieval`, `workflow_plan`,
-`workflow_progress`, `recovery_event`, `reference_baseline`, `agent_schedule`, `agent_task`, `agent_response`,
+Fifteen additional contracts bring the catalog to 35: `reference_retrieval`, `workflow_plan`,
+`workflow_progress`, `recovery_event`, `reference_baseline`, `reference_case_baseline`, `agent_schedule`, `agent_task`, `agent_response`,
 `agent_result`, `semantic_review`, `method_proposal`, `data_audit`, `method_sources`
 and `risk_probe_plan`. Task actors, question/view identities, role directories,
 exact output sets and input evidence scope are checked before publication. Error
@@ -355,12 +355,37 @@ TeX. `seal-baseline` requires real framer/writer handoffs and a current numerica
 freeze before any same-problem access is recorded. Subsequent canonical edits do
 not erase this historical baseline; altered snapshot bytes block further admission.
 
-`admit-reference` requires explicit general/same-problem classification. The latter
-requires a registered checkpoint covering all five groups. Admission appends a host
-event before retrieval; it does not itself fetch a URL. Method-source proposals must
+`admit-reference` requires explicit general/same-problem classification. In blind
+mode, the latter requires checkpoints covering all five groups for **every framed
+question**. `seal-case-baseline` binds the per-question checkpoints, verifies exact
+question coverage, one complete frame hash, one original-input manifest hash and
+the current independently validated numerical freezes. Its registered dependencies
+are the immutable question checkpoints, so a changed Q2 paper invalidates a receipt
+requested for Q1 as well. `verify-baseline` inspects historical integrity without
+requiring later reference-informed canonical sources to stay unchanged.
+
+A single-question frame can still use its original `reference_baseline` directly.
+A multi-question frame requires `reference_case_baseline`; relabeling one question
+as an aggregate or mixing different frames/originals fails verification. Before the
+first same-case admission the current frame and input manifest must still match.
+Any earlier same-problem exposure blocks sealing *any* new question/case checkpoint.
+Both HTTP receipts and local method-source handoffs recheck admission semantics;
+an old partial-case access event does not authorize a new valid source handoff.
+
+Admission appends a host event before retrieval; it does not itself fetch a URL.
+Method-source proposals must
 bind an actual supplied snapshot/hash and an admission preceding both retrieval and
 task dispatch. Access outside this trusted host cannot be reconstructed and remains
 explicitly UNVERIFIABLE. Baseline sealing is not final paper/scientific acceptance.
+
+`init --no-blind-reference-mode` explicitly creates a non-blind workspace. The
+backward-compatible default remains true. `StateStore.update` treats the mode as
+immutable workspace identity: neither agents nor ordinary state mutations can
+toggle it during a run. Non-blind same-problem sources are admitted and logged
+without a baseline; supplying one is rejected to avoid a false blindness claim.
+New admission events and HTTP receipts record the mode explicitly. Missing mode
+fields on legacy events/receipts mean true. This is an application boundary, not
+protection against a host directly rewriting files or reading outside the system.
 
 ### Actual HTTP reference retrieval
 
@@ -378,8 +403,8 @@ semantic relevance or absence of same-problem material.
 and `body.bin` records under `references/<retrieval-id>/`. Response bytes are stored
 without content decoding; HTTP content type/encoding remain metadata. Successful
 receipts and their snapshots are registered with evidence dependencies, including
-the required blind baseline for same-problem access. `verify-reference` checks
-these records, admission order, redirect continuity and actual bytes without
+the required whole-case blind baseline for same-problem access in blind mode.
+`verify-reference` checks these records, admission order, redirect continuity and actual bytes without
 downloading a newer version. This is evidence from the trusted local HTTP client,
 not a server-signed attestation or a claim of scientific acceptance.
 
@@ -410,10 +435,12 @@ reference evidence remains a blocker for roles that require those inputs.
 
 Local HTTP tests verify admissions before the server receives each request, actual
 redirect/download failure handling, receipt/source tampering, same-problem baseline
-lineage and workflow resume. The complete same-problem gate currently binds the
-declared question's sealed baseline; enforcing a single all-question blind checkpoint
-before references that cover the whole contest problem remains a T08/T11 requirement.
-No whole-case blindness claim is inferred from a per-question receipt.
+lineage and workflow resume. `tests/test_reference_case.py` additionally computes
+and independently freezes synthetic Q1→Q2 results, then checks partial-case refusal,
+complete-case download admission and transitive snapshot tampering. Framer/writer
+authorship is explicitly doubled in these engineering tests; this is not a live
+historical contest or completed scientific paper. The static case-baseline fixture
+contains illustrative hashes for schema validation only and cannot grant access.
 
 ## Interrupted execution recovery (T08)
 

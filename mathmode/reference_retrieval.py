@@ -21,6 +21,7 @@ from .io import canonical_root, file_hash, now, object_hash, read_json, safe_pat
 from .lineage import ArtifactRegistry, artifact_id
 from .processes import identity
 from .reference_access import admit_reference
+from .reference_baselines import verify_blind_admission
 from .state import StateStore
 
 REDIRECTS = {301, 302, 303, 307, 308}
@@ -72,6 +73,7 @@ def retrieve_reference(root: Path, *, source: str, question_id: str, same_proble
     directory.mkdir(parents=True)
     planned = {"retrieval_id": retrieval_id, "case_id": state["case_id"], "question_id": question_id,
         "source": source, "same_problem": same_problem, "baseline_id": baseline_id,
+        "blind_reference_mode": admission["blind_reference_mode"],
         "started_at": now(), "timeout_seconds": timeout, "max_bytes": max_bytes, "max_redirects": max_redirects}
     write_json(directory / "planned.json", planned, exclusive=True)
     write_json(directory / "owner.json", {"owner": identity()}, exclusive=True)
@@ -239,6 +241,9 @@ def verify_retrieval(root: Path, receipt_relative: str) -> dict:
         if not event or (event["source"], event["question_id"], event["same_problem"], event["baseline_freeze_id"]) != (
                 hop["url"], receipt["question_id"], receipt["same_problem"], receipt["baseline_id"]):
             raise ValueError("Reference request lacks its recorded host admission")
+        if event.get("blind_reference_mode", True) != receipt.get("blind_reference_mode", True):
+            raise ValueError("Reference receipt changed its admitted blindness mode")
+        verify_blind_admission(root, event)
         if datetime.fromisoformat(event["at"]) > datetime.fromisoformat(hop["requested_at"]):
             raise ValueError("Reference was fetched before access admission")
         requested = datetime.fromisoformat(hop["requested_at"])
