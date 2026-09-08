@@ -342,3 +342,65 @@ mirrors pass. The existing real SciPy download and actual method-retriever hando
 still pass current CLI verification without refetching. Protected assets and
 large files are unchanged; changed-file credential/email/phone pattern scans found
 no matches. These are local checks, not GitHub CI or historical-contest acceptance.
+
+## Follow-up: human decision terminal boundary
+
+The catalog now contains 37 contracts. `human_decision_request` binds the actual
+framed question, screened methods/probes, exact task input hashes and immutable
+task/display snapshots. The scheduler prepares it in `human_gate` without calling
+a model, returns WAITING_HUMAN and exposes the request ID. The existing workflow
+can also prepare/resume requests with `--no-agent`; other ready reasoning roles
+remain WAITING_AGENT when no backend is present.
+
+`human-decision` displays the question, methods, critic findings and measured
+probes, then reads an eligible role or deferral, a rationale and explicit SUBMIT
+from interactive input/output streams. A `human_decision_event` retains that host
+observation and request hash. Piped input, missing/invalid choice, cancellation,
+deferral and model-supplied human JSON cannot publish a method choice. Human tasks
+produce no invented agent session or AI-usage entry. Raw code transport in human
+mode also checks the actual host event before invoking its backend.
+
+The request is reverified after the wait and under the writer lock. A current
+event publishes an append-only decision; empty ledgers and valid legacy final lines
+without a newline preserve their original byte hashes. `verify-human-decision`
+checks exact event-derived fields, actor, prior ledger bytes, screening and lineage.
+Resume uses a completed choice without another prompt; a registered response
+interrupted before publication is recoverable through the same command. Old task
+IDs cannot silently change scope. A new explicit task can request reconsideration
+after input changes while retaining old event history. Active frozen consumers
+must be thawed before the current decision ledger can change. Multiple unresolved
+terminal responses require explicit reconciliation; an already published choice
+remains authoritative on resume.
+
+Engineering tests use explicitly named in-memory terminal doubles and mocked
+framer/critic/semantic-review provenance. The actual host code consumes those
+streams, while probe, main/baseline, independent validation and numerical freezing
+run as real subprocesses. They exercise main and eligible fallback choices,
+cancel/defer/piped input, stale evidence during the wait, changed task scope,
+interrupted publication, append-only history, new responses after changed framing,
+frozen-consumer refusal and event tampering invalidating downstream numerical
+freeze. These are not real user interactions or scientific acceptance. A live
+human terminal session remains NOT_RUN; the host boundary explicitly does not
+authenticate the person at the keyboard or protect against direct host tampering.
+
+The first full regression exposed an intermittent Windows DOCX package-replacement
+denial in the existing policy derivative test. The independent repair, bounded
+retry behavior and 26 passing focused tests are documented in
+`docs/audit/docx_windows_replacement.md` and committed separately as `c6130be`.
+The latest six focused human-decision tests passed before the final full run.
+
+T08 warning/LIMITED disposition, automatic repair routing, source discovery and
+complete live role-chain examples remain required. T09 visual/paper/support,
+T10 CI/benchmark, T11 full historical contest and T12 release/PR acceptance remain
+outstanding. This checkpoint does not claim T08 PASS or overall completion.
+
+Final verification for this checkpoint: **218 passed, 1 skipped** in 826.95s in
+Conda test. The skip remains the Windows symlink-privilege case. This final run
+includes the current terminal/reconsideration/history implementation and the DOCX
+replacement repair. Compileall, all 37 schema distributions and both complete
+263-file skill mirrors pass. The existing real SciPy retrieval and actual method
+retriever handoff still pass their current CLI verifiers without refetching.
+Changed-file privacy patterns found no matches; no protected assets or large files
+changed. Human request/event ignore rules were directly checked. Fetch found only
+the research report/index addition `b599be7` on main, with no runtime overlap;
+there is no merge, PR or GitHub CI acceptance claim at this stage.

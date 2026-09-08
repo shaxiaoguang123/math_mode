@@ -13,6 +13,7 @@
 | --- | --- |
 | 官方规则和输入 | `mathmode policy`、`mathmode init`；默认 policy 未核验，不能声称最终合规 |
 | 题意、DAG、假设、模型 | `docs/contracts.md`、`docs/workflow_v2.md`；`mathmode validate` |
+| 人工模型选择 | `human_gate` 等待已展示证据的终端响应；`human-decision`、`verify-human-decision`，详见工作流文档 |
 | 真实执行和独立验证 | `mathmode run`、`verify-run`、`independent-validate`、`evidence` |
 | 分阶段推进与恢复 | `mathmode workflow` 按真实证据观察/推进；`recover`、`recover-lock` 保留中断记录，详见工作流文档 |
 | 冻结和过期检查 | `mathmode freeze`、`verify-freeze`、`thaw`、`refresh` |

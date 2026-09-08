@@ -175,6 +175,23 @@ those actual calls, but cannot pass the new handoff verifier. Rerun the role to
 obtain current provenance; do not backfill or fabricate a session/bundle record.
 The successful early council smoke is not claimed to pass this newer verifier.
 
+`human_decision_request`/`human_decision_event` add a trusted terminal host adapter
+without changing the existing `method_decision` schema. Its `human_event_id` must
+now resolve to a current registered host event when used by `human_gate`. Legacy
+hand-authored human IDs are not migrated into real responses. Preserve old ledgers;
+prepare a fresh scheduled request and obtain an actual terminal response. Include
+the framed question, method card and measured probe paths in the decision task's
+inputs, and declare exactly one JSONL method-decision output.
+
+Requests and their display/task snapshots live in `human_requests/`; observed
+responses live in `human_events/`, both ignored at the template root. New choices
+append to the prior ledger bytes and retain the local user pseudonym. Human tasks
+produce no fake agent session or AI-usage entry. Repeating an accepted request
+verifies/resumes the same choice; changing evidence requires a new task/request and
+new response, while changing an actively frozen decision requires explicit thaw.
+The terminal is a trusted host input channel, not person authentication. Existing
+autopilot decisions remain agent-attributed and follow their original handoff checks.
+
 AGENTS/CLAUDE are generated thin routers from `docs/agent_router.md`, with shared
 rules in `docs/runtime_rules.md`. Generate with `tools/sync_agent_assets.py` and
 check using `--check`. Both complete figure skill trees are hash-checked without

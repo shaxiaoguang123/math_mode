@@ -191,7 +191,8 @@ Visual/paper/package producers add their own downstream edges during T08–T09.
 
 ## Agent transport and measured preflight (T08 in progress)
 
-Fifteen additional contracts bring the catalog to 35: `reference_retrieval`, `workflow_plan`,
+Seventeen additional contracts bring the catalog to 37: `human_decision_request`,
+`human_decision_event`, `reference_retrieval`, `workflow_plan`,
 `workflow_progress`, `recovery_event`, `reference_baseline`, `reference_case_baseline`, `agent_schedule`, `agent_task`, `agent_response`,
 `agent_result`, `semantic_review`, `method_proposal`, `data_audit`, `method_sources`
 and `risk_probe_plan`. Task actors, question/view identities, role directories,
@@ -241,13 +242,15 @@ predecessors. `Orchestrator.advance` resolves current registered hashes at dispa
 verifies prior real reasoning handoffs on resume, and checks role prerequisites.
 Council inputs receive cross-contract frame/DAG/source checks. Code/validation
 work must use the actual framed question DAG and current upstream freezes. Human
-decision/code dispatch stays WAITING_HUMAN pending a real host event adapter.
+decision tasks prepare a host request and stay WAITING_HUMAN until the terminal
+adapter records an actual response. They never dispatch a reasoning backend or
+invent `agent_result`/AI-usage records. Code consumes the verified host decision.
 The deterministic data report is authoritative; model-proposed counts cannot
 replace it. Actual scheduling and no-repeat resume have been exercised through
 the configured Codex backend, after a preserved initial timeout.
 
-CLI entry points are `agent`, `verify-agent`, `advance-agents`, `data-audit` and
-`probe-report`. A scheduler PASS has scope `agent_schedule` and leaves scientific
+CLI entry points include `agent`, `verify-agent`, `advance-agents`, `human-decision`,
+`verify-human-decision`, `data-audit` and `probe-report`. A scheduler PASS has scope `agent_schedule` and leaves scientific
 acceptance and official compliance NOT_RUN. `Workflow` now coordinates the separate
 services through G6 as described below. Successful critic rounds are also bounded:
 at most three per question/view for unchanged original/framing input hashes. New
@@ -299,6 +302,52 @@ and freezes, with explicitly mocked role provenance. The unpatched coordinator
 rejects those authored semantic files. These tests do not claim a live full-agent
 historical run. LIMITED/data-warning disposition remains incomplete and therefore
 blocks those cases instead of manufacturing PASS.
+
+### Human decision host boundary
+
+In `human_gate` mode, the scheduler prepares a `human_decision_request` from a
+fresh framed question, one verified method card, current measured probes and the
+exact registered task inputs. Its immutable task/display snapshots and input
+hashes are registered under `human_requests/`. The display includes the question,
+methods, critic findings and measured probe checks; the host cannot offer an
+untriggered fallback or a method without a passing admissible probe.
+
+`human-decision --workspace <root> --request-id <id> --actor-id <local-pseudonym>`
+requires interactive stdin/stdout. It displays the prepared evidence, reads an
+eligible role or `defer`, requires a reason and records only an explicit `SUBMIT`.
+Piped input and model-generated decision JSON have no admission path. Cancellation
+publishes nothing; deferral records the event but publishes no method choice.
+The model transport continues rejecting human-attributed outputs even when they
+include a `human_event_id`. Raw code transport in human mode also requires the
+actual verified host event before calling its backend.
+
+`human_decision_event` records the observed terminal response, time, local actor,
+confirmation and request hash in `human_events/`. Evidence is rechecked after the
+wait and under the writer lock before publication. A changed input leaves the
+observed response diagnostic and prevents decision publication. A completed choice
+appends a canonical `method_decision`, preserving the exact previous ledger bytes;
+the existing `human_event_id` identifies the immutable host event. The decision's
+dependencies include the request and event, which bind the original scoped inputs.
+Model specs produced from it carry those dependencies through numerical freeze.
+
+`verify-human-decision` rechecks the current decision's exact event-derived fields,
+ledger prefix, producer and dependencies, plus the current screening. Scheduler
+resume matches the original task/input signature and does not prompt or call a
+model again. A captured registered choice interrupted before ledger publication
+can be resumed by the same terminal command without another response. Unregistered
+interrupted observations remain diagnostic. A new explicit task ID can request
+reconsideration after changed evidence; old task identities cannot silently change
+scope. Active frozen consumers require explicit thaw before any new decision can
+overwrite the current ledger hash. Request/response files remain private by default.
+
+This is a trusted local terminal boundary, **not person authentication or an OS
+sandbox**. A host with direct filesystem/process control could falsify observations;
+the system does not claim to authenticate the person at the keyboard. Engineering
+tests use explicitly labelled in-memory terminal streams and framed-role doubles,
+while probe/solver/validator subprocesses and freeze propagation are real. No live
+human interaction or historical scientific acceptance is inferred from those tests.
+`workflow --advance --no-agent` can prepare/resume human requests; missing reasoning
+roles remain WAITING_AGENT instead of being synthesized by the host.
 
 ### Fallback production decisions
 

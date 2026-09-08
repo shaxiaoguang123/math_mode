@@ -16,6 +16,8 @@ __pycache__/
 /benchmark_cache/
 /runs/
 /agent_runs/
+/human_requests/
+/human_events/
 /validations/
 /freezes/
 /recovery/

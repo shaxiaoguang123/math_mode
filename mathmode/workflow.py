@@ -77,8 +77,11 @@ class Workflow:
         decision = self._contract(job["decision"], "method_decision")
         state = self.registry.store.load()
         if state["interaction_mode"] == "human_gate":
-            raise ValueError("WAITING_HUMAN: host event admission is required before execution")
-        if decision["decided_by"] != "agent" or decision["question_id"] != job["question_id"]:
+            from .human_decisions import verify_human_decision
+            if verify_human_decision(self.root, job["decision"]) != decision:
+                raise ValueError("WAITING_HUMAN: actual host event differs from the current decision")
+        expected_owner = "human" if state["interaction_mode"] == "human_gate" else "agent"
+        if decision["decided_by"] != expected_owner or decision["question_id"] != job["question_id"]:
             raise ValueError("Decision owner or question identity is invalid")
         screening = screening_options(self.root, job["method_card"], job["probe_reports"])
         verify_screened_decision(decision, screening, job["probe_reports"])
@@ -135,7 +138,9 @@ class Workflow:
         return actual
 
     def _schedule(self, plan):
-        if not self.agents.backend or not plan.get("agent_schedule"):
+        if not plan.get("agent_schedule"):
+            return None
+        if self.agents.backend is None and self.registry.store.load()["interaction_mode"] != "human_gate":
             return None
         schedule = read_json(safe_path(self.root, plan["agent_schedule"]))
         return self.agents.advance(schedule, max_tasks=1)

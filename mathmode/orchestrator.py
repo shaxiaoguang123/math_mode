@@ -83,6 +83,11 @@ class Orchestrator:
 
     def _kind(self, relative: str) -> tuple[str | None, object]:
         path = safe_path(self.root, relative)
+        if relative.startswith("decisions/") and path.suffix == ".jsonl":
+            entries = read_ledger(path, "method_decision")
+            if entries and entries[-1]["decided_by"] == "human":
+                from .human_decisions import verify_human_decision
+                return "method_decision", verify_human_decision(self.root, relative)
         if relative == "input_manifest.json":
             return "input_manifest", validate("input_manifest", read_json(path), root=self.root)
         if relative == "framing/deterministic_data_audit.json":
@@ -131,11 +136,11 @@ class Orchestrator:
                 return "evidence_gate", verify_evidence_report(self.root, relative)
         return None, None
 
-    def _guard(self, blueprint, task, schedule):
+    def _guard(self, blueprint, task, schedule, *, allow_human_request=False):
         role = task["role"]
         if role in {"visual", "writer"}:
             raise ValueError("Visual/paper dispatch requires the T09 audited handoff adapter")
-        if role in {"decision", "code"} and task["interaction_mode"] == "human_gate":
+        if role == "decision" and task["interaction_mode"] == "human_gate" and not allow_human_request:
             raise ValueError("WAITING_HUMAN: an actual host user event must supply the decision")
         if role in {"critic", "validator", "reviewer"}:
             registered = {entry["artifact_id"]: entry for entry in self.registry.store.load()["artifacts"]}
@@ -180,8 +185,14 @@ class Orchestrator:
                 if len(kinds["method_decision"]) != 1:
                     raise ValueError("Code requires exactly one current decision")
                 decision = kinds["method_decision"][0]
-                if decision["decided_by"] != "agent":
-                    raise ValueError("Code task does not consume the current screened agent decision")
+                expected_owner = "human" if task["interaction_mode"] == "human_gate" else "agent"
+                if decision["decided_by"] != expected_owner:
+                    raise ValueError("Code task does not consume the current screened decision owner")
+                if expected_owner == "human":
+                    from .human_decisions import verify_human_decision
+                    decision_path = next(item["path"] for item in task["inputs"] if self._kind(item["path"])[0] == "method_decision")
+                    if verify_human_decision(self.root, decision_path) != decision:
+                        raise ValueError("Code task lacks its actual host human event")
                 selected_role = verify_screened_decision(decision, screening, report_paths)
                 if fallback_validation and (selected_role != "fallback" or any(
                         spec["method_id"] != decision["main_method_id"] for spec in kinds["model_spec"] if "fallback_authorization" in spec)):
@@ -226,7 +237,7 @@ class Orchestrator:
         if schedule["case_id"] != state["case_id"]:
             raise ValueError("Agent schedule belongs to another workspace")
         tasks = unique(schedule["tasks"], "task_id")
-        completed, blocked, executed = [], {}, []
+        completed, blocked, executed, human_requests = [], {}, [], []
         for key in order:
             blueprint = tasks[key]
             result_path = safe_path(self.root, f"agent_runs/{key}/agent_result.json", exists=False)
@@ -257,7 +268,25 @@ class Orchestrator:
                 task = {**{field: value for field, value in blueprint.items() if field not in {"depends_on", "inputs"}},
                         "schema_version": "2.0", "inputs": inputs, "created_at": now(),
                         "interaction_mode": state["interaction_mode"]}
+                if task["role"] == "decision" and task["interaction_mode"] == "human_gate":
+                    from .human_decisions import prepare_request, decision_matches_task
+                    output = safe_path(self.root, task["outputs"][0]["path"], exists=False)
+                    if output.exists():
+                        entries = read_ledger(output, "method_decision")
+                        if entries and entries[-1]["decided_by"] == "human":
+                            if decision_matches_task(self.root, task["outputs"][0]["path"], task):
+                                completed.append(key)
+                                continue
+                    try:
+                        request = prepare_request(self.root, task)
+                    except (ValueError, OSError, ValidationError) as error:
+                        raise ValueError("WAITING_HUMAN: " + str(error)) from error
+                    human_requests.append({"task_id": key, "request_id": request["request_id"],
+                                           "path": f"human_requests/{request['request_id']}/request.json"})
+                    raise ValueError("WAITING_HUMAN: use human-decision with request " + request["request_id"])
                 self._guard(blueprint, task, schedule)
+                if self.backend is None:
+                    raise ValueError("WAITING_AGENT: a reasoning backend is required for this role")
                 result = run_agent_task(self.root, task, self.backend, timeout=timeout)
                 executed.append(key)
                 if result["status"] == "PRODUCED":
@@ -265,9 +294,10 @@ class Orchestrator:
                     completed.append(key)
                 else:
                     blocked[key] = result["blockers"]
-            except (ValueError, OSError) as exc:
+            except (ValueError, OSError, ValidationError) as exc:
                 blocked[key] = [str(exc)]
         return {"status": "BLOCKED" if blocked else "PASS" if len(completed) == len(tasks) else "PENDING",
                 "scope": "agent_schedule", "completed": completed, "executed": executed, "blocked": blocked,
                 "pending": [key for key in order if key not in completed and key not in blocked],
+                "human_requests": human_requests,
                 "scientific_acceptance": "NOT_RUN", "official_compliance": "NOT_RUN"}

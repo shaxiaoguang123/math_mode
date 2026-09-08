@@ -86,6 +86,13 @@ def main(argv=None) -> int:
     schedule.add_argument("--schedule", type=Path, required=True)
     schedule.add_argument("--max-tasks", type=int, default=1)
     schedule.add_argument("--timeout", type=float, default=300)
+    human = commands.add_parser("human-decision", help="Read an actual terminal response to a prepared screened decision request")
+    human.add_argument("--workspace", type=Path, required=True)
+    human.add_argument("--request-id", required=True)
+    human.add_argument("--actor-id", required=True, help="Local pseudonym for the user supplying this terminal response")
+    human_check = commands.add_parser("verify-human-decision", help="Recheck the current decision against its actual host event")
+    human_check.add_argument("--workspace", type=Path, required=True)
+    human_check.add_argument("--decision", required=True)
     data = commands.add_parser("data-audit", help="Compute and register actual original-input statistics")
     data.add_argument("--workspace", type=Path, required=True)
     probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
@@ -193,6 +200,14 @@ def main(argv=None) -> int:
             from .orchestrator import Orchestrator
             result = Orchestrator(args.workspace, CodexCliBackend()).advance(read_json(args.schedule),
                         max_tasks=args.max_tasks, timeout=args.timeout)
+        elif args.command == "human-decision":
+            from .human_decisions import receive_terminal_decision
+            result = receive_terminal_decision(args.workspace, args.request_id, actor_id=args.actor_id)
+        elif args.command == "verify-human-decision":
+            from .human_decisions import verify_human_decision
+            decision = verify_human_decision(args.workspace, args.decision)
+            result = {"status": "PASS", "scope": "human_decision_integrity", "decision_id": decision["decision_id"],
+                      "scientific_acceptance": "NOT_RUN"}
         elif args.command == "data-audit":
             from .orchestrator import Orchestrator
             result = Orchestrator(args.workspace, None).prepare_inputs()

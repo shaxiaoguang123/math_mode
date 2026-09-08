@@ -186,6 +186,11 @@ def run_agent_task(root: Path, task: dict, backend: AgentBackend, *, timeout=300
         raise ValueError("Test-double backends are only permitted in fixture workspaces")
     if state["interaction_mode"] != task["interaction_mode"]:
         raise ValueError("Agent task interaction mode differs from workspace")
+    if task["interaction_mode"] == "human_gate" and task["role"] == "code":
+        from .human_decisions import verify_human_decision
+        choices = [item["path"] for item in task["inputs"] if item["path"].startswith("decisions/") and item["path"].endswith(".jsonl")]
+        if len(choices) != 1 or verify_human_decision(root, choices[0])["question_id"] != task["question_id"]:
+            raise ValueError("Code task requires its actual host human decision")
     for item in task["inputs"]:
         entry = registered.get(item["artifact_id"])
         if not entry or entry["status"] not in {"VALID", "FROZEN"} or item["artifact_id"] in freshness["stale"]:

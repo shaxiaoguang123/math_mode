@@ -114,6 +114,32 @@ def test_raw_agent_api_cannot_impersonate_host_human_gate(task_root):
         validate_task(task)
 
 
+def test_model_response_cannot_publish_human_choice_even_with_an_event_id(task_root):
+    root, task = task_root
+    task.update(role="decision", view=None,
+                outputs=[{"path": "decisions/choice.jsonl", "format": "jsonl", "contract": "method_decision"}])
+    def forge(response, directory):
+        decision = read_json(Path(__file__).resolve().parents[1] / "fixtures/contracts/method_decision.json")
+        decision.update(actor_id=task["actor_id"], decided_by="human", human_event_id="human-claimed-by-model",
+                        evidence_refs=[task["inputs"][0]["artifact_id"]])
+        response["artifacts"] = [{"path": "decisions/choice.jsonl", "content": json.dumps(decision)}]
+    result = run_agent_task(root, task, FixtureBackend(forge))
+    assert result["status"] == "FAILED"
+    assert not (root / "decisions/choice.jsonl").exists()
+
+
+def test_raw_code_api_requires_real_human_decision_before_backend_execution(task_root):
+    from mathmode.state import StateStore
+    root, task = task_root
+    store = StateStore(root)
+    store.update(lambda state: state.update(interaction_mode="human_gate"), expected_revision=store.load()["revision"])
+    task.update(role="code", view=None, interaction_mode="human_gate",
+                outputs=[{"path": "code/main.py", "format": "python", "contract": None}])
+    with pytest.raises(ValueError, match="actual host human decision"):
+        run_agent_task(root, task, FixtureBackend())
+    assert not (root / "agent_runs").exists()
+
+
 @pytest.mark.parametrize("known_evidence", [True, False])
 def test_decision_artifact_cannot_cite_unseen_probe_evidence(task_root, known_evidence):
     root, task = task_root

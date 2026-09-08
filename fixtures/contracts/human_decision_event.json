@@ -1,0 +1,14 @@
+{
+  "schema_version": "2.0",
+  "event_id": "human-structural-fixture",
+  "request": {"path": "human_requests/human-request-structural-fixture/request.json", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+  "actor_id": "illustrative-user",
+  "received_at": "2026-09-08T00:00:01Z",
+  "choice": "defer",
+  "rationale": "Structural example only. No actual terminal event or human decision occurred.",
+  "source": "terminal_stdin",
+  "input_tty": true,
+  "output_tty": true,
+  "confirmation": "SUBMIT",
+  "identity_scope": "host_terminal_not_person_authentication"
+}

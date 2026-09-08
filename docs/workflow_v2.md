@@ -92,6 +92,24 @@ gates. `lean` stores core contracts and compact success logs; `submission` adds
 full validation, freeze, paper package and final audit. Profiles change reporting
 density, not scientific correctness.
 
+For a scheduled `human_gate` decision, `workflow --advance` (also with `--no-agent`)
+or `advance-agents` reports a `human_requests` entry after the framed question,
+method card and probes are ready. In an interactive terminal, run:
+
+```powershell
+python -m mathmode human-decision --workspace ../competitions/case-id --request-id <reported-id> --actor-id local-user
+python -m mathmode verify-human-decision --workspace ../competitions/case-id --decision decisions/choice.jsonl
+```
+
+The first command displays the actual question, methods and measured probes, then
+reads an eligible role (`main` or triggered `fallback`) or `defer`, a reason and
+explicit `SUBMIT`. Use the decision path declared in your schedule for verification.
+Cancellation/deferral leaves modeling blocked. Changed evidence while waiting
+requires a new scoped task/request; the old response cannot approve new evidence.
+Resume reuses a completed event without asking again. This interface admits local
+terminal input, not a supplied JSON flag or authenticated human identity. Its
+engineering tests simulate the terminal and do not claim an actual user's review.
+
 `blind_reference_mode` is explicit for independent evaluation: frame/model/code/
 results/paper baseline first, freeze all baseline hashes, then record and permit
 same-problem reference access. Never infer past blindness from a hardcoded boolean.
