@@ -14,7 +14,7 @@ import uuid
 
 from .contracts import validate
 from .execution import ExecutionBackend, LocalSubprocessBackend
-from .io import file_hash, now, read_json, safe_path, write_json
+from .io import file_hash, now, read_json, safe_path, write_json, canonical_root
 from .state import workspace_lock
 
 
@@ -125,7 +125,7 @@ def _history(root: Path, question: str, method: str, role: str) -> list[dict]:
 
 def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=None,
                   backend: ExecutionBackend | None = None, retry_of: str | None = None) -> dict:
-    root = root.resolve()
+    root = canonical_root(root)
     backend = backend or LocalSubprocessBackend()
     spec_path = safe_path(root, spec_relative)
     spec_hash = file_hash(spec_path)
@@ -144,6 +144,12 @@ def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=No
     input_records = {record["input_id"]: record for record in inputs["files"]}
     if set(spec["inputs"]) - input_records.keys():
         raise ValueError("Spec references an unregistered original input")
+    criteria = spec["validation_plan"].get("criteria")
+    if criteria:
+        matching = [record for record in input_records.values() if record["path"] == criteria["path"]
+                    and record["sha256"] == criteria["sha256"] and record["input_id"] in spec["inputs"]]
+        if len(matching) != 1:
+            raise ValueError("Validation criteria must be a selected frozen input before execution")
     for relative in spec["implementation"]["code_files"]:
         path = safe_path(root, relative)
         if not path.stat().st_size:
@@ -267,7 +273,7 @@ def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=No
 
 def verify_run(root: Path, manifest_relative: str, *, require_success=True, current_sources=True) -> dict:
     """Recheck recorded bytes and execution structure; never certify mathematics."""
-    root = root.resolve()
+    root = canonical_root(root)
     manifest_path = safe_path(root, manifest_relative)
     record = validate("run_manifest", read_json(manifest_path), root=root)
     run_relative = f"runs/{record['run_id']}"

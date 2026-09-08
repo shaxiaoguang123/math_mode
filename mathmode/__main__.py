@@ -12,6 +12,7 @@ from .schema_catalog import catalog
 from .workspace import initialize
 from .state import StateStore
 from .runner import execute_model, verify_run
+from .validation import independently_validate, audit_evidence
 
 
 def main(argv=None) -> int:
@@ -46,6 +47,15 @@ def main(argv=None) -> int:
     verify.add_argument("--workspace", type=Path, required=True)
     verify.add_argument("--manifest", required=True)
     verify.add_argument("--report", type=Path)
+    independent = commands.add_parser("independent-validate", help="Recompute evidence in a source-free validator workspace")
+    independent.add_argument("--workspace", type=Path, required=True)
+    independent.add_argument("--main-run", required=True)
+    independent.add_argument("--baseline-run", required=True)
+    independent.add_argument("--interpreter")
+    evidence = commands.add_parser("evidence", help="Recheck independent computation and all upstream hashes")
+    evidence.add_argument("--workspace", type=Path, required=True)
+    evidence.add_argument("--validation", required=True)
+    evidence.add_argument("--report", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "policy":
@@ -66,6 +76,12 @@ def main(argv=None) -> int:
             record = verify_run(args.workspace, args.manifest)
             result = {"status": "PASS", "scope": "execution_record_integrity", "run_id": record["run_id"],
                       "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "independent-validate":
+            record = independently_validate(args.workspace, args.main_run, args.baseline_run, interpreter=args.interpreter)
+            result = {"status": record["status"], "validation_id": record["validation_id"],
+                      "summary": f"validations/{record['validation_id']}/validation_summary.json"}
+        elif args.command == "evidence":
+            result = audit_evidence(args.workspace, args.validation)
         elif args.contract == "modeling_bundle":
             result = validate_modeling_bundle(read_json(args.path), root=args.workspace)
         else:

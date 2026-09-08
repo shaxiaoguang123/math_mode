@@ -6,7 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from .contracts import validate
-from .io import file_hash, now, read_json, safe_path, write_json, canonical_bytes
+from .io import file_hash, now, read_json, safe_path, write_json, canonical_bytes, canonical_root
 
 
 @contextmanager
@@ -36,7 +36,7 @@ def initial_state(case_id: str, kind="competition", mode="autopilot", profile="l
 
 class StateStore:
     def __init__(self, root: Path):
-        self.root = root.resolve()
+        self.root = canonical_root(root)
         self.path = safe_path(self.root, "workflow_state.json", exists=False)
 
     def load(self) -> dict:

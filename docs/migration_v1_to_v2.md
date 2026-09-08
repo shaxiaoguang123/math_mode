@@ -114,7 +114,28 @@ remain read-only snapshots. Logs, absolute local paths and package inventory sta
 inside the private workspace. Run PASS and verify-run PASS remain execution
 integrity findings, never independent scientific approval.
 
-## Compatibility boundaries to finish in T06–T12
+## Independent numerical validation (T06)
+
+Create `validation_criteria.json` with an explicit supported adapter, source-backed
+thresholds, symbol dimensions and robustness applicability. Register it as an
+original rule input when initializing the workspace. Put its frozen path/hash in
+both specs' `validation_plan.criteria` and include its input ID in `spec.inputs`.
+Both specs must share question, target/split, outputs, objective and constraints.
+Run main and usable baseline, then:
+
+```powershell
+python -m mathmode independent-validate --workspace ../competitions/case-id --main-run runs/main-run-id/run_manifest.json --baseline-run runs/baseline-run-id/run_manifest.json
+python -m mathmode evidence --workspace ../competitions/case-id --validation validations/validation-id/validation_summary.json --report evidence_gate.json
+```
+
+The actual CLI reports generated IDs. Store the evidence report inside the private
+workspace. Legacy run logs cannot replace these records. The built-in independent
+validator reads original data and final outputs, not the solver's internal state.
+It uses an explicit deterministic actor identity, not a fabricated human reviewer.
+PASS covers computed adapter checks; model/source semantic review remains separate.
+See `fixtures/validation/README.md` for exact data shapes and supported equations.
+
+## Compatibility boundaries to finish in T07–T12
 
 V1 visual/support/paper manifests will have explicit lineage adapters; no adapter
 may invent successful execution, independent validation or a frozen value.

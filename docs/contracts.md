@@ -2,8 +2,9 @@
 
 All new contracts use `schema_version: "2.0"`, JSON Schema Draft 2020-12 and strict
 object fields. This catalog defines responsibilities before implementation.
-T04 implements modeling contracts and T05 the run manifest; evidence/agent contracts
-remain scheduled for T06–T08. Schemas/tests are executable definitions; changed contracts must update
+T04 implements modeling contracts, T05 the run manifest, and T06 independent
+validation/evidence. Agent contracts remain scheduled for T08.
+Schemas/tests are executable definitions; changed contracts must update
 this catalog, examples and migration together.
 
 Common artifact reference: `artifact_id`, workspace-relative `path`, `sha256`,
@@ -122,3 +123,37 @@ The current conservative bound is three total attempts per unresolved failure
 chain, even if error wording changes. A successful run starts a new chain.
 Interrupted runs remain visible and block a silent retry; inspect the recorded
 process before explicit recovery (workflow recovery integration is T08).
+
+## Independent validation and computed evidence (T06)
+
+Three new schemas describe `validation_criteria`, `validation_summary` and
+`evidence_gate`. A V2 spec may omit `validation_plan.criteria` for draft/execution
+compatibility, but evidence cannot pass without it. Both main and baseline must
+pin identical criteria path/hash and select that frozen original input before
+execution. Changing tolerances after seeing results requires new specs and runs.
+Check IDs cover mandatory task residuals, exact coverage/leakage checks and every
+declared hard-constraint validator. Required robustness needs measured checks.
+
+`independent-validate` copies only the original problem/data, frozen criteria/spec
+and final main/baseline outputs to a separate workspace. Built-in validator code
+is copied independently; solver source and intermediate state are excluded. The
+validator receives no expected final answer and emits measured numbers, never
+approval booleans. Its run passes through the actual runner. A parent comparator
+applies the predeclared thresholds; the evidence gate recomputes those comparisons
+and rechecks run hashes, actor separation, reviewed validator code and exact input
+bindings. An unresolved stderr diagnostic blocks evidence PASS.
+
+Adapters currently cover the explicit JSON protocols documented in
+`fixtures/validation/README.md`: regression/time series, continuous linear programs,
+first-order A→B reaction and nonnegative directed shortest paths. The evaluator
+checks actual row/timestamp/group membership, optional bootstrap uncertainty,
+independent objective/feasibility/oracle gaps, conservation and graph validity.
+Scalar AST dimensional algebra verifies the pinned symbol registry against formula
+equalities without `eval`. It does not claim general symbolic/TeX theorem proving.
+
+Evidence PASS has scope `computed_model_evidence`; official compliance remains
+NOT_RUN. Source authenticity, appropriateness of assumptions/thresholds, actual
+agent role attribution and question-wide semantic acceptance still require the
+T08 workflow and T09/T12 final audits. Custom problems need reviewed independent
+adapters rather than changing a `task_type` label. Windows extended paths support
+nested evidence bundles beyond the traditional MAX_PATH limit.

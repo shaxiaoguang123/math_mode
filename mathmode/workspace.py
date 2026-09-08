@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 
 from .contracts import validate
-from .io import file_hash, now, write_json
+from .io import file_hash, now, write_json, canonical_root
 from .state import StateStore, initial_state
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -23,8 +23,9 @@ def initialize(case_id: str, inputs: list[dict], *, destination: Path | None = N
     for component in (target, *target.parents):
         if component.is_symlink() or getattr(component, "is_junction", lambda: False)():
             raise ValueError("Workspace destination cannot traverse a symlink/junction")
-    target = target.resolve()
-    if kind == "competition" and (target == REPO_ROOT or REPO_ROOT in target.parents):
+    target = canonical_root(target)
+    public_root = canonical_root(REPO_ROOT)
+    if kind == "competition" and (target == public_root or public_root in target.parents):
         raise ValueError("Formal competition workspace must stay outside the public template repository")
     if target.exists():
         raise ValueError("Refusing to overwrite an existing workspace")
@@ -38,7 +39,7 @@ def initialize(case_id: str, inputs: list[dict], *, destination: Path | None = N
         raw_source = Path(item["path"]).absolute()
         if any(p.is_symlink() or getattr(p, "is_junction", lambda: False)() for p in (raw_source, *raw_source.parents)):
             raise ValueError("Original input source cannot traverse a symlink/junction")
-        source = raw_source.resolve()
+        source = canonical_root(raw_source)
         if not source.is_file() or not source.stat().st_size:
             raise ValueError(f"Original input is missing/empty: {source.name}")
         relative = f"inputs/{item['input_id']}/{source.name}"

@@ -61,6 +61,14 @@ def file_hash(path: Path) -> str:
         return hashlib.file_digest(handle, "sha256").hexdigest()
 
 
+def canonical_root(path: Path) -> Path:
+    """Use extended Windows paths so nested evidence bundles do not hit MAX_PATH."""
+    resolved = str(path.resolve())
+    if os.name == "nt" and not resolved.startswith("\\\\?\\"):
+        resolved = "\\\\?\\UNC\\" + resolved[2:] if resolved.startswith("\\\\") else "\\\\?\\" + resolved
+    return Path(resolved)
+
+
 def safe_path(root: Path, relative: str, *, exists: bool = True) -> Path:
     if (not isinstance(relative, str) or not relative.strip()
             or relative.startswith(("/", "\\")) or ":" in relative or "\x00" in relative):
@@ -73,7 +81,7 @@ def safe_path(root: Path, relative: str, *, exists: bool = True) -> Path:
     if any(part.endswith((" ", ".")) or reserved.match(part)
            or re.search(r'[<>"|?*\x00-\x1f]', part) for part in parts):
         raise ValueError("Ambiguous or reserved Windows path")
-    anchor = root.resolve()
+    anchor = canonical_root(root)
     target = anchor.joinpath(*PurePosixPath("/".join(parts)).parts)
     current = anchor
     for part in parts:

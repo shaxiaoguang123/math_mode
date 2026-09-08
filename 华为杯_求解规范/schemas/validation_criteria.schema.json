@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/validation_criteria.schema.json",
+  "title": "MathMode validation_criteria 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "criteria_id",
+    "question_id",
+    "task_type",
+    "data_input_id",
+    "main_output_name",
+    "baseline_output_name",
+    "source_refs",
+    "checks",
+    "symbol_dimensions",
+    "robustness",
+    "evaluation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "criteria_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "task_type": {
+      "enum": [
+        "regression",
+        "time_series",
+        "optimization",
+        "mechanism",
+        "graph"
+      ]
+    },
+    "data_input_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "main_output_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "baseline_output_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "metric",
+          "operator",
+          "threshold",
+          "unit",
+          "source_ref"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "metric": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "operator": {
+            "enum": [
+              "le",
+              "ge",
+              "eq"
+            ]
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "source_ref": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "symbol_dimensions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "integer"
+        }
+      }
+    },
+    "robustness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reason",
+        "required_metrics"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "required",
+            "not_applicable"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "required_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sense",
+        "target",
+        "bootstrap_repetitions",
+        "confidence"
+      ],
+      "properties": {
+        "sense": {
+          "enum": [
+            "min",
+            "max"
+          ]
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bootstrap_repetitions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "confidence": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        }
+      }
+    }
+  }
+}

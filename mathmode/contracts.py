@@ -221,6 +221,21 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
         if value["backend"] == "local_subprocess" and any(value["capabilities"][key] for key in
                 ("os_sandbox", "network_isolation", "filesystem_isolation", "memory_limit", "cpu_limit")):
             raise ValueError("Local subprocess cannot claim isolation capabilities")
+    elif name == "validation_summary":
+        unique(value["checks"], "check_id")
+        expected = "PASS" if all(check["status"] == "PASS" for check in value["checks"]) else "FAIL"
+        if value["status"] != expected:
+            raise ValueError("Validation status contradicts numerical checks")
+        for check in value["checks"]:
+            if value["measurements"].get(check["metric"]) != check["value"]:
+                raise ValueError("Validation check disagrees with its measurement")
+            measured, threshold = check["value"], check["threshold"]
+            passed = {"le": measured <= threshold, "ge": measured >= threshold, "eq": measured == threshold}[check["operator"]]
+            if (check["status"] == "PASS") != passed:
+                raise ValueError("Validation status disagrees with numerical comparison")
+    elif name == "evidence_gate":
+        if (value["status"] == "PASS") == bool(value["blockers"]):
+            raise ValueError("Evidence gate status contradicts blockers")
     return value
 
 
