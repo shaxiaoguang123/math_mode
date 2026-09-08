@@ -16,7 +16,7 @@ ROLES = {
         "Read the original problem and explicit input roles. Cover every question, objective, hard constraint, output, unit and resource limit; construct the exact dependency DAG. Do not choose final models.", activity="problem_analysis"),
     "ambiguity": Role(frozenset({"ambiguity_register", "assumption_ledger", "symbol_table"}), ("framing/",),
         "Resolve ambiguity only from actual source evidence. Preserve unresolved high severity conflicts. Record necessary/simplifying assumptions, validation and sensitivity plans, dimensions and question/formula scope.", activity="problem_analysis"),
-    "data_auditor": Role(frozenset({"data_audit"}), ("framing/",),
+    "data_auditor": Role(frozenset({"data_audit", "issue_disposition"}), ("framing/",),
         "Audit actual data shapes, types, missingness, duplication, ranges, units, times, groups and labels. Explain leakage and coverage risks. Do not select the final model.", activity="review"),
     "method_retriever": Role(frozenset({"method_sources"}), ("methods/",),
         "Retrieve verifiable definitions, methods and known failures. Respect same-problem reference blindness. Do not copy reference-paper numbers or treat a citation as an executed result.", activity="literature"),
@@ -28,11 +28,11 @@ ROLES = {
         "Produce small executable probe specs/code and predeclared measurement criteria for executability, coverage, assumptions, degeneracy, perturbation and scale. A deterministic runner will execute them; never declare an unexecuted PASS.", may_write_code=True, activity="coding"),
     "decision": Role(frozenset({"method_decision"}), ("decisions/",),
         "Choose a screened production method and usable baseline from actual fresh probe evidence. Set execution_role=main for the main candidate, or fallback only when the predeclared main-probe trigger activates and the fallback's own probe passes; main_method_id names that selected production method. Cite both fallback screening reports. In autopilot attribute decided_by=agent and your actual actor ID. Never fabricate a human event or enable an untriggered fallback."),
-    "code": Role(frozenset({"model_spec"}), ("models/", "code/"),
+    "code": Role(frozenset({"model_spec", "issue_disposition"}), ("models/", "code/"),
         "Implement only the approved main/baseline, or a fallback with a recorded measured trigger. Use one explicit entrypoint, the supplied run context, fixed seed and complete code bundle. Separate computation from plotting. Never write final measurements or approve results.", may_write_code=True, activity="coding"),
     "validator": Role(frozenset({"semantic_review"}), ("reviews/",),
         "Independently review original inputs, criteria/spec and final outputs. For fallback execution, review and cite the actual decision, predeclared trigger card and both screening reports. Preserve the fallback attribution and judge its claims against the same task and baseline. Do not request or import solver source or intermediate state. Check assumptions, units, limitations and applicability of independent numerical checks.", activity="review"),
-    "reviewer": Role(frozenset({"semantic_review"}), ("reviews/",),
+    "reviewer": Role(frozenset({"semantic_review", "disposition_review"}), ("reviews/",),
         "Review a different actor's work against original requirements and actual evidence. State supported/limited/exploratory conclusions, unresolved warnings and missing coverage. Your opinion cannot override deterministic failures.", activity="review"),
     "visual": Role(frozenset({"visual_handoff"}), ("visuals/",),
         "Use verified frozen numbers and the existing complete academic-figure-skill for ordinary scientific figures. Follow separate TikZ flowchart rules. Do not create numerical facts or assert visual QA without rendering and inspection.", activity="visualization"),
@@ -57,4 +57,8 @@ Do not merge Git branches, submit contest material, message others, edit origina
 inputs, invent source citations, report unexecuted PASS, or impersonate a human.
 Report missing evidence honestly. A deterministic parent validates and publishes
 your proposal; produced files are not automatically scientific acceptance.
+For issue dispositions, pin the actual source and full problem frame hashes.
+Cover every warning and limitation by its JSON Pointer, all affected questions,
+an explicit retained boundary and source evidence, or request repair. A different
+reviewer may approve only LIMITED use; no disposition can override an error.
 """

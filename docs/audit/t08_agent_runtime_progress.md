@@ -404,3 +404,19 @@ Changed-file privacy patterns found no matches; no protected assets or large fil
 changed. Human request/event ignore rules were directly checked. Fetch found only
 the research report/index addition `b599be7` on main, with no runtime overlap;
 there is no merge, PR or GitHub CI acceptance claim at this stage.
+
+## Reviewed warning/LIMITED continuation checkpoint
+
+The subsequent implementation admits exact current data reports to inspection,
+requires hash-bound proposals and independent role reviews before bounded use,
+retains LIMITED throughout affected workflow gates and immutable numerical
+freezes, and inherits restrictions through actual upstream freezes. The catalog
+now contains 39 contracts. Its evidence, compatibility boundaries and remaining
+work are in `t08_reviewed_dispositions.md`. This adds a warning-handling path;
+T08 remains IN PROGRESS and the full T09–T12 deliverables remain outstanding.
+
+Final verification for this checkpoint: **223 passed, 1 skipped** in 859.19s in
+Conda test; full compileall, all 39 schemas and both 263-file mirrors pass. The skip
+remains Windows symlink privilege. No protected assets changed, no changed-file
+privacy-pattern matches or new large files were found, and diff whitespace checks
+pass. This remains feature-branch progress, not final release/CI acceptance.

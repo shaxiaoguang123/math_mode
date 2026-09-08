@@ -94,8 +94,8 @@ class Orchestrator:
             report = validate("data_audit", read_json(path), root=self.root)
             current = audit_inputs(self.root)
             current["created_at"] = report["created_at"]
-            if report != current or report["status"] != "PASS":
-                raise ValueError("Data audit is stale or has unresolved input issues")
+            if report != current:
+                raise ValueError("Data audit is stale")
             return "data_audit", report
         # Canonical role contracts require the original successful reasoning call.
         runs = safe_path(self.root, "agent_runs", exists=False)
@@ -154,6 +154,27 @@ class Orchestrator:
         missing = REQUIRED_CONTRACTS[role] - kinds.keys()
         if missing:
             raise ValueError("Missing fresh phase prerequisites: " + ", ".join(sorted(missing)))
+        # Inspection and repair roles must be able to read the actual warnings.
+        # Every modeling dispatch still needs the reviewed limits in its bundle.
+        if role in {"method_retriever", "council", "critic", "probe", "decision", "code", "validator"}:
+            from .dispositions import verify_disposition
+            audit_path = "framing/deterministic_data_audit.json"
+            audit = audit_inputs(self.root)
+            if audit["status"] == "FAIL":
+                raise ValueError("Failed data audit requires input repair before modeling")
+            if audit["status"] == "WARN":
+                proposals = [value for value in kinds.get("issue_disposition", []) if value["source"]["path"] == audit_path]
+                if len(proposals) != 1:
+                    raise ValueError("Data warnings require a reviewed disposition in the modeling input bundle")
+                proposal_path = next(item["path"] for item in task["inputs"] if self._kind(item["path"])[1] == proposals[0])
+                reviews = [item["path"] for item in task["inputs"] if self._kind(item["path"])[0] == "disposition_review"
+                           and self._kind(item["path"])[1]["proposal"]["path"] == proposal_path]
+                if len(reviews) != 1:
+                    raise ValueError("Data warning disposition requires its independent review")
+                result = verify_disposition(self.root, {"source": audit_path, "proposal": proposal_path, "review": reviews[0]},
+                                            question_id=task["question_id"])
+                if set(result["dependencies"]) - {item["artifact_id"] for item in task["inputs"]}:
+                    raise ValueError("Modeling bundle omits the warning disposition's evidence")
         if role == "method_retriever":
             supplied = {item["path"]: item["sha256"] for item in task["inputs"]}
             for receipt in kinds.get("reference_retrieval", []):
@@ -213,7 +234,8 @@ class Orchestrator:
                 kind, _ = self._kind(item["path"])
                 if kind in {"input_manifest", "problem_frame", "problem_dag", "symbol_table", "ambiguity_register", "assumption_ledger",
                             "method_card", "method_decision", "risk_probe",
-                            "model_spec", "validation_criteria", "validation_summary", "evidence_gate"}:
+                            "model_spec", "validation_criteria", "validation_summary", "evidence_gate",
+                            "data_audit", "issue_disposition", "disposition_review"}:
                     allowed.add(item["path"])
             from .runner import verify_run
             for run_path in (self.root / "runs").glob("*/run_manifest.json"):

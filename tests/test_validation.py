@@ -30,11 +30,15 @@ def criteria_for(kind):
 
 
 @pytest.fixture
-def prepared(tmp_path):
+def prepared(tmp_path, request):
     problem = tmp_path / "problem.txt"
     problem.write_text("Synthetic exact affine regression fixture", encoding="utf-8")
     data = tmp_path / "data.json"
-    write_json(data, {"rows": [{"id": f"row{i}", "x": i, "observed_y": 2 * i + 1} for i in range(1, 6)]})
+    rows = [{"id": f"row{i}", "x": i, "observed_y": 2 * i + 1} for i in range(1, 6)]
+    if getattr(request, "param", None) == "missing_unused_note":
+        for row in rows:
+            row["note"] = None
+    write_json(data, {"rows": rows})
     criteria = tmp_path / "criteria.json"
     write_json(criteria, criteria_for("regression"))
     source = {"uri": "fixture://independent-validation", "accessed_at": "2026-09-08T00:00:00Z", "license": "Repository-authored synthetic fixture"}

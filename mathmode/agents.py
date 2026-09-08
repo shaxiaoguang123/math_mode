@@ -91,14 +91,21 @@ def _check_response(task, response, root=None):
                         raise ValueError("Autopilot cannot impersonate a human decision")
                     if value["decided_by"] == "human":
                         raise ValueError("Human decisions must enter through an actual host user event")
-                if declaration["contract"] == "semantic_review" and value["reviewed_actor_id"] != task["reviewed_actor_id"]:
+                if declaration["contract"] in {"semantic_review", "disposition_review"} and value["reviewed_actor_id"] != task["reviewed_actor_id"]:
                     raise ValueError("Review changed the reviewed producer identity")
-                if declaration["contract"] in {"semantic_review", "method_proposal", "method_decision"}:
+                if declaration["contract"] in {"semantic_review", "method_proposal", "method_decision", "issue_disposition", "disposition_review"}:
                     refs = value.get("artifact_refs", []) + value.get("evidence_refs", [])
                     for finding in value.get("findings", []):
                         refs.extend(finding["evidence_refs"])
+                    for item in value.get("items", []):
+                        refs.extend(item["evidence_refs"])
                     if set(refs) - {item["artifact_id"] for item in task["inputs"]}:
                         raise ValueError("Produced contract cites evidence outside its input scope")
+                if declaration["contract"] in {"issue_disposition", "disposition_review"}:
+                    supplied = {item["path"]: item["sha256"] for item in task["inputs"]}
+                    keys = ("source", "frame") if declaration["contract"] == "issue_disposition" else ("proposal",)
+                    if any(supplied.get(value[key]["path"]) != value[key]["sha256"] for key in keys):
+                        raise ValueError("Disposition pins must match actual supplied input snapshots")
                 if declaration["contract"] == "method_proposal" and value["view"] != task["view"]:
                     raise ValueError("Proposal changed its council view")
                 if declaration["contract"] == "method_sources":

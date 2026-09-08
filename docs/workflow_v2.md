@@ -28,10 +28,12 @@ Artifacts: `DRAFT → VALID → FROZEN`; failure gives `FAILED`; missing or chan
 dependencies produce `STALE`. Only successful rerun and revalidation produce new
 VALID/FROZEN artifacts. Old versions remain historical, not current acceptance.
 
-Gate observations: `NOT_RUN`, `PASS`, `WARN`, `FAIL`, `BLOCKED`. PASS requires all
+Gate observations: `NOT_RUN`, `PASS`, `LIMITED`, `WARN`, `FAIL`, `BLOCKED`. PASS requires all
 applicable checks completed without blocker or unresolved warning. Nonapplicable
 checks carry a concrete reason; they are not silently marked passed. Human review
 required by actual policy remains pending until the reviewer event arrives.
+LIMITED preserves independently reviewed restrictions and permits only the bounded
+numerical continuation described below; it never establishes final acceptance.
 
 Agent work: `PENDING → RUNNING → PRODUCED → REVIEWED`; failures route to the
 responsible upstream stage. A task result is a proposal until its independent
@@ -189,8 +191,9 @@ Missing progress pointers adopt reverified existing runs/validation without new
 computation. Changed/repaired runs replace obsolete pointers and clear previous
 validation/evidence pointers. A recorded failed run still needs an explicit repair
 and retry; new IDs do not reset budgets. After thaw, both model runs must be new.
-Only an independent current semantic review permits numerical freezing. Warnings
-and LIMITED verdicts remain blocked pending explicit disposition integration.
+Only an independent current semantic review permits workflow numerical freezing.
+Warnings and LIMITED verdicts require the independently reviewed dispositions
+described below; without them they remain blocked.
 
 When the main probe activates a predeclared fallback trigger, the fallback's own
 probe must also pass. An attributed `execution_role=fallback` decision selects it
@@ -218,3 +221,80 @@ T02 **PASS** establishes this state machine, ownership boundaries, contract
 catalog, stale graph and implementation sequence before runtime code. Later stage
 reports must link actual tests and artifacts. The release must complete T03–T12;
 these design documents alone cannot establish MathMode V2 READY.
+
+## Reviewed warning and LIMITED dispositions
+
+Inspection roles can consume a current deterministic WARN/FAIL report to understand
+the problem. A FAIL still blocks modeling. A WARN requires an `issue_disposition`
+proposal and a different actor's `disposition_review` before modeling dispatch.
+The proposal pins the exact data audit or LIMITED semantic review and the complete
+problem frame by path/SHA-256. Each warning finding and limitation has its own JSON
+Pointer (for example `/issues/0`, `/findings/1`, `/limitations/0`), affected question
+IDs, actual evidence references, rationale and explicit boundary of retained use.
+All source issues must be covered exactly, with no omitted/invented locators.
+Data issues cover every question consuming that input; other problem/rule input
+issues conservatively apply case-wide. A semantic issue covers its source question.
+
+The independent review pins the proposal, cites source/frame/proposal evidence,
+and returns LIMITED or BLOCKED. Its actor differs from the proposal author, source
+reviewer and producers of the original reviewed work. Both proposal and review
+require actual successful role handoffs. Authored JSON and fixture transports do
+not authorize continuation. Errors, BLOCKED sources, `repair_required` actions,
+uncovered questions, stale hashes and missing evidence remain blocking. The source
+report is never rewritten to PASS. Review judgment is a trusted role observation,
+not person authentication, provider attestation or a mathematical correctness proof.
+
+Add the corresponding paths to the host-owned workflow plan:
+
+```json
+{
+  "dispositions": [{
+    "source": "framing/deterministic_data_audit.json",
+    "proposal": "framing/data-disposition.json",
+    "review": "reviews/data-disposition.json"
+  }]
+}
+```
+
+This is an optional fragment, not a complete plan or preapproved fixture. Use the
+existing agent schedule to produce the actual artifacts: `data_auditor` may propose
+`issue_disposition` under `framing/`, `code` under `models/`, and `reviewer` may
+produce `disposition_review` under `reviews/`. Data disposition tasks use null
+question scope; semantic disposition tasks use the source question ID. Supply the
+original input manifest, actual source, frame and relevant evidence to the proposal
+author; supply these and the proposal to the independent reviewer. Question-scoped
+review tasks also require the current framed DAG. Later modeling tasks must receive
+the data source, proposal, approval and all cited evidence in their input bundle.
+The generated independent validator task receives data restrictions while its
+existing solver-source/intermediate exclusion remains enforced. A schedule and
+explicit bindings are required; automatic proposal generation and repair scheduling
+remain additional T08 work. Existing unfavorable reviews are not repeatedly queried
+for a more favorable verdict.
+
+```powershell
+python -m mathmode verify-disposition --workspace ../competitions/case-id --source framing/deterministic_data_audit.json --proposal framing/data-disposition.json --review reviews/data-disposition.json
+```
+
+Approved limits produce `LIMITED` phase gates, including downstream model/validation
+and freeze gates, and preserve their exact source/proposal/review pins in the report.
+LIMITED allows the next bounded numerical transition; it never establishes final
+official/paper acceptance. G7/G8 still await T09. CLI exit zero remains reserved for
+PASS: an approved `verify-disposition` returns LIMITED with exit one. Likewise,
+`freeze` and `verify-freeze` expose LIMITED and the restrictions when present; inspect
+the structured status/scope instead of treating every nonzero result as corruption.
+
+Workflow freezing supplies optional `qualification_sources`. The freeze service
+independently rechecks those pins, source coverage and actual provenance, derives
+the retained restrictions and rechecks under the publication lock. It also inherits
+restrictions from the actual upstream freezes of both main and baseline runs.
+`frozen_numbers.qualifications` records confidence `limited`, direct sources,
+inherited freeze pins and the original issue/boundary text. Registry dependencies
+bind all supporting evidence. Review/evidence changes invalidate the snapshot and
+its downstream consumers. A bare numerical freeze cannot satisfy a workflow that
+requires these qualifications; explicit thaw, fresh executions/validation and
+refreeze are required. The lower-level numerical freeze API still establishes
+numerical integrity only, not complete semantic or scientific acceptance.
+
+This mechanism accounts for retained limitations; it does not implement data
+cleaning or turn missing essential values into valid numerical inputs. Actual
+repair/preprocessing and measured assumption sensitivity remain required work.

@@ -15,6 +15,7 @@ from .policy import load_policy, audit_policy
 from .probes import measured_probe, screening_options, verify_screened_decision, verify_fallback_authorization
 from .runner import execute_model, verify_run
 from .state import workspace_lock
+from .dispositions import qualify_source, derive_qualifications
 from .validation import independently_validate, audit_evidence, validate_criteria, verify_evidence_report
 
 GATES = ("G0", "G1", "G2", "G3", "G3.5", "G4", "G5", "G6", "G7", "G8")
@@ -32,24 +33,33 @@ class Workflow:
             raise ValueError(f"Missing current {name} handoff: {path}")
         return value
 
-    def _review(self, path, required, question_id=None, reviewed_actor=None):
+    def _review(self, path, required, question_id=None, reviewed_actor=None, *, plan=None, qualifications=None):
         review = self._contract(path, "semantic_review")
-        if review["verdict"] != "SUPPORTED" or any(item["severity"] in {"warning", "error"} for item in review["findings"]):
-            raise ValueError("Required semantic review has unresolved limitations/findings")
         if question_id is not None and review["question_id"] != question_id:
             raise ValueError("Semantic review belongs to another question")
         if reviewed_actor is not None and review["reviewed_actor_id"] != reviewed_actor:
             raise ValueError("Semantic review does not review the actual producer")
         if {artifact_id(item) for item in required} - set(review["artifact_refs"]):
             raise ValueError("Semantic review omits required artifacts")
+        if review["verdict"] != "SUPPORTED":
+            if plan is None or qualifications is None:
+                raise ValueError("Required semantic review has unresolved limitations/findings")
+            result = qualify_source(self.root, path, plan.get("dispositions", []),
+                                    frame_path=plan["framing"]["problem_frame"], question_id=question_id)
+            qualifications.append(result["sources"])
         return review
 
-    def _framing(self, plan):
+    def _framing(self, plan, *, qualifications=None):
+        qualifications = qualifications if qualifications is not None else []
         fields = plan["framing"]
         bundle = {name: self._contract(fields[name], name) for name in
                   ("problem_frame", "problem_dag", "symbol_table", "ambiguity_register")}
         bundle["input_manifest"] = validate("input_manifest", read_json(self.root / "input_manifest.json"), root=self.root)
         audit = self._contract("framing/deterministic_data_audit.json", "data_audit")
+        if audit["status"] != "PASS":
+            result = qualify_source(self.root, "framing/deterministic_data_audit.json", plan.get("dispositions", []),
+                                    frame_path=fields["problem_frame"])
+            qualifications.append(result["sources"])
         if bundle["problem_frame"]["data_audit_ref"] != artifact_id("framing/deterministic_data_audit.json"):
             raise ValueError("Frame does not bind the current deterministic data audit")
         validate_modeling_bundle(bundle, root=self.root)
@@ -61,7 +71,8 @@ class Workflow:
             if set(entry["question_ids"]) - question_ids or entry["status"] == "pending":
                 raise ValueError("Assumptions contain unknown questions or pending dispositions")
         self._review(fields["review"], [fields[name] for name in fields if name != "review"] +
-                     ["framing/deterministic_data_audit.json"], reviewed_actor=bundle["problem_frame"]["producer"])
+                     ["framing/deterministic_data_audit.json"], reviewed_actor=bundle["problem_frame"]["producer"],
+                     plan=plan, qualifications=qualifications)
         if question_ids != {job["question_id"] for job in plan["questions"]}:
             raise ValueError("Workflow plan must cover every framed question exactly")
         return bundle, assumptions
@@ -87,7 +98,7 @@ class Workflow:
         verify_screened_decision(decision, screening, job["probe_reports"])
         return decision
 
-    def _code(self, job, bundle, assumptions, card, decision):
+    def _code(self, job, bundle, assumptions, card, decision, *, plan=None, qualifications=None):
         specs = [self._contract(job[name], "model_spec") for name in ("main_spec", "baseline_spec")]
         used = {key for method in card["methods"] for key in method["assumption_ids"]}
         latest = {entry["assumption_id"]: entry for entry in assumptions}
@@ -114,13 +125,13 @@ class Workflow:
         if specs[0]["actor_id"] == specs[1]["actor_id"]:
             required = [job["main_spec"], job["baseline_spec"], specs[0]["validation_plan"]["criteria"]["path"], *selection]
             required.extend(path for spec in specs for path in spec["implementation"]["code_files"])
-            self._review(job["code_review"], required, job["question_id"], specs[0]["actor_id"])
+            self._review(job["code_review"], required, job["question_id"], specs[0]["actor_id"], plan=plan, qualifications=qualifications)
         else:
             if not job.get("baseline_code_review"):
                 raise ValueError("A different baseline producer needs its own independent code review")
             for spec, field, review_path in zip(specs, ("main_spec", "baseline_spec"), (job["code_review"], job["baseline_code_review"])):
                 self._review(review_path, [job[field], spec["validation_plan"]["criteria"]["path"], *spec["implementation"]["code_files"], *selection],
-                             job["question_id"], spec["actor_id"])
+                             job["question_id"], spec["actor_id"], plan=plan, qualifications=qualifications)
         return specs
 
     def _progress(self, plan):
@@ -183,6 +194,14 @@ class Workflow:
                   record["validation"], record["evidence"], *selection]
         inputs.extend(path for name, path in plan["framing"].items() if name != "review")
         inputs.extend(item["path"] for item in read_json(self.root / "input_manifest.json")["files"])
+        # The independent validator sees approved data boundaries and their
+        # evidence. Do not include code-review proposals containing solver code.
+        for binding in plan.get("dispositions", []):
+            if binding["source"] == "framing/deterministic_data_audit.json":
+                from .dispositions import verify_disposition
+                result = verify_disposition(self.root, binding, question_id=job["question_id"])
+                registered = {item["artifact_id"]: item["path"] for item in self.registry.store.load()["artifacts"]}
+                inputs.extend(registered[key] for key in result["dependencies"])
         for role in ("main", "baseline"):
             run = verify_run(self.root, record[role + "_run"])
             inputs.extend(item["path"] for item in run["outputs"])
@@ -251,7 +270,7 @@ class Workflow:
                 continue
         return max(matches, key=lambda value: value["created_at"]) if matches else None
 
-    def _freeze_request(self, job, record):
+    def _freeze_request(self, job, record, qualification_sources=()):
         numbers = []
         run = verify_run(self.root, record["main_run"])
         outputs = unique(run["outputs"], "name")
@@ -264,8 +283,11 @@ class Workflow:
                 raise ValueError("Requested freeze output is absent")
             numbers.append({key: requested[key] for key in ("frozen_number_id", "claim_id", "locator", "unit", "precision")} | {"source_path": source})
         spec = read_json(self.root / job["main_spec"])
-        return {"schema_version": "2.0", "actor_id": "workflow-freeze-service", "question_id": job["question_id"],
-                "decision_id": spec["decision_id"], "numbers": numbers}
+        request = {"schema_version": "2.0", "actor_id": "workflow-freeze-service", "question_id": job["question_id"],
+                   "decision_id": spec["decision_id"], "numbers": numbers}
+        if qualification_sources:
+            request["qualification_sources"] = list(qualification_sources)
+        return request
 
     def observe(self, plan: dict, *, persist=True) -> dict:
         validate("workflow_plan", plan, root=self.root)
@@ -292,7 +314,10 @@ class Workflow:
                 raise ValueError("; ".join(report["issues"]))
         check("G0", policy)
         check("G1", lambda: validate("input_manifest", read_json(self.root / "input_manifest.json"), root=self.root))
-        framed = check("G2", lambda: self._framing(plan), ("G1",))
+        framing_qualifications = []
+        framed = check("G2", lambda: self._framing(plan, qualifications=framing_qualifications), ("G1",))
+        if framed and framing_qualifications:
+            gate_reports["G2"]["status"] = "LIMITED"
         per_question = {}
         if framed:
             bundle, assumptions = framed
@@ -302,16 +327,20 @@ class Workflow:
                 status = {}
                 phase = "G3"
                 next_action = "screen-method"
+                qualifications = list(framing_qualifications)
+                limited = bool(qualifications)
                 try:
                     card = self._screened(job)
-                    status["G3"] = {"status": "PASS", "blockers": []}
+                    status["G3"] = {"status": "LIMITED" if limited else "PASS", "blockers": []}
                     phase, next_action = "G3.5", "decide-method"
                     decision = self._decided(job, card)
-                    status["G3.5"] = {"status": "PASS", "blockers": []}
+                    status["G3.5"] = {"status": "LIMITED" if limited else "PASS", "blockers": []}
                     phase, next_action = "G4", "review-code"
-                    specs = self._code(job, bundle, assumptions, card, decision)
+                    specs = self._code(job, bundle, assumptions, card, decision, plan=plan, qualifications=qualifications)
+                    limited = bool(qualifications)
                     for dependency in nodes[qid]["depends_on"]:
                         parent = verify_freeze(self.root, dependency)
+                        limited = limited or bool(parent.get("qualifications"))
                         for spec in specs:
                             if {item["question_id"]: item["freeze_id"] for item in spec.get("upstream_freezes", [])}.get(dependency) != parent["freeze_id"]:
                                 raise ValueError("Dependent model does not consume the current parent freeze")
@@ -328,7 +357,7 @@ class Workflow:
                             raise ValueError("Explicit thaw requires new main/baseline executions")
                         if run["question_id"] != qid or run["role"] != execution_role or run["spec"]["source_path"] != job[role + "_spec"]:
                             raise ValueError("Workflow run does not implement the selected spec/role")
-                    status["G4"] = {"status": "PASS", "blockers": []}
+                    status["G4"] = {"status": "LIMITED" if limited else "PASS", "blockers": []}
                     phase, next_action = "G5", "independent-validate"
                     if not record.get("validation") or not record.get("evidence"):
                         raise ValueError("Independent numerical validation is missing")
@@ -339,12 +368,18 @@ class Workflow:
                     next_action = "review-validation"
                     selection = [job["method_card"], job["decision"], *job["probe_reports"]] if decision.get("execution_role", "main") == "fallback" else []
                     review = self._review(job["validation_review"], [record["validation"], record["evidence"], job["main_spec"], job["baseline_spec"],
-                                 specs[0]["validation_plan"]["criteria"]["path"], *selection], qid, specs[0]["actor_id"])
+                                 specs[0]["validation_plan"]["criteria"]["path"], *selection], qid, specs[0]["actor_id"],
+                                 plan=plan, qualifications=qualifications)
                     if review["actor_id"] in {spec["actor_id"] for spec in specs}:
                         raise ValueError("Independent semantic reviewer cannot be either solver producer")
-                    status["G5"] = {"status": "PASS", "blockers": []}
+                    limited = limited or bool(qualifications)
+                    status["G5"] = {"status": "LIMITED" if limited else "PASS", "blockers": []}
                     phase, next_action = "G6", "freeze"
                     snapshot = verify_freeze(self.root, qid)
+                    expected, _ = derive_qualifications(self.root, qid, qualifications,
+                        [verify_run(self.root, record[role + "_run"]) for role in ("main", "baseline")])
+                    if snapshot.get("qualifications") != expected:
+                        raise ValueError("Active freeze omits or changes reviewed qualifications; explicit thaw is required")
                     if snapshot["validation"]["path"] != record["validation"]:
                         raise ValueError("Active freeze belongs to a different validation")
                     requested = self._freeze_request(job, record)["numbers"]
@@ -352,18 +387,19 @@ class Workflow:
                               for number in snapshot["numbers"]]
                     if sorted(actual, key=lambda item: item["frozen_number_id"]) != sorted(requested, key=lambda item: item["frozen_number_id"]):
                         raise ValueError("Active freeze does not cover the requested claims/locators; explicit thaw is required")
-                    status["G6"] = {"status": "PASS", "blockers": []}
+                    status["G6"] = {"status": "LIMITED" if limited else "PASS", "blockers": []}
                     next_action = "visual-and-paper"
                 except (ValueError, OSError, ValidationError) as exc:
                     status[phase] = {"status": "BLOCKED", "blockers": [str(exc)]}
                 for gate in ("G3", "G3.5", "G4", "G5", "G6"):
                     status.setdefault(gate, {"status": "BLOCKED", "blockers": ["Prior question phase is not current"]})
-                per_question[qid] = {"gates": status, "next_action": next_action}
+                per_question[qid] = {"gates": status, "next_action": next_action, "qualification_sources": qualifications}
         for gate in ("G3", "G3.5", "G4", "G5", "G6"):
             blockers = [f"{qid}: {message}" for qid, item in per_question.items() for message in item["gates"][gate]["blockers"]]
             if not per_question:
                 blockers = ["Framing is not ready"]
-            gate_reports[gate] = {"status": "BLOCKED" if blockers else "PASS", "blockers": blockers}
+            limited = any(item["gates"][gate]["status"] == "LIMITED" for item in per_question.values())
+            gate_reports[gate] = {"status": "BLOCKED" if blockers else "LIMITED" if limited else "PASS", "blockers": blockers}
         gate_reports["G7"] = {"status": "BLOCKED", "blockers": ["Verified visual, paper and render/format evidence is required"]}
         gate_reports["G8"] = {"status": "BLOCKED", "blockers": ["Final policy, paper and submission audits are required"]}
         if persist:
@@ -382,7 +418,7 @@ class Workflow:
 
     def _advance(self, plan, *, interpreter=None):
         report = self.observe(plan)
-        if report["gates"]["G2"]["status"] != "PASS":
+        if report["gates"]["G2"]["status"] not in {"PASS", "LIMITED"}:
             if report["gates"]["G1"]["status"] == "PASS":
                 self.agents.prepare_inputs()
             scheduled = self._schedule(plan)
@@ -455,7 +491,7 @@ class Workflow:
                 if evidence["status"] == "PASS":
                     _bind_evidence(self.registry, self.root, record["validation"], record["evidence"])
             elif action == "freeze":
-                freeze_results(self.root, self._freeze_request(job, record), record["evidence"])
+                freeze_results(self.root, self._freeze_request(job, record, item["qualification_sources"]), record["evidence"])
             elif action == "review-validation":
                 scheduled = self._review_validation(plan, job, record)
                 if scheduled:

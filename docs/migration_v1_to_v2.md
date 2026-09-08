@@ -252,6 +252,30 @@ The separate workflow lock has the same owner identity rules as the state lock;
 
 ## Compatibility boundaries to finish in T08–T12
 
+Reviewed dispositions add two standalone 2.0 contracts, `issue_disposition` and
+`disposition_review`, plus optional fields `workflow_plan.dispositions`,
+`freeze_request.qualification_sources` and `frozen_numbers.qualifications`. Existing
+plans/requests without these fields remain structurally valid. Legacy unqualified
+snapshots are not rewritten: their existing integrity checks remain required,
+and workflow acceptance additionally checks whether current reviews demand retained
+limits. An old numerical snapshot cannot be upgraded by hand-adding restrictions;
+thaw and execute/validate/refreeze against the actual approved evidence.
+
+Readers of `workflow_state.gates[].status` must recognize LIMITED as bounded
+continuation with retained restrictions, never as PASS. Consumers of upstream
+freeze snapshots must preserve `qualifications`; the freeze service automatically
+inherits these restrictions from actual main/baseline upstream inputs. Source,
+frame or approval changes require new current handoffs and invalidate descendants.
+New restricted `freeze`/`verify-freeze` CLI responses return LIMITED and exit one;
+unqualified integrity checks keep their prior PASS behavior. `verify-disposition`
+also returns LIMITED/exit one when approved. Parse status and scope for the result.
+
+The generic audit remains unchanged on disk, including its WARN issues and locator
+indices. Inspection can now read current warnings/failures; modeling must include
+the exact independently reviewed warning bundle. A previous manually authored
+approval has no automatic migration to genuine role provenance. The original
+input manifest, original data and source reviews are preserved throughout.
+
 `reference_retrieval` and the optional `method_sources.sources[].retrieval` binding
 connect actual HTTP receipts to source summaries. New HTTP method-source handoffs
 require the receipt and original downloaded snapshot as task inputs; supplied

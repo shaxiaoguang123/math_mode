@@ -95,6 +95,11 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
                     raise ValueError(f"Original input changed: {item['input_id']}")
                 if path.stat().st_mode & 0o222:
                     raise ValueError(f"Original input is writable: {item['input_id']}")
+    elif name == "issue_disposition":
+        unique(value["items"], "locator")
+    elif name == "disposition_review":
+        if value["actor_id"] == value["reviewed_actor_id"]:
+            raise ValueError("Disposition review requires an independent actor")
     elif name == "semantic_review":
         if value["actor_id"] == value["reviewed_actor_id"]:
             raise ValueError("Review requires an independent actor")

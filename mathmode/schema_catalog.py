@@ -9,6 +9,8 @@ TEXT = {"type": "string", "minLength": 1, "pattern": r"\S"}
 ID = {"type": "string", "pattern": r"^[A-Za-z][A-Za-z0-9_.-]{0,95}$"}
 PATH = {"type": "string", "minLength": 1, "pattern": r"^(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$))(?!.*:).+$"}
 HASH = {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+PIN = {"type": "object", "additionalProperties": False, "required": ["path", "sha256"],
+       "properties": {"path": PATH, "sha256": HASH}}
 TIME = {"type": "string", "format": "date-time"}
 NUMBER = {"type": "number"}
 BOOL = {"type": "boolean"}
@@ -37,6 +39,13 @@ def mapping(item):
 
 def contract(fields, optional=()):
     return obj({"schema_version": {"const": "2.0"}, **fields}, optional=optional)
+
+
+QUALIFICATION_SOURCE = obj({name: PIN for name in ("source", "proposal", "review")})
+RESTRICTION = obj({"question_id": ID, "source": PIN, "locator": TEXT, "issue": TEXT, "boundary": TEXT})
+QUALIFICATIONS = obj({"confidence": enum("limited"), "sources": arr(QUALIFICATION_SOURCE),
+    "inherited_from": arr(obj({"question_id": ID, "freeze_id": ID, "path": PATH, "sha256": HASH})),
+    "restrictions": arr(RESTRICTION, 1)})
 
 
 LIMITS = obj({"timeout_seconds": {"type": "number", "exclusiveMinimum": 0},
@@ -125,7 +134,7 @@ def catalog():
             "interaction_mode": enum("autopilot", "human_gate"), "rigor_profile": enum("lean", "submission"),
             "blind_reference_mode": BOOL, "artifacts": arr(ARTIFACT),
             "gates": arr(obj({"gate_id": enum("G0", "G1", "G2", "G3", "G3.5", "G4", "G5", "G6", "G7", "G8"),
-                "status": enum("NOT_RUN", "PASS", "WARN", "FAIL", "BLOCKED"), "artifact_refs": arr(ID),
+                "status": enum("NOT_RUN", "PASS", "LIMITED", "WARN", "FAIL", "BLOCKED"), "artifact_refs": arr(ID),
                 "checked_at": TIME, "blockers": arr(TEXT)})),
             "retry_history": arr(obj({"cause_id": ID, "category": enum("ENV_FAILURE", "DATA_FAILURE", "CODE_FAILURE", "MODEL_FAILURE", "VALIDATION_FAILURE", "POLICY_FAILURE"),
                 "attempt": {"type": "integer", "minimum": 1, "maximum": 3}, "question_id": ID,
@@ -199,8 +208,9 @@ def catalog():
             "status": enum("PASS", "FAIL", "BLOCKED"), "blockers": arr(TEXT),
             "scope": {"const": "computed_model_evidence"}, "official_compliance": {"const": "NOT_RUN"}}),
         "freeze_request": contract({"actor_id": ID, "question_id": ID, "decision_id": ID,
+            "qualification_sources": arr(QUALIFICATION_SOURCE, 1),
             "numbers": arr(obj({"frozen_number_id": ID, "claim_id": ID, "source_path": PATH,
-                "locator": TEXT, "unit": TEXT, "precision": {"type": "integer", "minimum": 0, "maximum": 16}}), 1)}),
+                "locator": TEXT, "unit": TEXT, "precision": {"type": "integer", "minimum": 0, "maximum": 16}}), 1)}, optional=("qualification_sources",)),
         "frozen_numbers": contract({"freeze_id": ID, "version": {"type": "integer", "minimum": 1},
             "question_id": ID, "decision_id": ID, "actor_id": ID, "created_at": TIME,
             "evidence": obj({"path": PATH, "sha256": HASH}),
@@ -209,7 +219,7 @@ def catalog():
             "numbers": arr(obj({"frozen_number_id": ID, "claim_id": ID, "source_path": PATH,
                 "source_sha256": HASH, "locator": TEXT, "value": NUMBER, "unit": TEXT,
                 "precision": {"type": "integer", "minimum": 0, "maximum": 16}}), 1),
-            "registry_artifact_id": ID}),
+            "registry_artifact_id": ID, "qualifications": QUALIFICATIONS}, optional=("qualifications",)),
         "freeze_event": contract({"event_id": ID, "freeze_id": ID, "kind": enum("FREEZE", "THAW"),
             "actor_id": ID, "timestamp": TIME, "reason": TEXT, "snapshot_path": PATH,
             "snapshot_sha256": HASH, "previous_event_sha256": nullable(HASH)}),
@@ -234,6 +244,7 @@ def catalog():
                 "depends_on": arr(ID, 0, True), "attempt": {"type": "integer", "minimum": 1, "maximum": 3},
                 "supersedes_task_id": nullable(ID)}), 1)}),
         "workflow_plan": contract({"case_id": ID, "policy_path": nullable(PATH), "agent_schedule": nullable(PATH),
+            "dispositions": arr(obj({name: PATH for name in ("source", "proposal", "review")}), 1),
             "reference_requests": arr(obj({"retrieval_id": ID, "source": TEXT, "question_id": ID,
                 "same_problem": BOOL, "baseline_id": nullable(ID)}), 1),
             "framing": obj({name: PATH for name in ("problem_frame", "problem_dag", "symbol_table", "ambiguity_register", "assumption_ledger", "review")}),
@@ -243,7 +254,7 @@ def catalog():
                 "frozen_numbers": arr(obj({"frozen_number_id": ID, "claim_id": ID,
                     "source": enum("validation", "main_output"), "output_name": nullable(ID),
                     "locator": TEXT, "unit": TEXT, "precision": {"type": "integer", "minimum": 0, "maximum": 16}}), 1)},
-                optional=("baseline_code_review", "probe_specs")), 1)}, optional=("agent_schedule", "reference_requests")),
+                optional=("baseline_code_review", "probe_specs")), 1)}, optional=("agent_schedule", "reference_requests", "dispositions")),
         "workflow_progress": contract({"case_id": ID, "questions": mapping(obj({
             "main_run": nullable(PATH), "baseline_run": nullable(PATH), "validation": nullable(PATH), "evidence": nullable(PATH)}))}),
         "agent_response": contract({"task_id": ID, "actor_id": ID, "status": enum("PRODUCED", "BLOCKED"),
@@ -264,6 +275,14 @@ def catalog():
             "question_id": ID, "artifact_refs": arr(ID, 1, True),
             "findings": arr(obj({"severity": enum("info", "warning", "error"), "issue": TEXT, "evidence_refs": arr(ID, 1)})),
             "verdict": enum("SUPPORTED", "LIMITED", "BLOCKED"), "limitations": arr(TEXT), "created_at": TIME}),
+        "issue_disposition": contract({"disposition_id": ID, "actor_id": ID, "question_id": nullable(ID),
+            "source_kind": enum("data_audit", "semantic_review"), "source": PIN, "frame": PIN, "created_at": TIME,
+            "items": arr(obj({"locator": TEXT, "question_ids": arr(ID, 1, True),
+                "action": enum("retain_with_limit", "repair_required"), "boundary": TEXT, "rationale": TEXT,
+                "evidence_refs": arr(ID, 1, True)}), 1)}),
+        "disposition_review": contract({"review_id": ID, "actor_id": ID, "reviewed_actor_id": ID,
+            "question_id": nullable(ID), "proposal": PIN, "verdict": enum("LIMITED", "BLOCKED"),
+            "rationale": TEXT, "evidence_refs": arr(ID, 1, True), "created_at": TIME}),
         "method_proposal": contract({"proposal_id": ID, "actor_id": ID, "question_id": ID,
             "view": enum("mechanism", "statistics", "optimization", "engineering", "innovation"),
             "applicable": BOOL, "reason": TEXT, "main_idea": nullable(TEXT), "baseline_idea": nullable(TEXT),

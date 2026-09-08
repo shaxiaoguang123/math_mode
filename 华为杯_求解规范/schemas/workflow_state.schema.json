@@ -169,6 +169,7 @@
             "enum": [
               "NOT_RUN",
               "PASS",
+              "LIMITED",
               "WARN",
               "FAIL",
               "BLOCKED"

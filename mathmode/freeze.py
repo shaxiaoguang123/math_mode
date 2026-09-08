@@ -179,6 +179,10 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
             raise ValueError("Frozen numbers must come from verified main outputs or checked measurements")
         numbers.append({**item, "source_sha256": file_hash(source), "value": value})
     _, _, evidence_id, summary_id = _bind_evidence(registry, root, summary_relative, evidence_relative)
+    from .dispositions import derive_qualifications
+    baseline = verify_run(root, summary["baseline_run"]["path"])
+    qualifications, qualification_dependencies = derive_qualifications(root, request["question_id"],
+        request.get("qualification_sources", []), [main, baseline])
     freeze_id = "freeze-" + uuid.uuid4().hex
     relative = f"freezes/{freeze_id}/frozen_numbers.json"
     key = artifact_id(relative)
@@ -187,6 +191,8 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
         "created_at": now(), "evidence": {"path": evidence_relative, "sha256": file_hash(root / evidence_relative)},
         "validation": {"path": summary_relative, "sha256": file_hash(root / summary_relative)},
         "main_run": summary["main_run"], "baseline_run": summary["baseline_run"], "numbers": numbers, "registry_artifact_id": key}
+    if qualifications:
+        snapshot["qualifications"] = qualifications
     validate("frozen_numbers", snapshot, root=root)
     state = registry.store.load()
     def publish(state):
@@ -195,7 +201,11 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
             raise ValueError("Concurrent freeze changed the question index")
         if audit_evidence(root, summary_relative)["status"] != "PASS":
             raise ValueError("Evidence changed before freeze publication")
-        if {evidence_id, summary_id} & set(registry.store.inspect_freshness()["stale"]):
+        current_qualifications, current_dependencies = derive_qualifications(root, request["question_id"],
+            request.get("qualification_sources", []), [main, baseline])
+        if current_qualifications != qualifications or current_dependencies != qualification_dependencies:
+            raise ValueError("Reviewed qualifications changed before freeze publication")
+        if {evidence_id, summary_id, *qualification_dependencies} & set(registry.store.inspect_freshness()["stale"]):
             raise ValueError("Registered evidence changed before freeze publication")
         for item in numbers:
             if file_hash(root / item["source_path"]) != item["source_sha256"]:
@@ -221,7 +231,8 @@ def freeze_results(root: Path, request: dict, evidence_relative: str) -> dict:
         by_id = {a["artifact_id"]: a for a in state["artifacts"]}
         state["artifacts"].append({"artifact_id": key, "path": relative, "sha256": digest,
             "size_bytes": path.stat().st_size, "created_at": now(), "producer": "freeze-service", "status": "FROZEN",
-            "depends_on": [{"artifact_id": dep, "sha256": by_id[dep]["sha256"]} for dep in (evidence_id, summary_id)]})
+            "depends_on": [{"artifact_id": dep, "sha256": by_id[dep]["sha256"]}
+                           for dep in sorted({evidence_id, summary_id, *qualification_dependencies})]})
     registry.store.update(publish, expected_revision=state["revision"])
     return snapshot
 
@@ -299,4 +310,12 @@ def _verify_freeze(root: Path, question_id: str, *, refresh=True) -> dict:
         source = safe_path(root, item["source_path"])
         if file_hash(source) != item["source_sha256"] or json_pointer(read_json(source), item["locator"]) != item["value"]:
             raise ValueError("Frozen number differs from its source locator")
+    from .dispositions import derive_qualifications
+    qualifications, dependencies = derive_qualifications(root, question_id,
+        snapshot.get("qualifications", {}).get("sources", []),
+        [verify_run(root, snapshot[role + "_run"]["path"]) for role in ("main", "baseline")])
+    if snapshot.get("qualifications") != qualifications:
+        raise ValueError("Frozen qualifications differ from reviewed or inherited restrictions")
+    if not set(dependencies) <= {dep["artifact_id"] for dep in registered[key]["depends_on"]}:
+        raise ValueError("Freeze lineage omits qualification dependencies")
     return snapshot

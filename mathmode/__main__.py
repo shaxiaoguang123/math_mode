@@ -95,6 +95,12 @@ def main(argv=None) -> int:
     human_check.add_argument("--decision", required=True)
     data = commands.add_parser("data-audit", help="Compute and register actual original-input statistics")
     data.add_argument("--workspace", type=Path, required=True)
+    disposition = commands.add_parser("verify-disposition", help="Verify independently reviewed limited continuation and retained restrictions")
+    disposition.add_argument("--workspace", type=Path, required=True)
+    disposition.add_argument("--source", required=True)
+    disposition.add_argument("--proposal", required=True)
+    disposition.add_argument("--review", required=True)
+    disposition.add_argument("--question-id")
     probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
     probe.add_argument("--workspace", type=Path, required=True)
     probe.add_argument("--manifest", required=True)
@@ -176,11 +182,15 @@ def main(argv=None) -> int:
         elif args.command == "freeze":
             record = freeze_results(args.workspace, read_json(args.request), args.evidence)
             result = {"status": "PASS", "scope": "verified_numerical_freeze", "freeze_id": record["freeze_id"], "version": record["version"]}
+            if record.get("qualifications"):
+                result.update(status="LIMITED", qualifications=record["qualifications"])
         elif args.command == "thaw":
             result = {"status": "PASS", "scope": "thaw_completed", "outcome": thaw(args.workspace, args.question_id, actor_id=args.actor_id, reason=args.reason)}
         elif args.command == "verify-freeze":
             record = verify_freeze(args.workspace, args.question_id)
             result = {"status": "PASS", "scope": "freeze_integrity", "freeze_id": record["freeze_id"]}
+            if record.get("qualifications"):
+                result.update(status="LIMITED", qualifications=record["qualifications"])
         elif args.command == "refresh":
             result = ArtifactRegistry(args.workspace).refresh()
         elif args.command == "agent":
@@ -211,6 +221,11 @@ def main(argv=None) -> int:
         elif args.command == "data-audit":
             from .orchestrator import Orchestrator
             result = Orchestrator(args.workspace, None).prepare_inputs()
+        elif args.command == "verify-disposition":
+            from .dispositions import verify_disposition
+            record = verify_disposition(args.workspace, {key: getattr(args, key) for key in ("source", "proposal", "review")},
+                                        question_id=args.question_id)
+            result = {"status": "LIMITED", "scope": "reviewed_bounded_continuation", **record}
         elif args.command == "probe-report":
             from .probes import measured_probe
             record = measured_probe(args.workspace, args.manifest)

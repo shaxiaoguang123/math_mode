@@ -191,13 +191,26 @@ Visual/paper/package producers add their own downstream edges during T08–T09.
 
 ## Agent transport and measured preflight (T08 in progress)
 
-Seventeen additional contracts bring the catalog to 37: `human_decision_request`,
+Nineteen additional contracts bring the catalog to 39: `issue_disposition`,
+`disposition_review`, `human_decision_request`,
 `human_decision_event`, `reference_retrieval`, `workflow_plan`,
 `workflow_progress`, `recovery_event`, `reference_baseline`, `reference_case_baseline`, `agent_schedule`, `agent_task`, `agent_response`,
 `agent_result`, `semantic_review`, `method_proposal`, `data_audit`, `method_sources`
 and `risk_probe_plan`. Task actors, question/view identities, role directories,
 exact output sets and input evidence scope are checked before publication. Error
 findings block semantic acceptance; warnings/limitations cannot claim SUPPORTED.
+
+`issue_disposition` binds source kind, source/frame paths and hashes, question
+scope, per-locator affected questions, retained boundaries/repair requests and
+evidence references. `disposition_review` binds the proposal hash, independent
+actor and LIMITED/BLOCKED judgment. The runtime checks exact warning/limitation
+coverage, current role provenance and evidence freshness. Source errors or repair
+requests cannot be approved away. `workflow_plan.dispositions` supplies the three
+paths; `workflow_state.gates[].status` additionally admits LIMITED. Optional
+`freeze_request.qualification_sources` pins those three artifacts and optional
+`frozen_numbers.qualifications` contains derived direct/inherited restrictions.
+The service, not an agent, constructs the latter. See the reviewed-disposition
+section in `workflow_v2.md` for role scheduling, CLI status and numerical boundaries.
 
 `run_agent_task` materializes hashed read-only inputs and role instructions, calls
 the backend, and validates its proposal before canonical publication. Successful
@@ -300,8 +313,10 @@ pointer publication is recovered by verified adoption.
 Current lifecycle tests use actual probe/main/baseline/independent numerical runs
 and freezes, with explicitly mocked role provenance. The unpatched coordinator
 rejects those authored semantic files. These tests do not claim a live full-agent
-historical run. LIMITED/data-warning disposition remains incomplete and therefore
-blocks those cases instead of manufacturing PASS.
+historical run. Warning/LIMITED cases now require independently reviewed explicit
+dispositions and retain LIMITED through affected gates and freezes. Missing
+dispositions still block; automatic repair and actual sensitivity integration
+remain incomplete.
 
 ### Human decision host boundary
 
