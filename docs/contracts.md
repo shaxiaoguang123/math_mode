@@ -2,8 +2,8 @@
 
 All new contracts use `schema_version: "2.0"`, JSON Schema Draft 2020-12 and strict
 object fields. This catalog defines responsibilities before implementation.
-T04 implements modeling contracts, T05 the run manifest, and T06 independent
-validation/evidence. Agent contracts remain scheduled for T08.
+T04 implements modeling contracts, T05 the run manifest, T06 independent
+validation/evidence and T07 freeze/lineage. Agent contracts remain scheduled for T08.
 Schemas/tests are executable definitions; changed contracts must update
 this catalog, examples and migration together.
 
@@ -157,3 +157,35 @@ agent role attribution and question-wide semantic acceptance still require the
 T08 workflow and T09/T12 final audits. Custom problems need reviewed independent
 adapters rather than changing a `task_type` label. Windows extended paths support
 nested evidence bundles beyond the traditional MAX_PATH limit.
+
+## Immutable freezes and dependency graph (T07)
+
+`freeze_request` contains IDs, source JSON Pointers, declared units and precision,
+never manually supplied values. The service only accepts verified main-output
+fields or checked independent measurements. It re-audits evidence and hashes,
+then creates a read-only exclusive snapshot at
+`freezes/<freeze-id>/frozen_numbers.json`. Root `frozen_numbers.json` is a
+`freeze_index`: each question points to its active version/hash and FROZEN/THAWED
+state. This mutable index contains no numerical values. Snapshot versions and
+numerical IDs are distinct, and active numerical IDs are globally unique.
+
+`freeze_change_log.jsonl` appends FREEZE/THAW events with actor, time, reason,
+snapshot hash and previous-event hash. The index and registry must agree with the
+log before a snapshot can be consumed. Filesystem-owner attacks remain outside
+local hash-chain authentication guarantees. A crash between file/state writes
+fails closed on verification; archived bytes are never silently replaced.
+
+`thaw` preserves the archive and invalidates all descendant artifacts and affected
+gates. Refreeze requires new main/baseline runs after the thaw and new independent
+validation; it cannot recycle the old passing records. `verify-freeze` checks the
+active pointer, event chain, registry, exact numeric locators and current evidence.
+
+The registry binds original/code/spec/snapshots to runs, run outputs to independent
+inputs, validator measurements to the summary/evidence, and evidence to freeze.
+Existing model/assumption/parameter dependencies are retained when binding runs.
+Visual/paper/package producers add their own downstream edges during T08–T09.
+`refresh` rehashes and persists transitive STALE states, including cross-question
+consumers, and changes affected gate observations to BLOCKED. Merely refreshing a
+broken frozen chain does not authorize canonical changes: an explicit thaw is
+still required. Batch graph registration validates all references and commits one
+revision, so a failed batch publishes no partial state.

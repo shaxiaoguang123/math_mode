@@ -13,6 +13,8 @@ from .workspace import initialize
 from .state import StateStore
 from .runner import execute_model, verify_run
 from .validation import independently_validate, audit_evidence
+from .freeze import freeze_results, thaw, verify_freeze
+from .lineage import ArtifactRegistry
 
 
 def main(argv=None) -> int:
@@ -56,6 +58,20 @@ def main(argv=None) -> int:
     evidence.add_argument("--workspace", type=Path, required=True)
     evidence.add_argument("--validation", required=True)
     evidence.add_argument("--report", type=Path)
+    freeze = commands.add_parser("freeze", help="Freeze numbers from verified source locators")
+    freeze.add_argument("--workspace", type=Path, required=True)
+    freeze.add_argument("--request", type=Path, required=True)
+    freeze.add_argument("--evidence", required=True)
+    unfreeze = commands.add_parser("thaw", help="Preserve a snapshot and invalidate its consumers")
+    unfreeze.add_argument("--workspace", type=Path, required=True)
+    unfreeze.add_argument("--question-id", required=True)
+    unfreeze.add_argument("--actor-id", required=True)
+    unfreeze.add_argument("--reason", required=True)
+    frozen = commands.add_parser("verify-freeze", help="Recheck the active snapshot and evidence graph")
+    frozen.add_argument("--workspace", type=Path, required=True)
+    frozen.add_argument("--question-id", required=True)
+    stale = commands.add_parser("refresh", help="Persist transitive STALE status and block affected gates")
+    stale.add_argument("--workspace", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == "policy":
@@ -82,6 +98,16 @@ def main(argv=None) -> int:
                       "summary": f"validations/{record['validation_id']}/validation_summary.json"}
         elif args.command == "evidence":
             result = audit_evidence(args.workspace, args.validation)
+        elif args.command == "freeze":
+            record = freeze_results(args.workspace, read_json(args.request), args.evidence)
+            result = {"status": "PASS", "scope": "verified_numerical_freeze", "freeze_id": record["freeze_id"], "version": record["version"]}
+        elif args.command == "thaw":
+            result = {"status": "PASS", "scope": "thaw_completed", "outcome": thaw(args.workspace, args.question_id, actor_id=args.actor_id, reason=args.reason)}
+        elif args.command == "verify-freeze":
+            record = verify_freeze(args.workspace, args.question_id)
+            result = {"status": "PASS", "scope": "freeze_integrity", "freeze_id": record["freeze_id"]}
+        elif args.command == "refresh":
+            result = ArtifactRegistry(args.workspace).refresh()
         elif args.contract == "modeling_bundle":
             result = validate_modeling_bundle(read_json(args.path), root=args.workspace)
         else:

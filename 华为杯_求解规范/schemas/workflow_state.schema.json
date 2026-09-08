@@ -91,7 +91,7 @@
           },
           "size_bytes": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 0
           },
           "created_at": {
             "type": "string",

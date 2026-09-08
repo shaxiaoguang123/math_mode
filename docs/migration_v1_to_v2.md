@@ -135,7 +135,28 @@ It uses an explicit deterministic actor identity, not a fabricated human reviewe
 PASS covers computed adapter checks; model/source semantic review remains separate.
 See `fixtures/validation/README.md` for exact data shapes and supported equations.
 
-## Compatibility boundaries to finish in T07–T12
+## Freeze and stale propagation (T07)
+
+Freeze requests list `frozen_number_id`, `claim_id`, source path, JSON Pointer,
+unit and precision, plus actor/question/decision IDs. Values are read from actual
+verified sources. Point checked metrics to `/measurements/<metric>` in the
+validation summary, or declared main-output scalar fields to their JSON locators.
+
+```powershell
+python -m mathmode freeze --workspace ../competitions/case-id --request freeze_request.json --evidence evidence_gate.json
+python -m mathmode verify-freeze --workspace ../competitions/case-id --question-id Q1
+python -m mathmode thaw --workspace ../competitions/case-id --question-id Q1 --actor-id orchestrator --reason "Revise model parameters"
+python -m mathmode refresh --workspace ../competitions/case-id
+```
+
+After thaw, rerun both models, revalidate, produce fresh evidence and freeze a new
+version. Old immutable snapshots remain in `freezes/`; root `frozen_numbers.json`
+is only the per-question index. Never manually edit snapshot numbers. Register
+each derived figure/paper/package with its frozen artifact dependencies using
+`ArtifactRegistry`; otherwise it is unregistered and cannot serve as V2 lineage.
+V1 numbers/graphs have no automatically inferred provenance and need recomputation.
+
+## Compatibility boundaries to finish in T08–T12
 
 V1 visual/support/paper manifests will have explicit lineage adapters; no adapter
 may invent successful execution, independent validation or a frozen value.
