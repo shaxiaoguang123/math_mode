@@ -191,7 +191,7 @@ Visual/paper/package producers add their own downstream edges during T08–T09.
 
 ## Agent transport and measured preflight (T08 in progress)
 
-Thirteen additional contracts bring the catalog to 33: `workflow_plan`,
+Fourteen additional contracts bring the catalog to 34: `reference_retrieval`, `workflow_plan`,
 `workflow_progress`, `recovery_event`, `reference_baseline`, `agent_schedule`, `agent_task`, `agent_response`,
 `agent_result`, `semantic_review`, `method_proposal`, `data_audit`, `method_sources`
 and `risk_probe_plan`. Task actors, question/view identities, role directories,
@@ -252,7 +252,7 @@ acceptance and official compliance NOT_RUN. `Workflow` now coordinates the separ
 services through G6 as described below. Successful critic rounds are also bounded:
 at most three per question/view for unchanged original/framing input hashes. New
 proposal/task/actor IDs do not reset this count. Source/admission review, honest host
-human-event admission, complete retrieval integration and automatic repair routing
+human-event admission, complete live role-chain integration and automatic repair routing
 remain required before T08 is declared complete.
 
 ## Evidence-derived lifecycle (T08)
@@ -361,6 +361,59 @@ event before retrieval; it does not itself fetch a URL. Method-source proposals 
 bind an actual supplied snapshot/hash and an admission preceding both retrieval and
 task dispatch. Access outside this trusted host cannot be reconstructed and remains
 explicitly UNVERIFIABLE. Baseline sealing is not final paper/scientific acceptance.
+
+### Actual HTTP reference retrieval
+
+`retrieve-reference` connects host classification/admission to actual HTTP GETs.
+It records every requested URL and its prior admission, observed response status,
+redirect target, content metadata, request/response times, owner identity and byte
+limits. Redirects inherit the host's explicit classification and are separately
+admitted before being requested. HTTP(S) URLs cannot contain embedded credentials
+or fragments; HTTPS cannot downgrade to HTTP. The client does not execute page
+scripts or use ambient cookies, authentication or proxies. Classification is still
+a trusted host assertion about the source/redirect chain, not automated proof of
+semantic relevance or absence of same-problem material.
+
+`reference_retrieval` binds immutable `planned.json`, `owner.json`, `trace.json`
+and `body.bin` records under `references/<retrieval-id>/`. Response bytes are stored
+without content decoding; HTTP content type/encoding remain metadata. Successful
+receipts and their snapshots are registered with evidence dependencies, including
+the required blind baseline for same-problem access. `verify-reference` checks
+these records, admission order, redirect continuity and actual bytes without
+downloading a newer version. This is evidence from the trusted local HTTP client,
+not a server-signed attestation or a claim of scientific acceptance.
+
+Empty/truncated responses, unsuccessful HTTP status, unsupported redirects, size
+limits and timeouts preserve FAILED receipts and any partial bytes. Partial files
+cannot serve as reference snapshots. Interrupted requests lacking a completed
+receipt likewise cannot be adopted. Existing request IDs are never overwritten;
+there are no automatic retry loops. Default limits are 20 MB, five redirects and
+30 seconds. Timeout bounds socket operations and is checked between chunks; OS
+DNS resolution is not a hard preemptible wall-clock limit.
+
+HTTP `method_sources` entries require a `retrieval` path/hash in the actual role
+input bundle. The URI, observed access time, question/classification and snapshot
+bytes must match the verified receipt. Downloaded paths under `references/` cannot
+bypass this by claiming a different URI scheme. The method retriever scheduler
+requires the matching receipt and downloaded bytes together; the raw role transport
+also checks source binding before publication. Existing explicitly supplied
+non-HTTP/local fixture sources retain their distinct admission checks.
+
+The optional `workflow_plan.reference_requests` array supplies stable retrieval
+IDs, source URLs, question IDs, explicit classifications and nullable baseline IDs.
+After framing, each advance can retrieve one eligible source before role scheduling.
+Task inputs can name `references/<id>/body.bin` and `references/<id>/retrieval.json`.
+Resume verifies existing receipts without refetching; changed declarations require
+a new explicit request. A same-problem request awaiting its baseline performs no
+network access and does not prevent computing that blind baseline. Failed/missing
+reference evidence remains a blocker for roles that require those inputs.
+
+Local HTTP tests verify admissions before the server receives each request, actual
+redirect/download failure handling, receipt/source tampering, same-problem baseline
+lineage and workflow resume. The complete same-problem gate currently binds the
+declared question's sealed baseline; enforcing a single all-question blind checkpoint
+before references that cover the whole contest problem remains a T08/T11 requirement.
+No whole-case blindness claim is inferred from a per-question receipt.
 
 ## Interrupted execution recovery (T08)
 

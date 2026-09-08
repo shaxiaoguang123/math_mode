@@ -99,6 +99,23 @@ General algorithm references remain permitted and logged. AI use events record
 actual provider/model/activity/artifact scope and any real human postprocessing;
 disclosure is derived from events and the verified policy.
 
+For an explicit host-classified HTTP reference, use the retrieval service to create
+the actual source snapshot before supplying it to a role:
+
+```powershell
+python -m mathmode retrieve-reference --workspace ../competitions/case-id --question-id Q1 --source https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.theilslopes.html --classification general --retrieval-id scipy-method
+python -m mathmode verify-reference --workspace ../competitions/case-id --receipt references/scipy-method/retrieval.json
+```
+
+The method retriever receives both the receipt and `references/scipy-method/body.bin`.
+Its source summary binds those exact paths/hashes and the observed completion time.
+No PDF/HTML scripts are executed and no literature value becomes an empirical result.
+Optional host-declared `reference_requests` in the workflow plan perform one eligible
+download per advance before scheduling roles; resume reuses verified receipts.
+Same-problem requests without their required sealed baseline remain unread while
+the blind computation continues. Retrieval failure is preserved, with no implicit
+retry or usable partial snapshot. Redirects are recorded and admitted before GET.
+
 ## Engineering completion
 
 T08 implementation is in progress. The `agent_schedule` contract and

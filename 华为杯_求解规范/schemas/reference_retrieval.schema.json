@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/reference_retrieval.schema.json",
+  "title": "MathMode reference_retrieval 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "retrieval_id",
+    "case_id",
+    "question_id",
+    "source",
+    "same_problem",
+    "baseline_id",
+    "started_at",
+    "finished_at",
+    "timeout_seconds",
+    "max_bytes",
+    "max_redirects",
+    "status",
+    "failure_type",
+    "snapshot",
+    "requests",
+    "controls",
+    "timeout_scope",
+    "outside_host_blindness"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "retrieval_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "same_problem": {
+      "type": "boolean"
+    },
+    "baseline_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "max_bytes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_redirects": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "status": {
+      "enum": [
+        "RETRIEVED",
+        "FAILED"
+      ]
+    },
+    "failure_type": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "snapshot": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "size_bytes"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "admission_sha256",
+          "requested_at",
+          "responded_at",
+          "status_code",
+          "location",
+          "content_type",
+          "content_encoding",
+          "content_length"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "admission_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status_code": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 599
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_encoding": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_length": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 3,
+      "uniqueItems": false
+    },
+    "timeout_scope": {
+      "const": "socket_operations_and_between_chunks"
+    },
+    "outside_host_blindness": {
+      "const": "UNVERIFIABLE"
+    }
+  }
+}

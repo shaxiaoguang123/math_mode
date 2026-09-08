@@ -173,7 +173,8 @@ Still required before T08 can be committed as complete:
 
 - Extend the numerical coordinator to complete live multi-question role chains and
   reviewed stage examples; G7/G8 visual/paper observations require T09 adapters.
-- Complete reference retrieval integration and honest host human-event boundary.
+- Complete the honest host human-event boundary and all-question reference-blind
+  checkpoint enforcement for references covering the entire contest problem.
 - Automatic repair/recovery routing beyond explicit recovered-task resume.
 - Complete role semantic checks/examples, deterministic data/probe disposition,
   validator criteria admission, method source access controls and framing assumption
@@ -231,3 +232,60 @@ fixture double. Compileall, all 33 distributed schemas, the structural decision
 example and router/mirror checks pass. Protected assets remain unchanged and the
 changed-file credential/email/phone pattern scan reports no matches. These local
 checks do not establish live historical completion or GitHub CI acceptance.
+
+## Follow-up: actual reference retrieval and source handoff
+
+`reference_retrieval` expands the generated catalog to 34. The HTTP service now
+records host admission before each initial/redirect GET, preserves the actual
+response bytes and metadata, and binds the receipt/controls/snapshot into lineage.
+Same-problem access requires the existing sealed question baseline before any
+network read. Failed/empty/truncated/oversized responses, redirect failures and
+timeouts preserve FAILED receipts and cannot supply reference snapshots. Existing
+IDs are never overwritten and verification never downloads a newer version.
+
+HTTP method-source summaries require the actual receipt plus body snapshot in
+their role input bundle. URI, question/classification, observed access time and
+byte hashes are checked before publication. Host-declared `reference_requests`
+can be advanced one at a time by the workflow. Requests awaiting same-problem
+baseline admission remain unread while the blind numerical pipeline progresses.
+Root reference snapshots and baseline directories are ignored in the public repo.
+
+Actual public HTTP integration retrieved the general SciPy `theilslopes` method
+documentation from
+<https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.theilslopes.html>.
+Observed page title: `theilslopes — SciPy v1.18.0 Manual`. The response contained
+44,758 bytes; SHA-256:
+`f7c7e27202daf9cd85c1f06b8620253ae69260ea57499dea094b48465c9e20f5`.
+Receipt SHA-256:
+`0b73ae2c0a8def789b2f10c05bd7f59bdd7a4c57fedfc922139acd2d9e4315a3`.
+Private raw evidence stays in
+`../mathmode_reference_smoke/http-3338b575bb43/`; no third-party HTML is committed.
+
+A real configured Codex method-retriever call consumed that exact snapshot and
+receipt, produced an attributed definition/limitations record and passed the real
+handoff verifier in 64.77s. Task: `retrieved-source-smoke`; session:
+`01a080ee-9196-7000-8a07-4be47964d636`. Response SHA-256:
+`b0d37cb44a82242561e761fef5cd02cd459a45a25e71eb8a8c4e05d15123710d`.
+Provider is `codex-configured-provider`; model was not reported and remains null.
+The output describes the median pairwise-slope estimator and documentation caveats;
+it does not invent experiments or claim a contest result. This verifies real
+download → source summary → provenance handoff, not an entire modeling workflow.
+
+The timeout scope is socket operations and checks between chunks; OS DNS lookup
+is not a hard wall-clock process limit. URL/redirect classification remains a
+trusted host assertion; outside-host exposure is UNVERIFIABLE. Search/discovery,
+whole-problem blind checkpoint enforcement, human events, warning/LIMITED
+disposition, automatic repair routing and complete live role chains remain T08
+work. G7/G8 and the T09–T12 deliverables are still outstanding.
+
+Verification: full regression **195 passed, 1 skipped** in 480.54s (Conda test).
+The Windows symlink-privilege skip is unchanged. After making the workflow test
+consume the static host-request fixture, that test passed again in 10.38s without
+an implementation change. Current CLI `verify-reference` and `verify-agent` both
+pass for the real SciPy/source-summary smoke evidence. Compileall, all 34 schemas
+and both complete 263-file skill mirrors pass. Protected template assets remain
+unchanged. The privacy-pattern scan flags only the deliberately fake URL-userinfo
+rejection fixture; its literal placeholder was inspected and no actual credential,
+email identity or private contest content was found. Root reference ignore rules
+were checked directly. Fetch found only a new research survey/index change on
+`origin/main` (`5d7abb4`), with no runtime overlap. No merge to main is performed.

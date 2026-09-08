@@ -51,3 +51,19 @@ Actual configured Codex backend calls are separately documented in
 `docs/audit/t08_agent_runtime_progress.md`. Their raw task/input/response/transcript
 evidence stays outside the public template. The successful council handoff and
 scheduled framer/resume checks demonstrate transport integration only.
+
+`tests/test_reference_retrieval.py` runs a real local HTTP server and checks that
+every initial/redirect request was admitted before reaching the server. It covers
+actual immutable snapshots, incomplete/empty/error/oversized responses, timeouts,
+redirect cycles, source/receipt tampering and source-summary binding. The same-
+problem positive case uses a real numerical freeze with explicitly mocked role
+authorship for its blind paper checkpoint. `tests/test_reference_workflow.py`
+verifies one-time host-planned retrieval and continued blind computation while
+same-problem access remains unavailable. These are engineering fixtures, not a
+historical contest solution or server-signed scientific evidence.
+
+`reference_request.json` is a host-plan entry for a general public method URL,
+not a download receipt. The workflow integration test consumes this entry with
+its source replaced by the local HTTP fixture. Place such entries in the optional
+`workflow_plan.reference_requests` array only after assigning the actual source,
+question and classification. Schema validity does not mean a download happened.

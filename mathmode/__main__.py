@@ -103,6 +103,19 @@ def main(argv=None) -> int:
     reference.add_argument("--source", required=True)
     reference.add_argument("--classification", choices=["general", "same-problem"], required=True)
     reference.add_argument("--baseline-id")
+    retrieval = commands.add_parser("retrieve-reference", help="Admit HTTP requests and preserve verified reference response snapshots")
+    retrieval.add_argument("--workspace", type=Path, required=True)
+    retrieval.add_argument("--question-id", required=True)
+    retrieval.add_argument("--source", required=True)
+    retrieval.add_argument("--classification", choices=["general", "same-problem"], required=True)
+    retrieval.add_argument("--baseline-id")
+    retrieval.add_argument("--retrieval-id")
+    retrieval.add_argument("--timeout", type=float, default=30)
+    retrieval.add_argument("--max-bytes", type=int, default=20_000_000)
+    retrieval.add_argument("--max-redirects", type=int, default=5)
+    retrieval_check = commands.add_parser("verify-reference", help="Verify an actual reference receipt without fetching again")
+    retrieval_check.add_argument("--workspace", type=Path, required=True)
+    retrieval_check.add_argument("--receipt", required=True)
     recovery = commands.add_parser("recover", help="Archive an interrupted execution after observing stopped owner/child processes")
     recovery.add_argument("--workspace", type=Path, required=True)
     recovery.add_argument("--kind", choices=["run", "agent"], required=True)
@@ -197,6 +210,18 @@ def main(argv=None) -> int:
             event = recover_execution(args.workspace, args.execution_id, kind=args.kind, reason=args.reason)
             result = {"status": "PASS", "scope": "interrupted_execution_recovery", "event": event,
                       "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "retrieve-reference":
+            from .reference_retrieval import retrieve_reference
+            receipt = retrieve_reference(args.workspace, source=args.source, question_id=args.question_id,
+                same_problem=args.classification == "same-problem", baseline_id=args.baseline_id,
+                retrieval_id=args.retrieval_id, timeout=args.timeout, max_bytes=args.max_bytes, max_redirects=args.max_redirects)
+            result = {"status": "PASS" if receipt["status"] == "RETRIEVED" else "FAIL", "scope": "reference_http_retrieval",
+                "receipt": receipt, "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "verify-reference":
+            from .reference_retrieval import verify_retrieval
+            receipt = verify_retrieval(args.workspace, args.receipt)
+            result = {"status": "PASS", "scope": "reference_retrieval_integrity", "retrieval_id": receipt["retrieval_id"],
+                "scientific_acceptance": "NOT_RUN"}
         elif args.command == "recover-lock":
             from .recovery import recover_lock
             result = recover_lock(args.workspace, reason=args.reason, scope=args.scope)

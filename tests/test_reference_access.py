@@ -19,7 +19,8 @@ def test_same_problem_reference_cannot_be_admitted_by_a_boolean_flag(tmp_path):
     assert len(StateStore(tmp_path).load()["reference_access"]) == 1
 
 
-def test_checkpoint_preserves_blind_sources_and_refuses_snapshot_tampering(frozen, monkeypatch):
+@pytest.fixture
+def sealed_baseline(frozen, monkeypatch):
     """Real numerical freeze; role authorship is an explicit test double here."""
     root, _, _, _ = frozen
     frame = read_json(Path(__file__).resolve().parents[1] / "fixtures/contracts/problem_frame.json")
@@ -34,6 +35,11 @@ def test_checkpoint_preserves_blind_sources_and_refuses_snapshot_tampering(froze
                         {"framing/frame.json": {}} if role == "framer" else {"paper/draft.tex": {}})
     baseline = seal_baseline(root, "Q1", framer_task="framer-fixture", frame_path="framing/frame.json",
                              writer_task="writer-fixture", paper_paths=["paper/draft.tex"])
+    return root, baseline
+
+
+def test_checkpoint_preserves_blind_sources_and_refuses_snapshot_tampering(sealed_baseline):
+    root, baseline = sealed_baseline
     assert set(baseline["artifacts"]) == {"frame", "models", "code", "results", "paper"}
     assert all(baseline["artifacts"].values())
     assert baseline["paper_acceptance"] == "NOT_RUN"

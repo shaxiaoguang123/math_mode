@@ -19,6 +19,8 @@ __pycache__/
 /validations/
 /freezes/
 /recovery/
+/references/
+/reference_baselines/
 /.mathmode.lock
 /.workflow.advance.lock
 /workflow_state.json

@@ -43,6 +43,51 @@
         }
       ]
     },
+    "reference_requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "retrieval_id",
+          "source",
+          "question_id",
+          "same_problem",
+          "baseline_id"
+        ],
+        "properties": {
+          "retrieval_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "question_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "same_problem": {
+            "type": "boolean"
+          },
+          "baseline_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
     "framing": {
       "type": "object",
       "additionalProperties": false,

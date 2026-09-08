@@ -118,6 +118,11 @@ def _check_response(task, response, root=None):
                             and datetime.fromisoformat(event["at"]) <= datetime.fromisoformat(source["accessed_at"])]
                         if not admitted:
                             raise ValueError("Reference was not explicitly admitted before retrieval/task dispatch")
+                        from urllib.parse import urlsplit
+                        if urlsplit(source["uri"]).scheme in {"http", "https"} or source["snapshot_path"].startswith("references/") or "retrieval" in source:
+                            from .reference_retrieval import verify_source_retrieval
+                            verify_source_retrieval(root, source, question_id=task["question_id"], supplied=supplied,
+                                                    task_created_at=task["created_at"])
         result.append((declaration, content))
     return result
 

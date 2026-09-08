@@ -201,7 +201,7 @@ original attempt count. Install the newly declared psutil dependency in the sele
 runtime environment; the user's Conda test environment already contained psutil 7.2.2.
 
 The new optional lifecycle coordinator adds `workflow_plan` and `workflow_progress`
-to the 33-schema catalog. Existing private workspaces remain usable through their
+to the catalog, now containing 34 schemas. Existing private workspaces remain usable through their
 individual services; adopting the coordinator requires a plan naming actual
 role-proven framing/spec/review artifacts for every question. No legacy file is
 retroactively assigned reasoning provenance. The example plan under
@@ -217,6 +217,22 @@ The separate workflow lock has the same owner identity rules as the state lock;
 `recover-lock` scope remains state, preserving existing CLI usage.
 
 ## Compatibility boundaries to finish in T08–T12
+
+`reference_retrieval` and the optional `method_sources.sources[].retrieval` binding
+connect actual HTTP receipts to source summaries. New HTTP method-source handoffs
+require the receipt and original downloaded snapshot as task inputs; supplied
+non-HTTP/local fixture sources retain their earlier admission checks. A historical
+URL plus an arbitrary local file cannot be upgraded by inventing a download time
+or response record. Use a real new retrieval to obtain current HTTP provenance.
+
+Declare optional `workflow_plan.reference_requests` only in the trusted host plan;
+role workers cannot publish that plan. Stable retrieval IDs allow later scheduled
+tasks to reference downloaded snapshots and receipts before those files exist.
+Old plans without requests remain unchanged. Failed/interrupted IDs are preserved
+for diagnosis, never silently overwritten or retried. Both `references/` and
+`reference_baselines/` at the template root are ignored; fixtures and schemas remain
+tracked in their own directories. Real reference workspaces stay outside the public
+template repository.
 
 `method_decision.execution_role` now optionally distinguishes `main` from
 `fallback`; existing records default to main and are not rewritten. To adopt a

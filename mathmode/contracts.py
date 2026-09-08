@@ -106,6 +106,14 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
             raise ValueError("Limited review must state its limitations")
         if value["verdict"] == "BLOCKED" and not value["findings"]:
             raise ValueError("Blocked review must state its findings")
+    elif name == "reference_retrieval":
+        if value["same_problem"] != (value["baseline_id"] is not None):
+            raise ValueError("Same-problem retrieval requires its baseline identity")
+        if value["status"] == "RETRIEVED" and (not value["snapshot"] or value["failure_type"] or not value["requests"]):
+            raise ValueError("Retrieved reference requires completed response evidence without a failure")
+        if value["status"] == "FAILED" and (value["snapshot"] is not None or not value["failure_type"]):
+            raise ValueError("Failed retrieval cannot claim a usable snapshot")
+        unique(value["controls"], "path")
     elif name == "method_proposal":
         if value["applicable"] and (not value["main_idea"] or not value["baseline_idea"] or not value["validation_plan"]):
             raise ValueError("Applicable proposal requires main, baseline and validation plan")
@@ -204,6 +212,9 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
                 raise ValueError("Group leakage across train and holdout")
     elif name == "workflow_plan":
         unique(value["questions"], "question_id")
+        unique(value.get("reference_requests", []), "retrieval_id")
+        references([item["question_id"] for item in value.get("reference_requests", [])],
+                   {item["question_id"] for item in value["questions"]}, "reference request question")
         unique([number for job in value["questions"] for number in job["frozen_numbers"]], "frozen_number_id")
         for job in value["questions"]:
             if "probe_specs" in job and len(job["probe_specs"]) != len(job["probe_reports"]):

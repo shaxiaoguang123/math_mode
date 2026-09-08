@@ -112,6 +112,9 @@ class Orchestrator:
         # Probe reports have independently recomputable process provenance.
         if path.suffix == ".json":
             value = read_json(path)
+            if isinstance(value, dict) and {"retrieval_id", "requests", "snapshot"} <= value.keys():
+                from .reference_retrieval import verify_retrieval
+                return "reference_retrieval", verify_retrieval(self.root, relative)
             if isinstance(value, dict) and {"run_id", "checks", "verdict"} <= value.keys():
                 return "risk_probe", verify_probe(self.root, relative, f"runs/{value['run_id']}/run_manifest.json")
             if isinstance(value, dict) and {"criteria_id", "checks", "symbol_dimensions"} <= value.keys():
@@ -146,6 +149,14 @@ class Orchestrator:
         missing = REQUIRED_CONTRACTS[role] - kinds.keys()
         if missing:
             raise ValueError("Missing fresh phase prerequisites: " + ", ".join(sorted(missing)))
+        if role == "method_retriever":
+            supplied = {item["path"]: item["sha256"] for item in task["inputs"]}
+            for receipt in kinds.get("reference_retrieval", []):
+                if receipt["question_id"] != task["question_id"] or supplied.get(receipt["snapshot"]["path"]) != receipt["snapshot"]["sha256"]:
+                    raise ValueError("Method retrieval requires the same question's actual downloaded snapshot")
+            verified_paths = {receipt["snapshot"]["path"] for receipt in kinds.get("reference_retrieval", [])}
+            if any(path.startswith("references/") and path.endswith("/body.bin") and path not in verified_paths for path in supplied):
+                raise ValueError("Downloaded method inputs require their actual retrieval receipt")
         if role == "council":
             validate_modeling_bundle({name: kinds[name][0] for name in
                 ("input_manifest", "problem_frame", "problem_dag", "symbol_table", "ambiguity_register")}, root=self.root)

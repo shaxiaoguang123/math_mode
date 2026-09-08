@@ -140,6 +140,25 @@ class Workflow:
         schedule = read_json(safe_path(self.root, plan["agent_schedule"]))
         return self.agents.advance(schedule, max_tasks=1)
 
+    def _reference_requests(self, plan):
+        """Process one ready host-declared URL; failed/interrupted requests are preserved."""
+        from .reference_retrieval import retrieve_reference, verify_retrieval
+        blockers = []
+        for request in plan.get("reference_requests", []):
+            try:
+                relative = f"references/{request['retrieval_id']}/retrieval.json"
+                if safe_path(self.root, relative, exists=False).exists():
+                    receipt = verify_retrieval(self.root, relative)
+                    if any(receipt[key] != value for key, value in request.items()):
+                        raise ValueError("Reference request changed after retrieval; declare a new explicit request")
+                    continue
+                receipt = retrieve_reference(self.root, **request)
+                return {"performed": {"action": "retrieve-reference", "retrieval_id": receipt["retrieval_id"],
+                    "status": receipt["status"]}, "blockers": blockers}
+            except (ValueError, OSError, ValidationError) as error:
+                blockers.append({"retrieval_id": request["retrieval_id"], "reason": str(error)})
+        return {"performed": None, "blockers": blockers}
+
     def _review_validation(self, plan, job, record):
         if self.agents.backend is None:
             return None
@@ -367,6 +386,9 @@ class Workflow:
                     "next_owner": "framing-and-review"}
         progress = self._progress(plan)
         jobs = unique(plan["questions"], "question_id")
+        reference_requests = self._reference_requests(plan)
+        if reference_requests["performed"]:
+            return {**self.observe(plan), **reference_requests}
         for qid, item in report["questions"].items():
             action = item["next_action"]
             job = jobs[qid]
@@ -443,4 +465,5 @@ class Workflow:
         scheduled = self._schedule(plan)
         return {**self.observe(plan), "performed": {"action": "agent-schedule", "result": scheduled} if scheduled and scheduled["executed"] else None,
                 "agent_schedule": scheduled,
+                "reference_blockers": reference_requests["blockers"],
                 "next_owner": "required-role-or-explicit-repair"}
