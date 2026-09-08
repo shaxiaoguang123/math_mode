@@ -19,7 +19,7 @@ def sample(name):
     return read_json(FIXTURES / f"{name}.json")
 
 
-@pytest.mark.parametrize("name", catalog())
+@pytest.mark.parametrize("name", [name for name in catalog() if name != "run_manifest"])
 def test_standalone_examples_and_schema_distribution(name):
     Draft202012Validator.check_schema(catalog()[name])
     validate(name, sample(name))

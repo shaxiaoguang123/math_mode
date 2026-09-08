@@ -93,7 +93,28 @@ contracts require explicit timestamps/groups when relevant. `.gitignore` protect
 untracked private workspaces, root solve outputs, environments and secrets; it
 does not remove already tracked template assets.
 
-## Compatibility boundaries to finish in T05–T12
+## Actual execution records (T05)
+
+Solver entrypoints accept `--context <JSON path>`; context supplies the snapshot
+input map, spec, output directory and seed. Copy the complete declared code bundle
+into the private workspace and update `model_spec.implementation`. Outputs are flat
+JSON objects/record arrays or CSV rows with declared field names/types/units.
+XLSX/TXT require the later task-specific adapter; the runner rejects them for now.
+
+```powershell
+python -m mathmode run --workspace ../competitions/case-id --spec model_spec.json --role main --interpreter /path/to/python
+python -m mathmode verify-run --workspace ../competitions/case-id --manifest runs/run-id/run_manifest.json
+```
+
+Replace `/path/to/python` with the actual interpreter or omit it to use the current
+`sys.executable`. Every attempt creates a new directory. Preserve failed runs and
+pass `--retry-of <latest-failed-run-id>` after a real repair; unchanged retries and
+attempts beyond the three-attempt conservative bound are rejected. Original inputs
+remain read-only snapshots. Logs, absolute local paths and package inventory stay
+inside the private workspace. Run PASS and verify-run PASS remain execution
+integrity findings, never independent scientific approval.
+
+## Compatibility boundaries to finish in T06–T12
 
 V1 visual/support/paper manifests will have explicit lineage adapters; no adapter
 may invent successful execution, independent validation or a frozen value.

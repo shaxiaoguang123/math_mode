@@ -2,8 +2,8 @@
 
 All new contracts use `schema_version: "2.0"`, JSON Schema Draft 2020-12 and strict
 object fields. This catalog defines responsibilities before implementation.
-T04 implements modeling contracts; runner/evidence/agent contracts below remain
-scheduled for T05–T08. Schemas/tests are executable definitions; changed contracts must update
+T04 implements modeling contracts and T05 the run manifest; evidence/agent contracts
+remain scheduled for T06–T08. Schemas/tests are executable definitions; changed contracts must update
 this catalog, examples and migration together.
 
 Common artifact reference: `artifact_id`, workspace-relative `path`, `sha256`,
@@ -92,3 +92,33 @@ finds transitive stale dependencies. The reported scope is artifact freshness;
 an empty registry passing this check does not pass any workflow gate. Gate writes,
 provenance-authenticated run evidence, immutable freezes, source authenticity,
 actual human events and scientific checks are later-stage responsibilities.
+
+## Executed run contract (T05)
+
+The catalog now additionally generates `run_manifest.schema.json`. Its example is
+the actually executed fixture in `fixtures/runner/` and `tests/test_runner.py`, not
+a static fabricated PASS record. Each run snapshots the spec, explicit original
+inputs, complete declared code bundle and bootstrap/context controls. It records
+the actual interpreter/hash/version/package inventory, argv, cwd, allowlisted
+environment, Python/NumPy seed, timestamps, process duration, return code, timeout,
+output/log hashes and bounded retry chain. Full stdout/stderr are retained locally.
+
+The `LocalSubprocessBackend` uses argv with `shell=False`, a fresh working/output
+directory, timeout and best-effort process-tree termination. Capability fields
+explicitly deny OS/network/filesystem/CPU/memory isolation. Non-null memory limits
+are rejected, never ignored. Only trusted local generated code is appropriate.
+Python and NumPy seeding does not promise cross-platform/GPU-library determinism.
+
+Run PASS establishes process and declared JSON/CSV structure integrity only.
+No outputs, extra final files, malformed/nonfinite values, changed sources or
+nonzero exit cannot pass. XLSX/TXT specs currently need a structural adapter and
+are rejected by this runner. `scientific_acceptance` always remains NOT_RUN.
+`verify-run` rehashes snapshots/current sources, controls, logs and outputs and
+cross-checks their identities, command, seed, input/code/output coverage and spec.
+Local file owners can rewrite the disk; hashes do not authenticate such an attacker.
+
+Retries require the latest failed run ID and changed code/spec/inputs/environment.
+The current conservative bound is three total attempts per unresolved failure
+chain, even if error wording changes. A successful run starts a new chain.
+Interrupted runs remain visible and block a silent retry; inspect the recorded
+process before explicit recovery (workflow recovery integration is T08).

@@ -11,6 +11,7 @@ from .contracts import validate, validate_modeling_bundle
 from .schema_catalog import catalog
 from .workspace import initialize
 from .state import StateStore
+from .runner import execute_model, verify_run
 
 
 def main(argv=None) -> int:
@@ -35,6 +36,16 @@ def main(argv=None) -> int:
     status = commands.add_parser("status", help="Recheck registered artifact hashes on resume")
     status.add_argument("--workspace", type=Path, required=True)
     status.add_argument("--report", type=Path)
+    run = commands.add_parser("run", help="Execute a model spec with fresh snapshots and real process records")
+    run.add_argument("--workspace", type=Path, required=True)
+    run.add_argument("--spec", required=True, help="Workspace-relative model spec")
+    run.add_argument("--role", choices=["main", "baseline", "probe", "validator", "fallback"], default="main")
+    run.add_argument("--interpreter")
+    run.add_argument("--retry-of")
+    verify = commands.add_parser("verify-run", help="Recheck process record and all recorded artifact bytes")
+    verify.add_argument("--workspace", type=Path, required=True)
+    verify.add_argument("--manifest", required=True)
+    verify.add_argument("--report", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "policy":
@@ -46,6 +57,15 @@ def main(argv=None) -> int:
                       "scientific_acceptance": "NOT_RUN", "official_compliance": "NOT_RUN"}
         elif args.command == "status":
             result = StateStore(args.workspace).inspect_freshness()
+        elif args.command == "run":
+            record = execute_model(args.workspace, args.spec, role=args.role, interpreter=args.interpreter, retry_of=args.retry_of)
+            result = {"status": record["status"], "run_id": record["run_id"], "failure_class": record["failure_class"],
+                      "failure_message": record["failure_message"], "scientific_acceptance": "NOT_RUN",
+                      "manifest": f"runs/{record['run_id']}/run_manifest.json"}
+        elif args.command == "verify-run":
+            record = verify_run(args.workspace, args.manifest)
+            result = {"status": "PASS", "scope": "execution_record_integrity", "run_id": record["run_id"],
+                      "scientific_acceptance": "NOT_RUN"}
         elif args.contract == "modeling_bundle":
             result = validate_modeling_bundle(read_json(args.path), root=args.workspace)
         else:

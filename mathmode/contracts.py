@@ -66,10 +66,14 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
     def paths(item):
         if isinstance(item, dict):
             for key, val in item.items():
-                if key in {"path", "entrypoint", "independent_entrypoint"}:
+                if key in {"path", "source_path", "snapshot_path", "entrypoint", "independent_entrypoint"}:
+                    if "\\" in val:
+                        raise ValueError("Contract paths must use portable forward slashes")
                     safe_path(anchor, val, exists=False)
                 elif key == "code_files":
                     for relative in val:
+                        if "\\" in relative:
+                            raise ValueError("Contract paths must use portable forward slashes")
                         safe_path(anchor, relative, exists=False)
                 else:
                     paths(val)
@@ -200,6 +204,23 @@ def validate(name: str, value: dict, *, root: Path | None = None) -> dict:
             causes[key] = causes.get(key, 0) + 1
             if event["attempt"] != causes[key] or causes[key] > 3:
                 raise ValueError("Retry sequence skipped/reset or budget exhausted")
+    elif name == "run_manifest":
+        if value["status"] == "PASS" and (value["returncode"] != 0 or value["timed_out"]
+                or value["failure_class"] is not None or value["cause_id"] is not None
+                or value["failure_message"] is not None or not value["outputs"]):
+            raise ValueError("Run PASS contradicts process/artifact observations")
+        if value["status"] == "FAIL" and any(value[key] is None for key in ("failure_class", "cause_id", "failure_message")):
+            raise ValueError("Failed run requires failure class, root cause and message")
+        if (value["attempt"] == 1) != (value["retry_of"] is None):
+            raise ValueError("Retry attempt requires predecessor")
+        if datetime.fromisoformat(value["ended_at"]) < datetime.fromisoformat(value["started_at"]):
+            raise ValueError("Run timestamps are reversed")
+        unique(value["inputs"], "input_id")
+        unique(value["code"], "source_path")
+        unique(value["outputs"], "name")
+        if value["backend"] == "local_subprocess" and any(value["capabilities"][key] for key in
+                ("os_sandbox", "network_isolation", "filesystem_isolation", "memory_limit", "cpu_limit")):
+            raise ValueError("Local subprocess cannot claim isolation capabilities")
     return value
 
 
