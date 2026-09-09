@@ -132,12 +132,16 @@ def _history(root: Path, question: str, method: str, role: str) -> list[dict]:
 
 
 def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=None,
-                  backend: ExecutionBackend | None = None, retry_of: str | None = None) -> dict:
+                  backend: ExecutionBackend | None = None, retry_of: str | None = None,
+                  execution_authorization: dict | None = None) -> dict:
     root = canonical_root(root)
     backend = backend or LocalSubprocessBackend()
     spec_path = safe_path(root, spec_relative)
     spec_hash = file_hash(spec_path)
     spec = validate("model_spec", read_json(spec_path), root=root)
+    if execution_authorization is not None:
+        from .repair_execution import validate_authorization
+        validate_authorization(root, execution_authorization, spec_relative, role, retry_of)
     if file_hash(spec_path) != spec_hash:
         raise ValueError("Spec changed during preflight")
     if role not in {"main", "baseline", "probe", "validator", "fallback"}:
@@ -213,7 +217,8 @@ def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=No
         run.mkdir(parents=True)
         write_json(run / "planned.json", {"run_id": run_id, "question_id": spec["question_id"],
             "method_id": spec["method_id"], "role": role, "attempt": attempt, "retry_of": retry_of,
-            "created_at": now(), "request_fingerprint": fingerprint}, exclusive=True)
+            "created_at": now(), "request_fingerprint": fingerprint,
+            **({"execution_authorization": execution_authorization} if execution_authorization is not None else {})}, exclusive=True)
         from .processes import identity
         write_json(run / "owner.json", {"owner": identity()}, exclusive=True)
         spec_snapshot = snapshot(root, run, spec_relative, "snapshot/model_spec.json")
@@ -311,6 +316,7 @@ def execute_model(root: Path, spec_relative: str, *, role="main", interpreter=No
             "timeout_seconds": spec["limits"]["timeout_seconds"], "returncode": result.returncode, "timed_out": result.timed_out,
             "status": "FAIL" if failure_class else "PASS", "failure_class": failure_class, "cause_id": cause,
             "failure_message": message, "attempt": attempt, "retry_of": retry_of,
+            "execution_authorization": execution_authorization,
             "spec": {"source_path": spec_relative, "source_sha256": spec_snapshot["sha256"],
                      "snapshot_path": spec_snapshot["snapshot_path"], "sha256": spec_snapshot["sha256"]},
             "input_manifest_sha256": inputs_hash, "inputs": originals, "code": code, "outputs": collected,

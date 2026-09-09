@@ -115,6 +115,11 @@ def test_retries_require_changed_code_and_stop_at_three(workspace):
         run(workspace, retry_of=previous["run_id"])
 
 
+def test_execution_authorization_is_required_to_match_candidate_retry(workspace):
+    with pytest.raises(ValueError, match="incomplete"):
+        run(workspace, execution_authorization={})
+
+
 def test_retry_rejects_rewritten_attempt_budget(workspace):
     code = workspace / "code/compute.py"
     code.write_text("raise RuntimeError('first')", encoding="utf-8")

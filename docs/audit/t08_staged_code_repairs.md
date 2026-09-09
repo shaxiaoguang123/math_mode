@@ -41,6 +41,12 @@ review. Its PASS scope is `independently_reviewed_code_repair`, with execution a
 scientific_acceptance NOT_RUN. Workflow reports the runner as the next owner;
 this adapter does not yet activate a new effective model or execute it.
 
+The execution boundary is explicit: `run_manifest.execution_authorization` may
+carry request/review/candidate pins, role and the failed predecessor. The runner
+validates this binding before creating a repair retry. Malformed or mismatched
+authorization fails before a run directory is created; normal non-repair retries
+retain their existing behavior.
+
 ## Verification and limits of the evidence
 
 The positive fixture performs an actual initial failing subprocess, transports a

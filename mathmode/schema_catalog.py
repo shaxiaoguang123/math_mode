@@ -165,6 +165,8 @@ def catalog():
                 "CODE_FAILURE", "MODEL_FAILURE", "VALIDATION_FAILURE", "POLICY_FAILURE")),
             "cause_id": nullable(ID), "failure_message": nullable(TEXT),
             "attempt": {"type": "integer", "minimum": 1, "maximum": 3}, "retry_of": nullable(ID),
+            "execution_authorization": nullable(obj({"request": PIN, "review": PIN, "candidate_spec": PIN,
+                "execution_role": enum("main", "baseline", "fallback", "probe"), "retry_of": ID})),
             "spec": obj({"source_path": PATH, "source_sha256": HASH, "snapshot_path": PATH, "sha256": HASH}),
             "input_manifest_sha256": HASH,
             "inputs": arr(obj({"input_id": ID, "source_path": PATH, "snapshot_path": PATH,

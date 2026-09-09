@@ -602,3 +602,9 @@ bind the original failure and complete repair evidence, and cannot be authored b
 the code author or diagnostician. A reviewed candidate is not a successful run,
 accepted mathematical result or activated workflow model. See workflow_v2.md for
 the remaining activation/retry/validation boundaries.
+
+An eventual reviewed-repair run records an optional `execution_authorization`
+object binding the repair request, review, candidate spec, role and failed
+predecessor. The runner verifies these pins before launch, preventing an ordinary
+retry from being relabeled as the reviewed repair. This records provenance only;
+it does not replace numerical validation or freeze.
