@@ -1,17 +1,19 @@
 # PR #1 final stage-gate audit
 
 Audit date: 2026-09-10. This document records the public PR state and the private
-T11 historical evidence at the current audited head.
+T11 historical evidence scope. The final live HEAD and matching CI run IDs are
+verified from GitHub after this audit document is committed.
 
 ## Public PR and CI
 
 - Repository: `shaxiaoguang123/math_mode`
 - PR: [#1](https://github.com/shaxiaoguang123/math_mode/pull/1), `OPEN`
 - Branch: `feat/mathmode-v2-evidence-runtime`
-- Audited HEAD: `be2e303be8b7e3fce4e285b2a2aacda51bd7ba72`
+- Runtime implementation baseline: Q5 validation fix `c6e3f641`; later commits
+  on this branch are documentation-only audit updates.
 - GitHub merge state: `CLEAN`; automatic merge is disabled by repository rules.
-- PR CI run `34404605420`: Python 3.11 `SUCCESS`, Python 3.12 `SUCCESS`.
-- Push CI run `34404602832`: Python 3.11 `SUCCESS`, Python 3.12 `SUCCESS`.
+- The latest completed CI runs were successful for both Python 3.11 and 3.12;
+  their exact SHA/run pairing is recorded by the final GitHub check.
 - CodeRabbit check: `SUCCESS`; its repository-size skip is informational.
 
 The complete `origin/main...HEAD` diff was reviewed, including the 200 changed
