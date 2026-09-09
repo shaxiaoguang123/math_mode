@@ -136,6 +136,27 @@ def test_small_linear_oracle_recomputes_feasibility_and_optimality():
     assert invalid["main_reported_objective_error"] == 1
 
 
+def test_q5_frontier_adapter_recomputes_engineering_candidates():
+    rows = []
+    labels = ["\u6b63\u5f26\u6ce2", "\u4e09\u89d2\u6ce2", "\u68af\u5f62\u6ce2"]
+    for index, label in enumerate(labels):
+        rows.append({"id": f"q5-{index}", "source_input": "C-INPUT-2", "row_number": index + 2,
+                     "temperature": 25.0, "frequency": 50_000.0 + index,
+                     "loss": 10.0 + index, "waveform_class": label, "material_class": 1,
+                     "waveform": [0.1 * index, 0.2 + 0.1 * index, -0.1]})
+    criteria = {"task_type": "optimization", "source_refs": ["engineering:q5-frontier"],
+                "evaluation": {"sense": "max"}}
+    spec = {"seed": 20240921, "parameters": {"n_estimators": 4,
+            "min_samples_leaf": 1, "max_features": 1.0}}
+    metrics = evaluate({"rows": rows}, [], [], spec, criteria)
+    assert metrics["expected_frontier_count"] >= 1
+    assert metrics["all_unique_design_count"] == 3
+    assert metrics["coverage_error"] == 1
+    rows[0]["waveform_class"] = "unknown"
+    with pytest.raises(ValueError, match="Unknown waveform class"):
+        evaluate({"rows": rows}, [], [], spec, criteria)
+
+
 def test_mechanism_conservation_is_independently_computed():
     import math
     data = {"initial_A": 10, "rate": 0.2, "times": [0, 1, 2]}

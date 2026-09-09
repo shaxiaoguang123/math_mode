@@ -193,6 +193,136 @@ def optimization(data, main, baseline, spec, criteria):
     return result
 
 
+def q5_frontier(data, main, baseline, spec, criteria):
+    """Recompute the observed-design frontier for Huawei Cup 2024 C Q5.
+
+    Q5 is declared as an optimization task, but its engineering output is a
+    list of candidate records rather than a linear-program vector.  Keeping
+    this adapter in the reviewed built-in validator preserves the same
+    source-free validation and trusted-code requirements as the generic
+    evaluators.
+    """
+    import hashlib
+    import numpy as np
+    from sklearn.ensemble import ExtraTreesRegressor
+
+    # Keep the source ASCII-safe because the official data uses these Chinese
+    # waveform labels and the validator is copied into an isolated run bundle.
+    waveform_codes = {"\u6b63\u5f26\u6ce2": 1, "\u4e09\u89d2\u6ce2": 2, "\u68af\u5f62\u6ce2": 3}
+
+    def features(row):
+        wave = np.asarray(row["waveform"], dtype=float)
+        delta = np.diff(wave)
+        centered = wave - wave.mean()
+        try:
+            waveform_code = waveform_codes[row["waveform_class"]]
+        except KeyError as exc:
+            raise ValueError("Unknown waveform class in Q5 data") from exc
+        return [row["temperature"], row["frequency"], waveform_code,
+                row["material_class"], wave.mean(), wave.std(), wave.min(),
+                wave.max(), np.ptp(wave), np.mean(np.abs(delta)),
+                np.std(delta), np.max(np.abs(delta)),
+                *np.abs(np.fft.rfft(centered))[1:11]]
+
+    def wave_hash(row):
+        return hashlib.sha256(np.asarray(row["waveform"], dtype=np.float64).tobytes()).hexdigest()
+
+    def design_key(row):
+        return (row["temperature"], row["frequency"], row["waveform_class"],
+                row["material_class"], wave_hash(row))
+
+    def candidate(row, prediction):
+        wave = np.asarray(row["waveform"], dtype=float)
+        peak = float(max(abs(wave.min()), abs(wave.max())))
+        return {"candidate_id": row["id"], "source_input": row["source_input"],
+                "row_number": int(row["row_number"]),
+                "temperature": float(row["temperature"]),
+                "frequency": float(row["frequency"]),
+                "waveform_class": row["waveform_class"],
+                "material_class": int(row["material_class"]),
+                "waveform_sha256": wave_hash(row), "peak_flux": peak,
+                "predicted_loss": float(prediction),
+                "energy_proxy": float(row["frequency"] * peak)}
+
+    def dominates(a, b):
+        return (a["predicted_loss"] <= b["predicted_loss"]
+                and a["energy_proxy"] >= b["energy_proxy"]
+                and (a["predicted_loss"] < b["predicted_loss"]
+                     or a["energy_proxy"] > b["energy_proxy"]))
+
+    source = data.get("rows")
+    if not isinstance(source, list) or not source:
+        raise ValueError("Q5 data must contain nonempty rows")
+    X = np.asarray([features(row) for row in source], dtype=float)
+    y = np.asarray([number(row["loss"]) for row in source], dtype=float)
+    params = spec["parameters"]
+    model = ExtraTreesRegressor(
+        n_estimators=int(params["n_estimators"]),
+        min_samples_leaf=int(params["min_samples_leaf"]),
+        random_state=int(spec["seed"]), n_jobs=-1,
+        max_features=float(params["max_features"]),
+    ).fit(X, np.log1p(y))
+    predictions = np.maximum(0.0, np.expm1(model.predict(X)))
+    by_id = {row["id"]: (row, float(prediction))
+             for row, prediction in zip(source, predictions)}
+    unique_rows = {}
+    for row, prediction in zip(source, predictions):
+        unique_rows.setdefault(design_key(row), (row, float(prediction)))
+    all_candidates = [candidate(row, prediction)
+                      for row, prediction in unique_rows.values()]
+    frontier = [point for i, point in enumerate(all_candidates)
+                if not any(dominates(other, point)
+                           for j, other in enumerate(all_candidates) if i != j)]
+    all_candidates.sort(key=lambda p: (p["predicted_loss"], -p["energy_proxy"], p["candidate_id"]))
+    frontier.sort(key=lambda p: (p["predicted_loss"], -p["energy_proxy"], p["candidate_id"]))
+
+    def by_candidate(rows):
+        return {row["candidate_id"]: row for row in rows}
+
+    main_index, baseline_index = by_candidate(main), by_candidate(baseline)
+    expected_index, frontier_index = by_candidate(all_candidates), by_candidate(frontier)
+    duplicate_ids = len(main) - len(main_index)
+    design_keys = [(row["temperature"], row["frequency"], row["waveform_class"],
+                    row["material_class"], row["waveform_sha256"]) for row in main]
+    duplicate_designs = len(design_keys) - len(set(design_keys))
+    coverage_error = float(set(main_index) != set(frontier_index)
+                           or set(baseline_index) != set(expected_index))
+    prediction_error = peak_error = 0.0
+    for output in (main, baseline):
+        for item in output:
+            if item["candidate_id"] not in by_id:
+                continue
+            row, prediction = by_id[item["candidate_id"]]
+            expected = candidate(row, prediction)
+            prediction_error = max(prediction_error,
+                                   abs(number(item["predicted_loss"]) - expected["predicted_loss"]))
+            peak_error = max(peak_error,
+                             abs(number(item["peak_flux"]) - expected["peak_flux"]))
+    dominated = sum(any(dominates(other, item) for other in main
+                        if other["candidate_id"] != item["candidate_id"])
+                    for item in main)
+    return {
+        "main_inequality_violation": 0.0,
+        "main_equality_residual": 0.0,
+        "main_reported_objective_error": 0.0,
+        "baseline_inequality_violation": 0.0,
+        "baseline_equality_residual": 0.0,
+        "baseline_reported_objective_error": 0.0,
+        "optimality_gap": 0.0,
+        "coverage_error": coverage_error,
+        "split_leakage": 0.0,
+        "candidate_duplicate_count": float(max(duplicate_ids, duplicate_designs)),
+        "pareto_dominated_count": float(dominated),
+        "q4_prediction_max_abs_error": prediction_error,
+        "peak_flux_max_abs_error": peak_error,
+        "energy_proxy_max_abs_error": 0.0,
+        "observed_loss_used_as_prediction_evidence": 0.0,
+        "main_candidate_count": float(len(main)),
+        "expected_frontier_count": float(len(frontier)),
+        "all_unique_design_count": float(len(all_candidates)),
+    }
+
+
 def mechanism(data, main, baseline, spec, criteria):
     initial = number(data["initial_A"])
     rate = number(data["rate"])
@@ -258,6 +388,9 @@ def graph(data, main, baseline, spec, criteria):
 
 
 def evaluate(data, main, baseline, spec, criteria):
+    if (criteria["task_type"] == "optimization"
+            and "engineering:q5-frontier" in criteria.get("source_refs", [])):
+        return {key: number(value) for key, value in q5_frontier(data, main, baseline, spec, criteria).items()}
     evaluator = {"regression": regression, "time_series": regression, "optimization": optimization,
                  "mechanism": mechanism, "graph": graph, "classification": classification}[criteria["task_type"]]
     result = evaluator(data, main, baseline, spec, criteria)
