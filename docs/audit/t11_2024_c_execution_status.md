@@ -1,4 +1,36 @@
-﻿# T11 2024 C execution status
+# Current status (supersedes earlier draft labels)
+
+Audit date: 2026-09-10. The private blind workspace has now completed fresh
+main, baseline, independent-validation and verified-freeze chains for all five
+questions. These are bounded historical development evidence, not official
+contest scores.
+
+| Question | Main run | Baseline run | Validation | Verified freeze |
+| --- | --- | --- | --- | --- |
+| Q1 | `run-831af304f5424b9391d7c6b88a22effe` | `run-a67fd16d799d43deac37d997964b36c7` | `validation-47ce4341ac9b4d319632a42729074336` | `freeze-c2928d457d1448568692633882298bee` |
+| Q2 | `run-69ae2939e556451b979407b7b6a61e98` | `run-551a84928a6a40189af8b0c72654a27d` | `validation-ef161a9fb2f24ee986cd761ba0b28df7` | `freeze-bb5c4e2fd87d4a228b7dc43f4d5d0dcf` |
+| Q3 | `run-430e41148e2c43ef9272ab6e40e28e99` | `run-02c25c2849e1464eae7ed76efdca6025` | `validation-f103ff705b9147979660e51253ab4f58` | `freeze-8cfecfd9dceb4e4f839fe519e043cc45` |
+| Q4 | `run-d30e5844618f499b9478fd48283e175c` | `run-779fa3a5d26b413fad7979608766089f` | `validation-7f932bbc47f6439eb9f71985897c4ecd` | `freeze-89be2d2cb7a247a39705ca0130961b47` |
+| Q5 | `run-4fa7521733ed4606be469bb6dff21607` | `run-cc57d3a0b43a41369a7b948d23fd4ff9` | `validation-b4ecb7cc752340369f5b79e8d1346da9` | `freeze-f9277b25e323412883dc72b3d0015038` |
+
+All five validation records and freezes report `PASS`/`VERIFIED`. Q5's current
+checks include 12,399 unique designs, 168 Pareto candidates, zero energy-proxy
+error, zero duplicate candidates and zero Q4-prediction discrepancy beyond the
+recorded numerical tolerance.
+
+Case-level gates remain incomplete: the root workspace has no persisted gate
+records or workflow progress; no root-registered `reference_baseline` checkpoints
+or writer-produced TeX exist; Q4 and Q5 do not carry the required upstream freeze
+pins; and paper, visual QA, official-compliance and G8 audits remain `NOT_RUN`.
+Reference PDFs remain unread under `blind_reference_mode=true`.
+
+The current conclusion is `PASS_WITH_LIMITATIONS` for the five bounded numerical
+evidence chains. The overall T11/MathMode V2 Goal remains incomplete.
+
+# T11 2024 C execution status
+
+The sections below preserve earlier checkpoints for audit history. Their draft
+labels are superseded by the current status above.
 
 The external blind workspace at `F:\project\math_mode\T11_2024_C\blind_workspace`
 now contains draft Q1鈥換5 outputs and `outputs/evidence_index.json`. The index
