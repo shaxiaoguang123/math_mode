@@ -142,6 +142,29 @@ class Workflow:
             raise ValueError("Workflow progress belongs to another case")
         return progress
 
+    def _runtime_jobs(self, plan, progress):
+        """Resolve verified activation pointers without mutating the plan."""
+        jobs = unique(plan["questions"], "question_id")
+        result = {}
+        for qid, job in jobs.items():
+            current = progress["questions"].get(qid, {})
+            view = dict(job)
+            activation_path = current.get("repair_activation")
+            if activation_path:
+                from .repair_activation import verify_activation
+                activation = verify_activation(self.root, activation_path)
+                if activation["question_id"] != qid:
+                    raise ValueError("Repair activation question does not match workflow plan")
+                role = activation["execution_role"]
+                if role == "main":
+                    view["main_spec"] = activation["candidate_spec"]["path"]
+                elif role == "baseline":
+                    view["baseline_spec"] = activation["candidate_spec"]["path"]
+                else:
+                    raise ValueError("Production workflow cannot adopt a probe repair")
+            result[qid] = view
+        return result
+
     def _assumption_plan(self, plan, job, card, decision):
         from .assessments import _plan
         from .dispositions import pin
@@ -349,10 +372,10 @@ class Workflow:
 
     def observe(self, plan: dict, *, persist=True) -> dict:
         validate("workflow_plan", plan, root=self.root)
-        jobs = unique(plan["questions"], "question_id")
         if plan["case_id"] != self.registry.store.load()["case_id"]:
             raise ValueError("Workflow plan belongs to another case")
         progress = self._progress(plan)
+        jobs = self._runtime_jobs(plan, progress)
         gate_reports = {}
         def check(gate, operation, dependencies=()):
             if any(gate_reports[dep]["status"] != "PASS" for dep in dependencies):
@@ -491,7 +514,7 @@ class Workflow:
                     "agent_schedule": scheduled,
                     "next_owner": "framing-and-review"}
         progress = self._progress(plan)
-        jobs = unique(plan["questions"], "question_id")
+        jobs = self._runtime_jobs(plan, progress)
         reference_requests = self._reference_requests(plan)
         if reference_requests["performed"]:
             return {**self.observe(plan), **reference_requests}
