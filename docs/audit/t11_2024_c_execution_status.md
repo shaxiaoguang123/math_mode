@@ -80,11 +80,48 @@ bounded retry. It also uses 120 trees instead of the original 250: previous
 model-quality metrics and attachment predictions do not validate this variant.
 All these records remain preserved. Scientific acceptance is `NOT_RUN`.
 
-Q1 classification needs a labeled holdout, a distinct baseline and criteria
-pinned before new executions. Existing Q1/Q4 manifests contain no pinned
-validation criteria. The new classification evaluator consumes original labeled
-JSON rows and independently computes error rate and macro F1; it does not turn
-unlabeled official test predictions or current draft runs into G5 evidence.
+The original Q1/Q4 prediction-only manifests contain no pinned validation
+criteria. They remain execution checkpoints, separate from the labeled Q1
+comparison below. Unlabeled official test predictions cannot establish accuracy.
+
+## Q1 grouped development validation
+
+The private child workspace `evaluations/q1-grouped-v1` now contains a real
+main/baseline/independent-validator/evidence chain. A parent decoding run
+`run-2a5dab5981944671bf728c94b16679e1` preserved all 12,400 labeled training
+rows and their 1,024 waveform samples as JSON. It retained source input ID,
+worksheet and Excel row identity; its manifest pins the original Excel bytes,
+decoder source and derived output. The child input manifest pins that JSON,
+the decoder manifest/code and original problem/training sheets. Parent run
+verification succeeded before and after evaluation.
+
+Before predictions, the comparison fixed seed 20240921 and a 20% group holdout
+by material/temperature/waveform: 9,764 training rows and 2,636 holdout rows.
+Duplicates within these groups cannot cross the split. Both candidates use
+19 shape features after per-row peak-absolute flux normalization, with fitting
+restricted to training IDs. Main uses RF250; the usable baseline is a depth-six
+decision tree with minimum leaf size three. This is a new development comparison,
+not retrospective validation of the original full-data prediction-only models.
+
+The same criteria hash was pinned into both real runs before execution:
+main error and macro-F1 loss <= 0.05; baseline error and macro-F1 loss <= 0.15;
+main macro-F1 improvement >= 0; complete coverage and zero split leakage.
+These are engineering thresholds, not official competition scoring rules.
+
+- Main: `run-814b8141a23041919e895c23d10d1df0`, runner PASS.
+- Baseline: `run-b572ca4c6e41452cb95d8a90faae567c`, runner PASS.
+- Independent recomputation: both error rates 0 and macro-F1 1.0; improvement 0.
+- Reverified numerical evidence gate: PASS.
+- Negative controls rejected missing predictions, duplicate IDs, unknown labels,
+  fitting leakage and intentionally wrong predictions. No accepted artifact was
+  mutated for these checks.
+
+The parent receipt is `preflight/q1_holdout_checkpoint.json`. The simple baseline
+matched RF250 on this partition, so there is no measured advantage for the more
+complex classifier. This single partition does not establish seed sensitivity,
+out-of-distribution accuracy, independent semantic/assumption review or full
+G5 acceptance. No question is frozen and no whole-case baseline is sealed;
+same-problem reference PDFs remain unread.
 
 ## Reopened downstream rebuild
 
