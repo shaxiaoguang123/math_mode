@@ -434,3 +434,10 @@ This command executes a candidate; it does not switch the effective workflow
 model, reuse old numerical validation, reassess assumptions or freeze results.
 Those workflow activation and evidence transitions remain pending. Its PASS only
 reports process/output-contract success, with scientific_acceptance=NOT_RUN.
+Adoption is an explicit subsequent checkpoint:
+`activate-repair --workspace <root> --request repairs/<id>/request.json --run runs/<run-id>/run_manifest.json`.
+It writes a `repair_activation` event binding the request, independent review,
+candidate spec, successful run and failed predecessor by SHA-256. The event is
+idempotent and never overwrites the original model. Consumers must treat it as
+a new lineage, invalidate prior evidence, rerun main and baseline as a pair,
+and independently validate before freezing again.
