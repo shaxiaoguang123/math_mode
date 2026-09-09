@@ -21,7 +21,7 @@ It is not merged into `main` and is not an official contest submission.
 
 - Targeted repair/runner and workflow suites pass in Conda `test`.
 - GitHub Actions Windows matrix passes on Python 3.11 and 3.12 for commit
-  `cb2912e19d8ae981e02eea7b7e17b780045cafbc`.
+  `73cb36216229dd2f2913fe71dbc4e715609e4b4b`.
 - The repository retains the original DOCX, TeX class/style/template files,
   images and both complete academic-figure-skill mirrors.
 
