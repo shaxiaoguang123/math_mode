@@ -209,11 +209,14 @@ class Workflow:
         return self.agents.advance(schedule, max_tasks=1)
 
     def _failure(self, plan, job, spec_path, role):
-        from .repairs import latest_failure, diagnose_failure
+        from .repairs import latest_failure, diagnose_failure, REPAIR_ADAPTERS
         relative = latest_failure(self.root, spec_path, role)
         if relative is None:
             return None
         result = diagnose_failure(self, plan, job, relative)
+        if result.get("diagnosis"):
+            diagnosis = read_json(safe_path(self.root, result["diagnosis"]))
+            result = {**result, "failure_class": diagnosis["failure_class"]}
         if result["status"] == "DIAGNOSED" and result["next_owner"] == "code":
             if result["retry_budget_remaining"] == 0:
                 return {**self.observe(plan), "performed": None, "failure_diagnosis": result,
@@ -226,7 +229,9 @@ class Workflow:
                 "next_owner": "runner" if repair.get("scope") == "independently_reviewed_code_repair" else "code-repair"}
         return {**self.observe(plan), "performed": {"question_id": job["question_id"],
             "action": "diagnose-failure", "result": result} if result["executed"] else None,
-            "failure_diagnosis": result, "next_owner": result["next_owner"]}
+            "failure_diagnosis": result, "next_owner": result["next_owner"],
+            "repair_adapter": REPAIR_ADAPTERS.get(result.get("failure_class"), "owner-specific-review"),
+            "repair_blockers": ["No generic retry is permitted for this diagnosed failure class"]}
 
     def _reference_requests(self, plan):
         """Process one ready host-declared URL; failed/interrupted requests are preserved."""

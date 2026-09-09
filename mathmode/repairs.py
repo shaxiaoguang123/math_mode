@@ -11,6 +11,15 @@ OWNERS = {"ENV_FAILURE": "environment", "DATA_FAILURE": "data_auditor",
           "CODE_FAILURE": "code", "MODEL_FAILURE": "council",
           "VALIDATION_FAILURE": "validator", "POLICY_FAILURE": "policy"}
 
+# Explicit adapters keep diagnosis routing auditable.  Until an adapter is
+# implemented, the workflow must stop at the named owner rather than treating
+# generic retry as a safe repair for a non-code cause.
+REPAIR_ADAPTERS = {"ENV_FAILURE": "environment-repair",
+                   "DATA_FAILURE": "data-repair",
+                   "MODEL_FAILURE": "model-repair",
+                   "VALIDATION_FAILURE": "validation-repair",
+                   "POLICY_FAILURE": "policy-repair"}
+
 
 def latest_failure(root, spec_path, role):
     spec = validate("model_spec", read_json(safe_path(root, spec_path)), root=root)
