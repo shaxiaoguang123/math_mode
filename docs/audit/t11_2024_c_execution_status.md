@@ -54,4 +54,13 @@ and a duplicate prediction ID. The new `attachment4_cell_validation.json` report
 is scoped to `host_attachment_cell_consistency`, scientific acceptance `NOT_RUN`.
 It supersedes the old attachment report and does not validate either model.
 
+## Reopened downstream rebuild
+
+After the corrected Q4 rerun, grouped holdout validation was regenerated with
+the same material encoding used by the production feature function. The rebuilt
+attachment was then checked against the current Q1/Q4 prediction hashes and
+the evidence index was refreshed. These artifacts remain draft evidence:
+scientific acceptance is still `NOT_RUN`, and no baseline freeze or reference
+paper admission is implied.
+
 
