@@ -445,7 +445,7 @@ idempotent and never overwrites the original model.
 `verify_activation()` rederives every pin and identity from current verified
 evidence. The explicit `adopt_activation_in_progress()` helper uses that check,
 rejects mismatched production roles and serializes updates with the workflow
-lock. It currently writes optional effective-spec pointers only. The workflow
-does not yet consume those pointers, invalidate old evidence, schedule paired
-reruns or re-freeze automatically. Those transitions remain required work;
+lock. It writes optional effective-spec pointers and marks registered validation
+and evidence descendants stale while retaining their files. The workflow does
+not yet schedule paired reruns or re-freeze automatically. Those transitions remain required work;
 an ACTIVE event is not evidence of scientific acceptance or completed adoption.
