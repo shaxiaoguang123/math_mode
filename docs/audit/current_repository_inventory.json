@@ -1,32 +1,61 @@
 {
   "schema_version": "1.0",
-  "revision": "d3b3f4803b46c68cb261363a17c7c0d78d7bcd53",
+  "revision": "b32a3155b030d5b3c17354c4f46d2905f345b9d5",
   "scope": "Every tracked blob at revision, UTF-8 text decoded; Python AST/syntax and JSON schemas checked; binary hashes and DOCX structure inspected. This does not run modeling code.",
-  "python_version": "3.12.13",
+  "python_version": "3.14.0",
   "totals": {
-    "files": 587,
-    "bytes": 181175852,
+    "files": 769,
+    "bytes": 182647806,
     "extensions": {
-      "": 9,
+      "": 10,
       ".bib": 1,
       ".bst": 1,
       ".cls": 1,
       ".docx": 1,
       ".eps": 4,
-      ".json": 27,
-      ".md": 66,
+      ".json": 102,
+      ".md": 100,
       ".pdf": 46,
       ".png": 239,
-      ".py": 138,
+      ".py": 206,
       ".r": 42,
       ".sty": 1,
       ".tex": 8,
+      ".toml": 1,
+      ".txt": 2,
       ".vbs": 1,
-      ".yaml": 2
+      ".yaml": 2,
+      ".yml": 1
     }
   },
-  "test_entries": [],
-  "ci_entries": [],
+  "test_entries": [
+    "tests/test_agents.py",
+    "tests/test_assessments.py",
+    "tests/test_code_repairs.py",
+    "tests/test_contracts.py",
+    "tests/test_data_audit.py",
+    "tests/test_dispositions.py",
+    "tests/test_docx_io.py",
+    "tests/test_freeze.py",
+    "tests/test_human_decisions.py",
+    "tests/test_orchestrator.py",
+    "tests/test_policy.py",
+    "tests/test_probes.py",
+    "tests/test_recovery.py",
+    "tests/test_reference_access.py",
+    "tests/test_reference_case.py",
+    "tests/test_reference_retrieval.py",
+    "tests/test_reference_workflow.py",
+    "tests/test_repairs.py",
+    "tests/test_runner.py",
+    "tests/test_upstream.py",
+    "tests/test_validation.py",
+    "tests/test_workflow.py",
+    "tests/test_workflow_fallback.py"
+  ],
+  "ci_entries": [
+    ".github/workflows/ci.yml"
+  ],
   "skill_parity": {
     "only_agents": [],
     "only_claude": [],
@@ -9747,104 +9776,2927 @@
       ]
     },
     {
-      "path": ".gitignore",
+      "path": ".gitattributes",
       "mode": "100644",
-      "size_bytes": 86,
-      "sha256": "85825f022951be0b387226ffd4d6718967651d29ea1e842c6412acc4eb517ba8",
+      "size_bytes": 161,
+      "sha256": "932b84136573a169400450b97b26126f5eaa5ecb407834d55aba236e4bfe93ce",
       "suffix": "",
       "utf8_text": true,
-      "lines": 10,
+      "lines": 3,
+      "review_locations": {}
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "mode": "100644",
+      "size_bytes": 946,
+      "sha256": "7b13cb0c5aacb7adb87ee89701ce7d8bd46acf30fd1e7b584607606c7e7e0b18",
+      "suffix": ".yml",
+      "utf8_text": true,
+      "lines": 32,
+      "review_locations": {}
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "size_bytes": 646,
+      "sha256": "66dd70bfbf77b0c00a563a7f5d6ac6244213c19d062a1090e2520c1e2cea72e8",
+      "suffix": "",
+      "utf8_text": true,
+      "lines": 50,
       "review_locations": {}
     },
     {
       "path": "AGENTS.md",
       "mode": "100644",
-      "size_bytes": 23545,
-      "sha256": "f42d025fbd8c2e158e81afc11e3313c908076b4f69a2c702bc207400190c07e5",
+      "size_bytes": 3427,
+      "sha256": "361628a1ff349ca30711795a4abf6da7c38642c099dbd89ddb2f8d1af4089d61",
       "suffix": ".md",
       "utf8_text": true,
-      "lines": 220,
+      "lines": 41,
+      "review_locations": {}
+    },
+    {
+      "path": "CHANGELOG.md",
+      "mode": "100644",
+      "size_bytes": 1664,
+      "sha256": "8bd906efea4bc7df0587ce41da72778dd1b5d87788f52210985fe242aaae4c7a",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 36,
       "review_locations": {
-        "edition_literal": [
-          12,
-          145
-        ],
-        "page_policy": [
-          25,
-          41,
-          177,
-          179,
-          215
-        ],
-        "cover_anonymity_toc": [
-          41,
-          135,
-          145,
-          175,
-          216
+        "absolute_windows_path": [
+          5
         ]
       }
     },
     {
       "path": "CLAUDE.md",
       "mode": "100644",
-      "size_bytes": 26250,
-      "sha256": "77364221953ba98f9ed3f95f8d2cb93b3e25bfaf33c0c2d944fac5bc2555f9e2",
+      "size_bytes": 3433,
+      "sha256": "bc6eeb87819988567a48f50d67ce0da4f832592233675ea529eac76ef4966b0e",
       "suffix": ".md",
       "utf8_text": true,
-      "lines": 245,
-      "review_locations": {
-        "edition_literal": [
-          12,
-          167
-        ],
-        "page_policy": [
-          26,
-          48,
-          199,
-          201,
-          212,
-          240
-        ],
-        "cover_anonymity_toc": [
-          44,
-          45,
-          155,
-          163,
-          167,
-          197,
-          241
-        ]
-      }
+      "lines": 41,
+      "review_locations": {}
     },
     {
       "path": "README.md",
       "mode": "100644",
-      "size_bytes": 21296,
-      "sha256": "0590f3ba28d899560bf83848224c72e5aabce6988613691dee2b52dc865b25e9",
+      "size_bytes": 21480,
+      "sha256": "3fe4babfc7076050d67c8c1e1b75a9c74e0276cba835d62637c14cf415227773",
       "suffix": ".md",
       "utf8_text": true,
-      "lines": 219,
+      "lines": 221,
       "review_locations": {
         "absolute_windows_path": [
-          120
+          122
         ],
         "edition_literal": [
-          68
+          70
         ],
         "page_policy": [
-          83,
-          87,
-          93,
-          103
+          85
         ],
         "cover_anonymity_toc": [
-          18,
-          19,
-          50,
-          153
+          3,
+          20,
+          21,
+          52,
+          155
         ]
       }
+    },
+    {
+      "path": "docs/agent_router.md",
+      "mode": "100644",
+      "size_bytes": 3411,
+      "sha256": "44978d614972b9798fef890e6b76bcad6f47e22b20918eed63379645cdbcbff3",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 41,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/architecture_v2.md",
+      "mode": "100644",
+      "size_bytes": 9312,
+      "sha256": "8eaa16e19f8c77dc402335e0693ca9c3c151f4daa7adb46402c9ab024445c58c",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 158,
+      "review_locations": {
+        "cover_anonymity_toc": [
+          42
+        ],
+        "shell_true": [
+          64
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/current_repository_audit.md",
+      "mode": "100644",
+      "size_bytes": 7255,
+      "sha256": "ef46f7168bb9244862a929eb327bfb7f80ec478b9d22c6f18db308c7cfd30667",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 111,
+      "review_locations": {
+        "edition_literal": [
+          3
+        ],
+        "cover_anonymity_toc": [
+          70,
+          77
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/current_repository_inventory.json",
+      "mode": "100644",
+      "size_bytes": 303451,
+      "sha256": "58177b773e4193a2e991d85e21e88f0e3443ea9b92d68e3c3e968cc5e27faefa",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 11259,
+      "review_locations": {
+        "edition_literal": [
+          2122,
+          6978,
+          9850,
+          11211,
+          11226
+        ],
+        "cover_anonymity_toc": [
+          9779,
+          9809,
+          9841,
+          10188,
+          10224,
+          10407,
+          10430,
+          10484,
+          10636,
+          10710,
+          10888,
+          11077,
+          11174
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "docs/audit/docx_windows_replacement.md",
+      "mode": "100644",
+      "size_bytes": 1841,
+      "sha256": "2317dc6707bebbbae9876edc4de1f167c1ea896117215ee290feed99f8e79597",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 28,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t03_policy_validation.md",
+      "mode": "100644",
+      "size_bytes": 2450,
+      "sha256": "864b835bb397c133bdeb1260df60bb36488864c318564a6c4cf691f851fdc966",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 38,
+      "review_locations": {
+        "edition_literal": [
+          3
+        ],
+        "cover_anonymity_toc": [
+          8,
+          12,
+          17
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/t04_contract_validation.md",
+      "mode": "100644",
+      "size_bytes": 2125,
+      "sha256": "bae9bb4aa7d5d4147e54927457d3eea1b03d875ce35203ba6c905a89bc63cd97",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 33,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t05_runner_validation.md",
+      "mode": "100644",
+      "size_bytes": 2461,
+      "sha256": "db000696b5179d2049f34a5293097102065a7193873fd7b9f87197724a29d378",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 37,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t06_evidence_validation.md",
+      "mode": "100644",
+      "size_bytes": 2496,
+      "sha256": "05e1ecc7e689db3e8b68bc968678d44dbaa9bae78b28dcc1e1916b849054a99c",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 37,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t07_freeze_validation.md",
+      "mode": "100644",
+      "size_bytes": 2296,
+      "sha256": "4194ab0f4452c2c38f93902693dacbf18f2fa5cd9168aef7b93d3912a903fc6c",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 35,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t08_activation_authorization.md",
+      "mode": "100644",
+      "size_bytes": 1770,
+      "sha256": "984e881361b34a9ed56c698042416ba7b8f6df1fa4ea20730a7def2ed8bc0103",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 29,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t08_agent_runtime_progress.md",
+      "mode": "100644",
+      "size_bytes": 29587,
+      "sha256": "bb66f33c1627969cd737b04a76e04852b1c1d9307ca6c651a86dd290a9528f71",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 439,
+      "review_locations": {
+        "absolute_windows_path": [
+          17,
+          18,
+          255
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/t08_assumption_evidence.md",
+      "mode": "100644",
+      "size_bytes": 6699,
+      "sha256": "62f9ad949b799a16e6e91bfb936d83f0235807c7e697a08a537b0bb4d5a477b8",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 102,
+      "review_locations": {
+        "edition_literal": [
+          3
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/t08_failure_diagnosis.md",
+      "mode": "100644",
+      "size_bytes": 8330,
+      "sha256": "88c0c54291e3268232da6252f2dd38714f818acfbe668cc322225017ff141373",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 136,
+      "review_locations": {
+        "edition_literal": [
+          3
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/t08_failure_owner_adapters.md",
+      "mode": "100644",
+      "size_bytes": 643,
+      "sha256": "528a7e11cbccb85b2e0c174afdb30015bfe6540eb3a987a2d82719c668bcdd99",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 12,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t08_retry_history_integrity.md",
+      "mode": "100644",
+      "size_bytes": 2773,
+      "sha256": "1345c59e70dfac5f20c7ab4081ef9990f5dedf2c827e5ac9cee194d10d229686",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 45,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t08_reviewed_dispositions.md",
+      "mode": "100644",
+      "size_bytes": 5095,
+      "sha256": "352b5606c5995a21ef5e7b583cb5d4ffc38007d5c098c24c090add805cb226d1",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 82,
+      "review_locations": {
+        "edition_literal": [
+          3
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/t08_reviewed_retry_execution.md",
+      "mode": "100644",
+      "size_bytes": 3151,
+      "sha256": "4ad1220a43c00f43a958f59abaef6956cb71ab2763561a61a3edf8ccf6c4bda3",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 48,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t08_staged_code_repairs.md",
+      "mode": "100644",
+      "size_bytes": 6738,
+      "sha256": "7ef08a6cca2f90f1672958611d2b366c28683325b2173091ba410492523adcc2",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 111,
+      "review_locations": {
+        "edition_literal": [
+          3
+        ]
+      }
+    },
+    {
+      "path": "docs/audit/t10_ci_first_run.md",
+      "mode": "100644",
+      "size_bytes": 1315,
+      "sha256": "b0acfe9aad50141de6380bd8c45b97cc787491f39f4c55610e88d9be1216612e",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 25,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/t10_full_regression.md",
+      "mode": "100644",
+      "size_bytes": 627,
+      "sha256": "44383bc29d34734b8cb580823b18b53e74feb2921b92bd6a80d6a6317fca0923",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 15,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/audit/v1_negative_probe.json",
+      "mode": "100644",
+      "size_bytes": 796,
+      "sha256": "350c213fba13a1be4212537f5ac52fc0188b6646598759c7d73632feab34d806",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "docs/contracts.md",
+      "mode": "100644",
+      "size_bytes": 43861,
+      "sha256": "01c5d0612eabc6dd8639504dd373c79818ba707941ab2af163fd0005ff7c1983",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 610,
+      "review_locations": {
+        "cover_anonymity_toc": [
+          20
+        ]
+      }
+    },
+    {
+      "path": "docs/migration_v1_to_v2.md",
+      "mode": "100644",
+      "size_bytes": 24826,
+      "sha256": "551d70a2657ca8f4b5e7ed4d6da43718a45cbb62413b45020b6d1947ed4bdd93",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 387,
+      "review_locations": {
+        "page_policy": [
+          47
+        ],
+        "cover_anonymity_toc": [
+          3,
+          36,
+          41,
+          43,
+          44,
+          45
+        ]
+      }
+    },
+    {
+      "path": "docs/research/reference_architecture_comparison.md",
+      "mode": "100644",
+      "size_bytes": 4039,
+      "sha256": "8c480f612d4d0c5c44d51baee0b39bde913cc71d6bf11dff9557347432731448",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 47,
+      "review_locations": {}
+    },
+    {
+      "path": "docs/research/reference_source_map.md",
+      "mode": "100644",
+      "size_bytes": 12136,
+      "sha256": "186f7cc47b96fac5819725884de829c6fc28ab8a3d0a465022513a3c6a11260c",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 61,
+      "review_locations": {
+        "absolute_windows_path": [
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ],
+        "edition_literal": [
+          3
+        ],
+        "shell_true": [
+          28
+        ]
+      }
+    },
+    {
+      "path": "docs/runtime_rules.md",
+      "mode": "100644",
+      "size_bytes": 9123,
+      "sha256": "492926194b682361fa4a3c5e8d893c872dd300a6aa90417fb36a5834f541161c",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 115,
+      "review_locations": {
+        "page_policy": [
+          12
+        ],
+        "cover_anonymity_toc": [
+          11,
+          96
+        ]
+      }
+    },
+    {
+      "path": "docs/workflow_v2.md",
+      "mode": "100644",
+      "size_bytes": 31330,
+      "sha256": "1284e08767e09d0610b9ba5604b8d381c6d9b0eedf79651b04e6506cacacaefc",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 451,
+      "review_locations": {
+        "absolute_windows_path": [
+          200
+        ]
+      }
+    },
+    {
+      "path": "fixtures/agents/README.md",
+      "mode": "100644",
+      "size_bytes": 4671,
+      "sha256": "d6a7f79a90ea08449c2cd574872336aa4aa723797d376aa38332e19e320aa455",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 69,
+      "review_locations": {}
+    },
+    {
+      "path": "fixtures/agents/blocked_schedule.json",
+      "mode": "100644",
+      "size_bytes": 654,
+      "sha256": "b579736b1f399e1a3061ed73b2eaabfc45eaef5c86ec0cd3aa365845570ccf2c",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 21,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/agents/fallback_decision.json",
+      "mode": "100644",
+      "size_bytes": 600,
+      "sha256": "881f592f4afe51323989a29c9a4b2fbfe9ce88b6c580b1e0f69f7e1de86caebd",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 14,
+      "review_locations": {
+        "edition_literal": [
+          12
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/agents/reference_request.json",
+      "mode": "100644",
+      "size_bytes": 207,
+      "sha256": "9eabe362e1e95adf4d89e244ace9702474d11dc4371e2a9aeb9481ef52bf78c2",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 7,
+      "review_locations": {
+        "absolute_windows_path": [
+          3
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/agents/workflow_plan.json",
+      "mode": "100644",
+      "size_bytes": 1156,
+      "sha256": "1032ca77dcadf5263b24b58d268875760d2712429ec5d61cd5d0d23877cd5637",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 38,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/README.md",
+      "mode": "100644",
+      "size_bytes": 685,
+      "sha256": "7455bb33af88603f64c5ab9fc97eec13c115635878d0fdb450029d9fad6b6ff9",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 11,
+      "review_locations": {}
+    },
+    {
+      "path": "fixtures/contracts/ai_usage.json",
+      "mode": "100644",
+      "size_bytes": 349,
+      "sha256": "a820e48910b881b2802bb3b88900469bda2a4e992c2c44a1efe93d5d644225af",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/ambiguity_register.json",
+      "mode": "100644",
+      "size_bytes": 107,
+      "sha256": "9d7eff834030f19d6984657c012212b03a66565d55300a8af6a68da68257d005",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/assumption_ledger.json",
+      "mode": "100644",
+      "size_bytes": 445,
+      "sha256": "d67e640c882c535d548f3ac81a9305d58203d32cf6c4bd35b234cd9d8ff93fab",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/assumption_plan.json",
+      "mode": "100644",
+      "size_bytes": 709,
+      "sha256": "c9621073b38f05c67dcbbd34d2d603a8a9738b9144050842bb1eec6eb564a799",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/assumption_report.json",
+      "mode": "100644",
+      "size_bytes": 520,
+      "sha256": "ad73592381257cb4d4731c0dff9fb56829e99d5abc2100204971c0694f421985",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/code_repair_request.json",
+      "mode": "100644",
+      "size_bytes": 949,
+      "sha256": "98fe852ea85864e112769b6718974a305b08395e89bbe61413d84c25ecceba41",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 13,
+      "review_locations": {
+        "edition_literal": [
+          5
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/disposition_review.json",
+      "mode": "100644",
+      "size_bytes": 452,
+      "sha256": "e66f89745b8a89bf46241bb91ee1fa2ff9f9c8ed8da78a4d94712a859b1a9f9e",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/failure_diagnosis.json",
+      "mode": "100644",
+      "size_bytes": 603,
+      "sha256": "90a66c91198b0b987274bb7459bf084599de33dfeca720606130bcd03dc50bbc",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 16,
+      "review_locations": {
+        "edition_literal": [
+          10
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/human_decision_event.json",
+      "mode": "100644",
+      "size_bytes": 594,
+      "sha256": "95cbfa1da82498faac13b02f27f2a840cb930fa762082c8b140af07052b7bc22",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 14,
+      "review_locations": {
+        "edition_literal": [
+          6
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/human_decision_request.json",
+      "mode": "100644",
+      "size_bytes": 807,
+      "sha256": "893adc34bec37f12a0ed5eebd452df0fed8c6c1d4f0f6a2c3ceb8ba055a409ca",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 15,
+      "review_locations": {
+        "edition_literal": [
+          6
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/input_manifest.json",
+      "mode": "100644",
+      "size_bytes": 449,
+      "sha256": "6438b70a7920db1059c37a509248c7e6285743735313e3f28ea0928c43c0cbd3",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "absolute_windows_path": [
+          1
+        ],
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/issue_disposition.json",
+      "mode": "100644",
+      "size_bytes": 695,
+      "sha256": "e4c48d6f536d548eda78f584cec93b8df8f3c88f1ad02446acd8f747df93db38",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/method_card.json",
+      "mode": "100644",
+      "size_bytes": 843,
+      "sha256": "595a716f7dd0f7d5534a4492cee740f77bf2eba3ac03b52ecc38639f601c2981",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/method_decision.json",
+      "mode": "100644",
+      "size_bytes": 357,
+      "sha256": "5fee0bf0d6c789c974d9beee9e05cefdfe5bf34a86c23527b2c1d201a4a7a4c1",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/model_spec.json",
+      "mode": "100644",
+      "size_bytes": 1070,
+      "sha256": "8098a57a3d24a00af7f302440934b07486499e498d22ea260573c8e48edb6abc",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/modeling_bundle.json",
+      "mode": "100644",
+      "size_bytes": 4797,
+      "sha256": "37886321b69a7c7ad9bf1d52d5991de21f3f6df955b58b1864160a108cfad4b9",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "absolute_windows_path": [
+          1
+        ],
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/problem.txt",
+      "mode": "100644",
+      "size_bytes": 69,
+      "sha256": "0c3e76ff4f9d4ad67976e091e5bd5dae493f3b8b81b7e4586d7e4bc14fc69c64",
+      "suffix": ".txt",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {}
+    },
+    {
+      "path": "fixtures/contracts/problem_dag.json",
+      "mode": "100644",
+      "size_bytes": 72,
+      "sha256": "43144d78a675fda75ef39dd4d4effce75d69f983e08e48273f08ff8462da5963",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/problem_frame.json",
+      "mode": "100644",
+      "size_bytes": 587,
+      "sha256": "08ffea813d33c21c7ac7ba7a390be9d2e234cb54b33393be1c9698186a7c4b6d",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/reference_case_baseline.json",
+      "mode": "100644",
+      "size_bytes": 938,
+      "sha256": "e2e4a49ad3d7c7c3b8f16a34342e2c9d844b4cfaf77d4f20f129a3dee4cdde35",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 15,
+      "review_locations": {
+        "edition_literal": [
+          5
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/repair_activation.json",
+      "mode": "100644",
+      "size_bytes": 932,
+      "sha256": "b4ca79a97d24c037bc2046c7cc59de48f96c22fd830d08c2a30f66b4c26ad07a",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 13,
+      "review_locations": {
+        "edition_literal": [
+          5
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/risk_probe.json",
+      "mode": "100644",
+      "size_bytes": 1197,
+      "sha256": "d8339f930691da4d641aa385b7d43e92c0e83ae8062f62da5be10891cd53ae2a",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/symbol_table.json",
+      "mode": "100644",
+      "size_bytes": 706,
+      "sha256": "49eded2325aabacca66208f0a16068d011153aaf9a71c1bad67fa9ba84945802",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {},
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/contracts/workflow_state.json",
+      "mode": "100644",
+      "size_bytes": 315,
+      "sha256": "32695e6a67cf8a86b42d0cd277847a3768cb4a9e317f7612db5fb41259db459a",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 1,
+      "review_locations": {
+        "edition_literal": [
+          1
+        ]
+      },
+      "json": "PASS"
+    },
+    {
+      "path": "fixtures/runner/README.md",
+      "mode": "100644",
+      "size_bytes": 996,
+      "sha256": "1f0e15beb6ebabb49c55f7004bb83a7e223cf5b5b471fe4b057fb04827c75c65",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 16,
+      "review_locations": {}
+    },
+    {
+      "path": "fixtures/runner/compute.py",
+      "mode": "100644",
+      "size_bytes": 792,
+      "sha256": "fe2088eeac7b30a3e30eec2746751a922dbab8af8c9f674042effd6276957c30",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 17,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [],
+      "imports": [
+        "argparse",
+        "json",
+        "os",
+        "pathlib",
+        "random",
+        "sys"
+      ]
+    },
+    {
+      "path": "fixtures/validation/FREEZE.md",
+      "mode": "100644",
+      "size_bytes": 918,
+      "sha256": "7f27b26e196743d14160d2b28fbd468644acdcab3470800aa229bb332439b929",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 15,
+      "review_locations": {}
+    },
+    {
+      "path": "fixtures/validation/README.md",
+      "mode": "100644",
+      "size_bytes": 2191,
+      "sha256": "5d047f5ddc80d0a5bf26f77630e7a4e7c4801b6741b385af796119d37dab1189",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 32,
+      "review_locations": {}
+    },
+    {
+      "path": "fixtures/validation/regression_solver.py",
+      "mode": "100644",
+      "size_bytes": 1138,
+      "sha256": "0ebfd8f3593cd1daa6b24ea76d02a4a2403a46ef31c4d6f011bdd1540ebeab16",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 21,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [],
+      "imports": [
+        "argparse",
+        "json",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "git_rule.md",
+      "mode": "100644",
+      "size_bytes": 10443,
+      "sha256": "26d5dd20f13b24aaa9632070668366d9e7d7f0d6878a139aad705bc89a77b1fb",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 855,
+      "review_locations": {
+        "cover_anonymity_toc": [
+          227,
+          228
+        ]
+      }
+    },
+    {
+      "path": "goal.md",
+      "mode": "100644",
+      "size_bytes": 39835,
+      "sha256": "70e0cd1a3810a9be7aeb9e03ff98c645187ff6cdcd0405fc49a89aff7ed90226",
+      "suffix": ".md",
+      "utf8_text": true,
+      "lines": 2986,
+      "review_locations": {
+        "edition_literal": [
+          1929,
+          2036,
+          2037,
+          2038,
+          2116
+        ],
+        "page_policy": [
+          1929,
+          1934,
+          1939,
+          2932
+        ],
+        "cover_anonymity_toc": [
+          134,
+          1385,
+          1386,
+          1908,
+          1971,
+          1979,
+          1998,
+          2001,
+          2003,
+          2007,
+          2012,
+          2481,
+          2483,
+          2931
+        ],
+        "shell_true": [
+          317,
+          1234,
+          2527,
+          2923
+        ]
+      }
+    },
+    {
+      "path": "mathmode/__init__.py",
+      "mode": "100644",
+      "size_bytes": 100,
+      "sha256": "ba267d61dcf7649712c800b994399372756f2c56077b431b86ec0666b1343fd3",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 3,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [],
+      "imports": []
+    },
+    {
+      "path": "mathmode/__main__.py",
+      "mode": "100644",
+      "size_bytes": 24379,
+      "sha256": "6a3dbabd34cec037b5bf35a2fc00f01ffa79dcaf2c8848d5ffb826deb14900d4",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 346,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "main",
+          "line": 20
+        }
+      ],
+      "imports": [
+        "__future__",
+        "agent_backends",
+        "agents",
+        "argparse",
+        "assessments",
+        "code_repairs",
+        "contracts",
+        "dispositions",
+        "freeze",
+        "human_decisions",
+        "io",
+        "json",
+        "jsonschema",
+        "lineage",
+        "orchestrator",
+        "pathlib",
+        "policy",
+        "probes",
+        "recovery",
+        "reference_access",
+        "reference_baselines",
+        "reference_retrieval",
+        "repair_activation",
+        "repair_execution",
+        "repairs",
+        "runner",
+        "schema_catalog",
+        "state",
+        "validation",
+        "workflow",
+        "workspace"
+      ]
+    },
+    {
+      "path": "mathmode/agent_backends.py",
+      "mode": "100644",
+      "size_bytes": 4980,
+      "sha256": "829c7717d5c736616b02ae295789d40365233a6333c0e8a21f37879ab6a81992",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 114,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "AgentExecution",
+          "line": 17
+        },
+        {
+          "name": "AgentBackend",
+          "line": 27
+        },
+        {
+          "name": "codex_command",
+          "line": 39
+        },
+        {
+          "name": "CodexCliBackend",
+          "line": 53
+        },
+        {
+          "name": "response_schema",
+          "line": 31
+        },
+        {
+          "name": "produce",
+          "line": 35
+        },
+        {
+          "name": "__init__",
+          "line": 56
+        },
+        {
+          "name": "response_schema",
+          "line": 60
+        },
+        {
+          "name": "produce",
+          "line": 86
+        },
+        {
+          "name": "typed",
+          "line": 62
+        }
+      ],
+      "imports": [
+        "__future__",
+        "abc",
+        "copy",
+        "dataclasses",
+        "execution",
+        "io",
+        "os",
+        "pathlib",
+        "runner",
+        "shutil"
+      ]
+    },
+    {
+      "path": "mathmode/agents.py",
+      "mode": "100644",
+      "size_bytes": 26480,
+      "sha256": "ace24c3748e102f3bf253fa71d1ff245eec1a8f73543686d18e7bec190c93d5e",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 389,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "validate_task",
+          "line": 22
+        },
+        {
+          "name": "_check_response",
+          "line": 54
+        },
+        {
+          "name": "_reserve_task",
+          "line": 148
+        },
+        {
+          "name": "run_agent_task",
+          "line": 194
+        },
+        {
+          "name": "verify_agent_result",
+          "line": 355
+        },
+        {
+          "name": "framing_signature",
+          "line": 160
+        }
+      ],
+      "imports": [
+        "__future__",
+        "agent_backends",
+        "ast",
+        "contracts",
+        "datetime",
+        "human_decisions",
+        "io",
+        "jsonschema",
+        "lineage",
+        "pathlib",
+        "processes",
+        "recovery",
+        "reference_baselines",
+        "reference_retrieval",
+        "repairs",
+        "roles",
+        "schema_catalog",
+        "shutil",
+        "stat",
+        "state",
+        "tempfile",
+        "time",
+        "urllib.parse",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/assessments.py",
+      "mode": "100644",
+      "size_bytes": 16984,
+      "sha256": "bedca5bb560c51127358b8b86593dbce7c53758f7da83dc6c4ccfbcf06f24de1",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 263,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "_contract",
+          "line": 16
+        },
+        {
+          "name": "_plan",
+          "line": 24
+        },
+        {
+          "name": "report_path",
+          "line": 63
+        },
+        {
+          "name": "_specs",
+          "line": 67
+        },
+        {
+          "name": "_compute",
+          "line": 81
+        },
+        {
+          "name": "verify_assessment",
+          "line": 136
+        },
+        {
+          "name": "assess_assumptions",
+          "line": 150
+        },
+        {
+          "name": "_assess_assumptions",
+          "line": 156
+        },
+        {
+          "name": "bind_assessment_reports",
+          "line": 249
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "copy",
+        "dispositions",
+        "freeze",
+        "io",
+        "lineage",
+        "orchestrator",
+        "pathlib",
+        "runner",
+        "state",
+        "validation"
+      ]
+    },
+    {
+      "path": "mathmode/code_repairs.py",
+      "mode": "100644",
+      "size_bytes": 12598,
+      "sha256": "f134b0760fbd01261d06ba91a82e041efc4d486463429f0fc218e4d76139d681",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 183,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "_pin",
+          "line": 15
+        },
+        {
+          "name": "_definition",
+          "line": 19
+        },
+        {
+          "name": "verify_request",
+          "line": 43
+        },
+        {
+          "name": "_contract",
+          "line": 53
+        },
+        {
+          "name": "verify_candidate",
+          "line": 61
+        },
+        {
+          "name": "verify_code_repair",
+          "line": 95
+        },
+        {
+          "name": "prepare_code_repair",
+          "line": 114
+        }
+      ],
+      "imports": [
+        "__future__",
+        "agents",
+        "contracts",
+        "copy",
+        "io",
+        "jsonschema",
+        "lineage",
+        "orchestrator",
+        "repairs",
+        "runner"
+      ]
+    },
+    {
+      "path": "mathmode/contracts.py",
+      "mode": "100644",
+      "size_bytes": 26356,
+      "sha256": "a8c03f1a075147408a8c24c914117f66fdb117bc4c5ba471f6ae19a2850139e6",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 437,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "unique",
+          "line": 12
+        },
+        {
+          "name": "references",
+          "line": 22
+        },
+        {
+          "name": "topological_order",
+          "line": 28
+        },
+        {
+          "name": "_outputs",
+          "line": 49
+        },
+        {
+          "name": "validate",
+          "line": 58
+        },
+        {
+          "name": "read_ledger",
+          "line": 309
+        },
+        {
+          "name": "validate_events",
+          "line": 319
+        },
+        {
+          "name": "validate_modeling_bundle",
+          "line": 334
+        },
+        {
+          "name": "paths",
+          "line": 66
+        },
+        {
+          "name": "citations",
+          "line": 353
+        }
+      ],
+      "imports": [
+        "__future__",
+        "datetime",
+        "io",
+        "jsonschema",
+        "pathlib",
+        "schema_catalog"
+      ]
+    },
+    {
+      "path": "mathmode/data_audit.py",
+      "mode": "100644",
+      "size_bytes": 5001,
+      "sha256": "b04af8ab6db164d3563678a1d0501ac3469ae3de81745fcc8c2e392a958ea52c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 77,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "audit_inputs",
+          "line": 11
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "csv",
+        "docx",
+        "fitz",
+        "io",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "mathmode/dispositions.py",
+      "mode": "100644",
+      "size_bytes": 9300,
+      "sha256": "862749c4f2ec19be95390d16947322b0030ee65164cdc18e341f8128c0cf1d67",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 151,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "pin",
+          "line": 11
+        },
+        {
+          "name": "_contract",
+          "line": 15
+        },
+        {
+          "name": "issues",
+          "line": 25
+        },
+        {
+          "name": "verify_disposition",
+          "line": 53
+        },
+        {
+          "name": "qualify_source",
+          "line": 117
+        },
+        {
+          "name": "derive_qualifications",
+          "line": 124
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "freeze",
+        "io",
+        "lineage",
+        "orchestrator",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "mathmode/evaluators.py",
+      "mode": "100644",
+      "size_bytes": 10477,
+      "sha256": "061a88e97366d0cb20f288e543305d09c8c8f5477351870af458eb399d5a57bc",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 206,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "number",
+          "line": 14
+        },
+        {
+          "name": "index_rows",
+          "line": 20
+        },
+        {
+          "name": "regression",
+          "line": 29
+        },
+        {
+          "name": "optimization",
+          "line": 85
+        },
+        {
+          "name": "mechanism",
+          "line": 138
+        },
+        {
+          "name": "graph",
+          "line": 160
+        },
+        {
+          "name": "evaluate",
+          "line": 202
+        }
+      ],
+      "imports": [
+        "__future__",
+        "datetime",
+        "heapq",
+        "math",
+        "numpy",
+        "random",
+        "scipy.optimize"
+      ]
+    },
+    {
+      "path": "mathmode/execution.py",
+      "mode": "100644",
+      "size_bytes": 5181,
+      "sha256": "d692ada039dff89c3817da93f9ffd8094a9e19f1d61d6cd2033d5262ab1bc044",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 113,
+      "review_locations": {
+        "absolute_windows_path": [
+          98
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "ExecutionResult",
+          "line": 18
+        },
+        {
+          "name": "ExecutionBackend",
+          "line": 25
+        },
+        {
+          "name": "LocalSubprocessBackend",
+          "line": 35
+        },
+        {
+          "name": "execute",
+          "line": 30
+        },
+        {
+          "name": "execute",
+          "line": 41
+        }
+      ],
+      "imports": [
+        "__future__",
+        "abc",
+        "dataclasses",
+        "io",
+        "os",
+        "pathlib",
+        "processes",
+        "psutil",
+        "signal",
+        "subprocess",
+        "time"
+      ]
+    },
+    {
+      "path": "mathmode/freeze.py",
+      "mode": "100644",
+      "size_bytes": 20813,
+      "sha256": "afff8d0067902f130519c4139679f70633d84335b861c2a7c7f5a5a80604deec",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 334,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "json_pointer",
+          "line": 21
+        },
+        {
+          "name": "freeze_events",
+          "line": 44
+        },
+        {
+          "name": "_index",
+          "line": 65
+        },
+        {
+          "name": "_append_event",
+          "line": 70
+        },
+        {
+          "name": "_register_run",
+          "line": 78
+        },
+        {
+          "name": "_bind_evidence",
+          "line": 96
+        },
+        {
+          "name": "_bind_evidence_records",
+          "line": 101
+        },
+        {
+          "name": "freeze_results",
+          "line": 129
+        },
+        {
+          "name": "thaw",
+          "line": 248
+        },
+        {
+          "name": "verify_freeze",
+          "line": 279
+        },
+        {
+          "name": "_verify_freeze",
+          "line": 291
+        },
+        {
+          "name": "publish",
+          "line": 204
+        },
+        {
+          "name": "change",
+          "line": 255
+        }
+      ],
+      "imports": [
+        "__future__",
+        "assessments",
+        "contextvars",
+        "contracts",
+        "datetime",
+        "dispositions",
+        "io",
+        "lineage",
+        "math",
+        "os",
+        "pathlib",
+        "runner",
+        "stat",
+        "state",
+        "uuid",
+        "validation"
+      ]
+    },
+    {
+      "path": "mathmode/human_decisions.py",
+      "mode": "100644",
+      "size_bytes": 20085,
+      "sha256": "18672c259fbce30ca106ec47b661960f6029744601936813a14cd21e79890052",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 315,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "task_signature",
+          "line": 22
+        },
+        {
+          "name": "_readonly_json",
+          "line": 26
+        },
+        {
+          "name": "_fresh",
+          "line": 33
+        },
+        {
+          "name": "_check_task",
+          "line": 45
+        },
+        {
+          "name": "_display",
+          "line": 71
+        },
+        {
+          "name": "prepare_request",
+          "line": 79
+        },
+        {
+          "name": "verify_request",
+          "line": 111
+        },
+        {
+          "name": "_event",
+          "line": 136
+        },
+        {
+          "name": "_decision",
+          "line": 152
+        },
+        {
+          "name": "verify_human_decision",
+          "line": 166
+        },
+        {
+          "name": "_publish",
+          "line": 195
+        },
+        {
+          "name": "decision_matches_task",
+          "line": 230
+        },
+        {
+          "name": "receive_terminal_decision",
+          "line": 260
+        },
+        {
+          "name": "history",
+          "line": 235
+        },
+        {
+          "name": "publish",
+          "line": 209
+        }
+      ],
+      "imports": [
+        "__future__",
+        "agents",
+        "contracts",
+        "datetime",
+        "hashlib",
+        "io",
+        "json",
+        "lineage",
+        "orchestrator",
+        "pathlib",
+        "probes",
+        "stat",
+        "state",
+        "sys",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/io.py",
+      "mode": "100644",
+      "size_bytes": 4346,
+      "sha256": "a4712b7fa237c073ddcfeba799b8b6f4e88c727e39ec2554432c26dd1ffca91c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 124,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "now",
+          "line": 15
+        },
+        {
+          "name": "finite_tree",
+          "line": 19
+        },
+        {
+          "name": "_pairs",
+          "line": 30
+        },
+        {
+          "name": "loads",
+          "line": 39
+        },
+        {
+          "name": "read_json",
+          "line": 45
+        },
+        {
+          "name": "canonical_bytes",
+          "line": 49
+        },
+        {
+          "name": "object_hash",
+          "line": 55
+        },
+        {
+          "name": "file_hash",
+          "line": 59
+        },
+        {
+          "name": "canonical_root",
+          "line": 64
+        },
+        {
+          "name": "safe_path",
+          "line": 72
+        },
+        {
+          "name": "write_json",
+          "line": 102
+        },
+        {
+          "name": "write_bytes",
+          "line": 106
+        }
+      ],
+      "imports": [
+        "__future__",
+        "datetime",
+        "hashlib",
+        "json",
+        "math",
+        "os",
+        "pathlib",
+        "re",
+        "stat",
+        "tempfile"
+      ]
+    },
+    {
+      "path": "mathmode/lineage.py",
+      "mode": "100644",
+      "size_bytes": 6238,
+      "sha256": "0650d3f62b250ecf3f8a6aad1721e1347411011af3783fe4678cbccebced9da4",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 123,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "artifact_id",
+          "line": 13
+        },
+        {
+          "name": "descendants",
+          "line": 17
+        },
+        {
+          "name": "mark_stale",
+          "line": 26
+        },
+        {
+          "name": "ArtifactRegistry",
+          "line": 35
+        },
+        {
+          "name": "__init__",
+          "line": 36
+        },
+        {
+          "name": "batch",
+          "line": 43
+        },
+        {
+          "name": "register",
+          "line": 61
+        },
+        {
+          "name": "refresh",
+          "line": 109
+        },
+        {
+          "name": "invalidate",
+          "line": 116
+        },
+        {
+          "name": "change",
+          "line": 69
+        },
+        {
+          "name": "publish",
+          "line": 53
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contextlib",
+        "contracts",
+        "copy",
+        "hashlib",
+        "io",
+        "pathlib",
+        "state"
+      ]
+    },
+    {
+      "path": "mathmode/orchestrator.py",
+      "mode": "100644",
+      "size_bytes": 23964,
+      "sha256": "288d576b082e957597503e6a0cc2a4fd289c70d0c73d502f775b6426eba4dfb7",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 347,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "validate_schedule",
+          "line": 35
+        },
+        {
+          "name": "Orchestrator",
+          "line": 62
+        },
+        {
+          "name": "__init__",
+          "line": 63
+        },
+        {
+          "name": "prepare_inputs",
+          "line": 68
+        },
+        {
+          "name": "_kind",
+          "line": 84
+        },
+        {
+          "name": "_guard",
+          "line": 152
+        },
+        {
+          "name": "advance",
+          "line": 275
+        }
+      ],
+      "imports": [
+        "__future__",
+        "agents",
+        "assessments",
+        "code_repairs",
+        "contracts",
+        "data_audit",
+        "dispositions",
+        "freeze",
+        "human_decisions",
+        "io",
+        "jsonschema",
+        "lineage",
+        "pathlib",
+        "probes",
+        "reference_retrieval",
+        "runner",
+        "validation"
+      ]
+    },
+    {
+      "path": "mathmode/policy.py",
+      "mode": "100644",
+      "size_bytes": 5841,
+      "sha256": "be7a326873474372a36581225cbe4674b523a6b8d261eeed606f2646773e9a07",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 120,
+      "review_locations": {
+        "page_policy": [
+          114
+        ],
+        "cover_anonymity_toc": [
+          93,
+          94
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "validate_policy",
+          "line": 19
+        },
+        {
+          "name": "load_policy",
+          "line": 36
+        },
+        {
+          "name": "policy_file",
+          "line": 40
+        },
+        {
+          "name": "audit_policy",
+          "line": 53
+        },
+        {
+          "name": "toc_settings",
+          "line": 86
+        },
+        {
+          "name": "anonymous_records",
+          "line": 93
+        },
+        {
+          "name": "page_issues",
+          "line": 101
+        }
+      ],
+      "imports": [
+        "__future__",
+        "io",
+        "jsonschema",
+        "pathlib",
+        "re"
+      ]
+    },
+    {
+      "path": "mathmode/probes.py",
+      "mode": "100644",
+      "size_bytes": 10869,
+      "sha256": "fbda8113f00630006c9e8da5a978519739dbda24a48c5e132517d1b6d8a665c5",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 168,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "measured_probe",
+          "line": 11
+        },
+        {
+          "name": "verify_probe",
+          "line": 65
+        },
+        {
+          "name": "screening_options",
+          "line": 73
+        },
+        {
+          "name": "verify_screened_decision",
+          "line": 111
+        },
+        {
+          "name": "fallback_triggered",
+          "line": 125
+        },
+        {
+          "name": "verify_fallback_authorization",
+          "line": 143
+        }
+      ],
+      "imports": [
+        "contracts",
+        "freeze",
+        "io",
+        "lineage",
+        "pathlib",
+        "runner"
+      ]
+    },
+    {
+      "path": "mathmode/processes.py",
+      "mode": "100644",
+      "size_bytes": 1093,
+      "sha256": "fec2c86b836b6b35dca7dab9d590a83fe79022952014ff6da23a68606c3963a6",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 25,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "identity",
+          "line": 8
+        },
+        {
+          "name": "stopped",
+          "line": 13
+        }
+      ],
+      "imports": [
+        "math",
+        "os",
+        "psutil"
+      ]
+    },
+    {
+      "path": "mathmode/recovery.py",
+      "mode": "100644",
+      "size_bytes": 5135,
+      "sha256": "8413463c9f62dc2583a1cf8dc6499277d16624271ac05db7da9c28c78ab449e4",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 95,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "recover_lock",
+          "line": 13
+        },
+        {
+          "name": "verify_recovery",
+          "line": 36
+        },
+        {
+          "name": "recover_execution",
+          "line": 45
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "io",
+        "pathlib",
+        "processes",
+        "state",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/reference_access.py",
+      "mode": "100644",
+      "size_bytes": 6762,
+      "sha256": "4532fc61ac2f2067435e2cfcff7c8dc2eb6634965c37d4b89a425c7658d3865c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 112,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "_role_artifacts",
+          "line": 18
+        },
+        {
+          "name": "seal_baseline",
+          "line": 25
+        },
+        {
+          "name": "admit_reference",
+          "line": 99
+        },
+        {
+          "name": "publish",
+          "line": 72
+        }
+      ],
+      "imports": [
+        "__future__",
+        "agents",
+        "contracts",
+        "freeze",
+        "io",
+        "lineage",
+        "pathlib",
+        "reference_baselines",
+        "runner",
+        "stat",
+        "state",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/reference_baselines.py",
+      "mode": "100644",
+      "size_bytes": 12121,
+      "sha256": "3ec03ee098d91952815f315c052312f4e4763a3fbca37db458ef8276f740e0f7",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 191,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "baseline_path",
+          "line": 17
+        },
+        {
+          "name": "_registered",
+          "line": 23
+        },
+        {
+          "name": "_question",
+          "line": 33
+        },
+        {
+          "name": "verify_baseline",
+          "line": 76
+        },
+        {
+          "name": "seal_case_baseline",
+          "line": 108
+        },
+        {
+          "name": "verify_blind_admission",
+          "line": 154
+        },
+        {
+          "name": "publish",
+          "line": 142
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "datetime",
+        "freeze",
+        "io",
+        "lineage",
+        "pathlib",
+        "re",
+        "stat",
+        "state",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/reference_retrieval.py",
+      "mode": "100644",
+      "size_bytes": 16946,
+      "sha256": "6b5c5062658c14eb6dfb07ad41fee879666072e88fa09b1cc9e87779f7f4c40a",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 272,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "http_url",
+          "line": 30
+        },
+        {
+          "name": "_NoRedirect",
+          "line": 41
+        },
+        {
+          "name": "retrieve_reference",
+          "line": 46
+        },
+        {
+          "name": "verify_source_retrieval",
+          "line": 178
+        },
+        {
+          "name": "verify_retrieval",
+          "line": 198
+        },
+        {
+          "name": "redirect_request",
+          "line": 42
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "datetime",
+        "io",
+        "lineage",
+        "math",
+        "pathlib",
+        "processes",
+        "re",
+        "reference_access",
+        "reference_baselines",
+        "stat",
+        "state",
+        "time",
+        "urllib.error",
+        "urllib.parse",
+        "urllib.request",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/repair_activation.py",
+      "mode": "100644",
+      "size_bytes": 5764,
+      "sha256": "bc1359be6b8115fc7affc6c45c7fb7ca55d7baa7091e4325525cd855440621f5",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 101,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "activate_reviewed_repair",
+          "line": 12
+        },
+        {
+          "name": "_location",
+          "line": 28
+        },
+        {
+          "name": "_definition",
+          "line": 32
+        },
+        {
+          "name": "verify_activation",
+          "line": 59
+        },
+        {
+          "name": "adopt_activation_in_progress",
+          "line": 71
+        },
+        {
+          "name": "_adopt",
+          "line": 78
+        }
+      ],
+      "imports": [
+        "__future__",
+        "code_repairs",
+        "contracts",
+        "io",
+        "lineage",
+        "runner",
+        "state"
+      ]
+    },
+    {
+      "path": "mathmode/repair_execution.py",
+      "mode": "100644",
+      "size_bytes": 3929,
+      "sha256": "cb0924a32e1858772c9c91cc81ee901b4db562e82a60921c2bbbfeb2d9615532",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 61,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "validate_authorization",
+          "line": 10
+        },
+        {
+          "name": "execute_reviewed_repair",
+          "line": 37
+        },
+        {
+          "name": "_execute_reviewed_repair",
+          "line": 44
+        }
+      ],
+      "imports": [
+        "__future__",
+        "code_repairs",
+        "io",
+        "runner",
+        "state"
+      ]
+    },
+    {
+      "path": "mathmode/repairs.py",
+      "mode": "100644",
+      "size_bytes": 6799,
+      "sha256": "bd4b5cf5296af626b718b1c59941585d65a0aea4d213e1fec011d002f82f5e20",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 112,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "latest_failure",
+          "line": 24
+        },
+        {
+          "name": "failed_execution",
+          "line": 32
+        },
+        {
+          "name": "evidence_paths",
+          "line": 39
+        },
+        {
+          "name": "validate_diagnosis",
+          "line": 47
+        },
+        {
+          "name": "verify_diagnosis",
+          "line": 67
+        },
+        {
+          "name": "diagnose_failure",
+          "line": 75
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "io",
+        "lineage",
+        "orchestrator",
+        "runner"
+      ]
+    },
+    {
+      "path": "mathmode/roles.py",
+      "mode": "100644",
+      "size_bytes": 6866,
+      "sha256": "1fcd64bb21c474e6daf177cc7e8e93bf53ab8b5254827784ca11a5d703e92f4c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 66,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "Role",
+          "line": 6
+        }
+      ],
+      "imports": [
+        "dataclasses"
+      ]
+    },
+    {
+      "path": "mathmode/runner.py",
+      "mode": "100644",
+      "size_bytes": 29175,
+      "sha256": "d7e06701ff9152e4e6707a0beed43e3a606a22b61cc02a9cbb223f7cfbed62de",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 452,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "validate_output",
+          "line": 21
+        },
+        {
+          "name": "execution_environment",
+          "line": 63
+        },
+        {
+          "name": "interpreter_info",
+          "line": 73
+        },
+        {
+          "name": "snapshot",
+          "line": 94
+        },
+        {
+          "name": "_history",
+          "line": 110
+        },
+        {
+          "name": "execute_model",
+          "line": 134
+        },
+        {
+          "name": "verify_run",
+          "line": 331
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "csv",
+        "execution",
+        "freeze",
+        "io",
+        "json",
+        "math",
+        "os",
+        "pathlib",
+        "probes",
+        "processes",
+        "recovery",
+        "repair_execution",
+        "shutil",
+        "stat",
+        "state",
+        "subprocess",
+        "sys",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/runner_bootstrap.py",
+      "mode": "100644",
+      "size_bytes": 628,
+      "sha256": "e4c79a312e708eb699c6a738ac003e14e1510c963ee4b5f64035ef279226f14b",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 22,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [],
+      "imports": [
+        "json",
+        "numpy",
+        "pathlib",
+        "random",
+        "runpy",
+        "sys"
+      ]
+    },
+    {
+      "path": "mathmode/schema_catalog.py",
+      "mode": "100644",
+      "size_bytes": 32318,
+      "sha256": "7c2acc57a99141735abfb3e87ab43015b1d1db95ce7774bf73a0c680f4e42d9c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 379,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "obj",
+          "line": 19
+        },
+        {
+          "name": "arr",
+          "line": 24
+        },
+        {
+          "name": "enum",
+          "line": 28
+        },
+        {
+          "name": "nullable",
+          "line": 32
+        },
+        {
+          "name": "mapping",
+          "line": 36
+        },
+        {
+          "name": "contract",
+          "line": 40
+        },
+        {
+          "name": "catalog",
+          "line": 69
+        }
+      ],
+      "imports": [
+        "__future__"
+      ]
+    },
+    {
+      "path": "mathmode/state.py",
+      "mode": "100644",
+      "size_bytes": 5689,
+      "sha256": "88b4aa3d18319b0984e7aa34544be2215e400239480f3d2e2207f6c2f81c65c4",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 127,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "workspace_lock",
+          "line": 16
+        },
+        {
+          "name": "initial_state",
+          "line": 38
+        },
+        {
+          "name": "StateStore",
+          "line": 47
+        },
+        {
+          "name": "append_event",
+          "line": 107
+        },
+        {
+          "name": "__init__",
+          "line": 48
+        },
+        {
+          "name": "load",
+          "line": 52
+        },
+        {
+          "name": "create",
+          "line": 55
+        },
+        {
+          "name": "update",
+          "line": 59
+        },
+        {
+          "name": "inspect_freshness",
+          "line": 78
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contextlib",
+        "contracts",
+        "copy",
+        "io",
+        "os",
+        "pathlib",
+        "processes",
+        "tempfile",
+        "uuid"
+      ]
+    },
+    {
+      "path": "mathmode/units.py",
+      "mode": "100644",
+      "size_bytes": 3351,
+      "sha256": "af44b7e0fcb3ba5bfce3f8bda364b31889fd609ea1fd83dd45cbb2d6f78321e3",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 61,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "_normalized",
+          "line": 5
+        },
+        {
+          "name": "expression_dimensions",
+          "line": 9
+        },
+        {
+          "name": "verify_formula_units",
+          "line": 51
+        },
+        {
+          "name": "visit",
+          "line": 10
+        }
+      ],
+      "imports": [
+        "ast"
+      ]
+    },
+    {
+      "path": "mathmode/validation.py",
+      "mode": "100644",
+      "size_bytes": 17214,
+      "sha256": "a0ccaf7e373d27dfd93ea2f909f486e059b64bae12be8a01d9644d871f50104d",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 244,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "upstream_input_id",
+          "line": 24
+        },
+        {
+          "name": "verify_evidence_report",
+          "line": 28
+        },
+        {
+          "name": "validate_criteria",
+          "line": 39
+        },
+        {
+          "name": "compare_metrics",
+          "line": 59
+        },
+        {
+          "name": "_compatible",
+          "line": 71
+        },
+        {
+          "name": "independently_validate",
+          "line": 107
+        },
+        {
+          "name": "audit_evidence",
+          "line": 185
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "copy",
+        "io",
+        "pathlib",
+        "runner",
+        "units",
+        "uuid",
+        "workspace"
+      ]
+    },
+    {
+      "path": "mathmode/validator_entry.py",
+      "mode": "100644",
+      "size_bytes": 758,
+      "sha256": "ae4f49d0e09cd278867df7b8de3fb207f1ec517d0028721f0507b61830415f50",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 13,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [],
+      "imports": [
+        "argparse",
+        "evaluators",
+        "pathlib",
+        "strict_io"
+      ]
+    },
+    {
+      "path": "mathmode/workflow.py",
+      "mode": "100644",
+      "size_bytes": 41863,
+      "sha256": "63e90d6e9adfc55f854e4f4c7f2d9a97eb6388a5e5aa49935a5e75bd34b10082",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 616,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "Workflow",
+          "line": 24
+        },
+        {
+          "name": "__init__",
+          "line": 25
+        },
+        {
+          "name": "_contract",
+          "line": 30
+        },
+        {
+          "name": "_review",
+          "line": 36
+        },
+        {
+          "name": "_framing",
+          "line": 52
+        },
+        {
+          "name": "_screened",
+          "line": 80
+        },
+        {
+          "name": "_decided",
+          "line": 87
+        },
+        {
+          "name": "_code",
+          "line": 101
+        },
+        {
+          "name": "_progress",
+          "line": 137
+        },
+        {
+          "name": "_runtime_jobs",
+          "line": 145
+        },
+        {
+          "name": "_assumption_plan",
+          "line": 168
+        },
+        {
+          "name": "_assumptions",
+          "line": 185
+        },
+        {
+          "name": "_evidence",
+          "line": 197
+        },
+        {
+          "name": "_schedule",
+          "line": 203
+        },
+        {
+          "name": "_failure",
+          "line": 211
+        },
+        {
+          "name": "_reference_requests",
+          "line": 235
+        },
+        {
+          "name": "_review_validation",
+          "line": 254
+        },
+        {
+          "name": "_run_after",
+          "line": 318
+        },
+        {
+          "name": "_matching_run",
+          "line": 328
+        },
+        {
+          "name": "_matching_validation",
+          "line": 344
+        },
+        {
+          "name": "_freeze_request",
+          "line": 356
+        },
+        {
+          "name": "observe",
+          "line": 377
+        },
+        {
+          "name": "advance",
+          "line": 506
+        },
+        {
+          "name": "_advance",
+          "line": 511
+        },
+        {
+          "name": "check",
+          "line": 384
+        },
+        {
+          "name": "policy",
+          "line": 395
+        }
+      ],
+      "imports": [
+        "__future__",
+        "assessments",
+        "code_repairs",
+        "contracts",
+        "datetime",
+        "dispositions",
+        "freeze",
+        "human_decisions",
+        "io",
+        "jsonschema",
+        "lineage",
+        "orchestrator",
+        "pathlib",
+        "policy",
+        "probes",
+        "recovery",
+        "reference_retrieval",
+        "repair_activation",
+        "repairs",
+        "runner",
+        "state",
+        "uuid",
+        "validation"
+      ]
+    },
+    {
+      "path": "mathmode/workspace.py",
+      "mode": "100644",
+      "size_bytes": 4745,
+      "sha256": "29fb25b3ac8bba0c1c910ff93fea8e649bd93c4e4e8aafc88451228ffbd12e40",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 86,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "initialize",
+          "line": 18
+        }
+      ],
+      "imports": [
+        "__future__",
+        "contracts",
+        "io",
+        "os",
+        "pathlib",
+        "re",
+        "shutil",
+        "stat",
+        "state",
+        "tempfile"
+      ]
+    },
+    {
+      "path": "pyproject.toml",
+      "mode": "100644",
+      "size_bytes": 83,
+      "sha256": "2507b90dcebe6681681b360c2c158ad9670199060364b4c50267e48d26c3fbd5",
+      "suffix": ".toml",
+      "utf8_text": true,
+      "lines": 4,
+      "review_locations": {}
+    },
+    {
+      "path": "requirements.txt",
+      "mode": "100644",
+      "size_bytes": 189,
+      "sha256": "a3cba9546df8b810e0f30ae83ca7ef488f7ddf1a10083d59985e6e6664755089",
+      "suffix": ".txt",
+      "utf8_text": true,
+      "lines": 9,
+      "review_locations": {}
     },
     {
       "path": "research/2026-09-08/2026-09-08_14-00_scientific-agent-evidence-workflow.md",
@@ -9869,6 +12721,2762 @@
           5
         ]
       }
+    },
+    {
+      "path": "tests/test_agents.py",
+      "mode": "100644",
+      "size_bytes": 14178,
+      "sha256": "4d3698b9b9944b559c20859e5808fbd3ae1f2a86c05191bbdf500f9de07a2de3",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 265,
+      "review_locations": {
+        "absolute_windows_path": [
+          238,
+          243
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "FixtureBackend",
+          "line": 13
+        },
+        {
+          "name": "task_root",
+          "line": 40
+        },
+        {
+          "name": "test_scoped_publication_and_honest_fixture_provenance",
+          "line": 54
+        },
+        {
+          "name": "test_role_cannot_request_other_role_output",
+          "line": 69
+        },
+        {
+          "name": "test_overscoped_model_output_is_preserved_only_as_failed_proposal",
+          "line": 77
+        },
+        {
+          "name": "test_invalid_contract_is_rejected_before_any_publication",
+          "line": 86
+        },
+        {
+          "name": "test_response_actor_and_evidence_identity_cannot_be_changed",
+          "line": 94
+        },
+        {
+          "name": "test_review_cannot_approve_same_actor",
+          "line": 101
+        },
+        {
+          "name": "test_raw_agent_api_cannot_impersonate_host_human_gate",
+          "line": 109
+        },
+        {
+          "name": "test_model_response_cannot_publish_human_choice_even_with_an_event_id",
+          "line": 117
+        },
+        {
+          "name": "test_raw_code_api_requires_real_human_decision_before_backend_execution",
+          "line": 131
+        },
+        {
+          "name": "test_decision_artifact_cannot_cite_unseen_probe_evidence",
+          "line": 144
+        },
+        {
+          "name": "test_backend_input_mutation_invalidates_response",
+          "line": 165
+        },
+        {
+          "name": "test_codex_transport_schema_has_explicit_enum_types",
+          "line": 173
+        },
+        {
+          "name": "test_fresh_ids_and_actors_cannot_reset_failed_retry_budget",
+          "line": 184
+        },
+        {
+          "name": "test_backend_exception_is_a_recorded_failure_without_exception_secrets",
+          "line": 200
+        },
+        {
+          "name": "test_handoff_rejects_changed_transport_or_bundle",
+          "line": 213
+        },
+        {
+          "name": "test_cross_question_proposal_is_rejected",
+          "line": 222
+        },
+        {
+          "name": "test_method_sources_require_prior_explicit_access_and_actual_snapshot",
+          "line": 234
+        },
+        {
+          "name": "test_successful_critic_proposals_cannot_loop_without_bound",
+          "line": 253
+        },
+        {
+          "name": "__init__",
+          "line": 18
+        },
+        {
+          "name": "produce",
+          "line": 21
+        },
+        {
+          "name": "forge",
+          "line": 121
+        },
+        {
+          "name": "decision_response",
+          "line": 149
+        },
+        {
+          "name": "CrashingBackend",
+          "line": 201
+        },
+        {
+          "name": "mutate",
+          "line": 224
+        },
+        {
+          "name": "mutate",
+          "line": 241
+        },
+        {
+          "name": "card_response",
+          "line": 257
+        },
+        {
+          "name": "produce",
+          "line": 202
+        }
+      ],
+      "imports": [
+        "copy",
+        "json",
+        "mathmode.agent_backends",
+        "mathmode.agents",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.reference_access",
+        "mathmode.schema_catalog",
+        "mathmode.state",
+        "pathlib",
+        "pytest"
+      ]
+    },
+    {
+      "path": "tests/test_assessments.py",
+      "mode": "100644",
+      "size_bytes": 13057,
+      "sha256": "e6fcfcfad2ac47144ae1a4070d2a6e6d2f7793d3b20ea1b2f9d7cbd90ca3b88c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 224,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "double_handoffs",
+          "line": 17
+        },
+        {
+          "name": "measured_plan",
+          "line": 25
+        },
+        {
+          "name": "test_actual_parameter_and_seed_perturbations_are_independently_measured",
+          "line": 49
+        },
+        {
+          "name": "test_workflow_requires_actual_assumption_report_and_freeze_binds_it",
+          "line": 103
+        },
+        {
+          "name": "test_tested_flag_cannot_replace_evidence_and_plan_rejects_invalid_waivers",
+          "line": 136
+        },
+        {
+          "name": "test_interrupted_validation_and_report_publication_adopt_actual_completed_work",
+          "line": 153
+        },
+        {
+          "name": "test_unfinished_validation_request_is_not_silently_retried",
+          "line": 188
+        },
+        {
+          "name": "test_invalid_independent_plan_fails_before_experiment_dispatch",
+          "line": 208
+        },
+        {
+          "name": "load",
+          "line": 18
+        },
+        {
+          "name": "interrupted_after_real_validation",
+          "line": 160
+        },
+        {
+          "name": "interrupted_register",
+          "line": 170
+        },
+        {
+          "name": "interrupted",
+          "line": 196
+        }
+      ],
+      "imports": [
+        "copy",
+        "mathmode",
+        "mathmode.__main__",
+        "mathmode.contracts",
+        "mathmode.dispositions",
+        "mathmode.freeze",
+        "mathmode.io",
+        "mathmode.lineage",
+        "pathlib",
+        "pytest",
+        "sys",
+        "test_validation",
+        "test_workflow"
+      ]
+    },
+    {
+      "path": "tests/test_code_repairs.py",
+      "mode": "100644",
+      "size_bytes": 19314,
+      "sha256": "29e859b246f642ed6a902f9c27c6d0751260064f9daa5a070f0474dc0fd3d93a",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 308,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "repair_case",
+          "line": 23
+        },
+        {
+          "name": "test_staged_repair_is_reviewed_then_runs_without_changing_failed_sources",
+          "line": 92
+        },
+        {
+          "name": "test_code_repair_cannot_change_scientific_model_or_controls",
+          "line": 118
+        },
+        {
+          "name": "test_identical_code_is_not_a_repair",
+          "line": 127
+        },
+        {
+          "name": "test_review_limitations_do_not_authorize_repair",
+          "line": 135
+        },
+        {
+          "name": "test_request_cannot_redirect_candidate_to_original_source",
+          "line": 145
+        },
+        {
+          "name": "test_spec_handoff_cannot_smuggle_unpublished_candidate_code",
+          "line": 155
+        },
+        {
+          "name": "test_changed_original_code_invalidates_repair_request",
+          "line": 163
+        },
+        {
+          "name": "test_cli_reports_review_scope_without_running_candidate",
+          "line": 171
+        },
+        {
+          "name": "test_repair_does_not_target_a_replaced_workflow_model",
+          "line": 183
+        },
+        {
+          "name": "test_code_review_receives_the_selected_model_pair",
+          "line": 191
+        },
+        {
+          "name": "test_candidate_producer_must_receive_actual_diagnosis",
+          "line": 207
+        },
+        {
+          "name": "test_execute_reviewed_repair_rejects_unreviewed_request",
+          "line": 215
+        },
+        {
+          "name": "test_authorized_repair_runs_once_and_cannot_be_relabeled",
+          "line": 224
+        },
+        {
+          "name": "test_authorization_must_bind_exact_repair_identity",
+          "line": 242
+        },
+        {
+          "name": "test_ordinary_retry_cannot_be_adopted_as_authorized_repair",
+          "line": 260
+        },
+        {
+          "name": "test_activation_requires_successful_reviewed_run_and_is_idempotent",
+          "line": 277
+        },
+        {
+          "name": "contract",
+          "line": 36
+        },
+        {
+          "name": "advance",
+          "line": 44
+        },
+        {
+          "name": "response",
+          "line": 51
+        }
+      ],
+      "imports": [
+        "copy",
+        "json",
+        "mathmode",
+        "mathmode.__main__",
+        "mathmode.agents",
+        "mathmode.contracts",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.orchestrator",
+        "mathmode.repair_activation",
+        "mathmode.repair_execution",
+        "mathmode.repairs",
+        "mathmode.runner",
+        "pathlib",
+        "pytest",
+        "sys",
+        "test_agents",
+        "test_repairs",
+        "test_runner"
+      ]
+    },
+    {
+      "path": "tests/test_contracts.py",
+      "mode": "100644",
+      "size_bytes": 12079,
+      "sha256": "df3c6a5b24c4434d5acbf84fd2ca0e9827fab6f492feec83eddb374207088bb7",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 254,
+      "review_locations": {
+        "absolute_windows_path": [
+          39
+        ],
+        "edition_literal": [
+          123,
+          124,
+          127
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "sample",
+          "line": 18
+        },
+        {
+          "name": "test_standalone_examples_and_schema_distribution",
+          "line": 27
+        },
+        {
+          "name": "test_strict_json_rejects_ambiguous_or_nonfinite_values",
+          "line": 34
+        },
+        {
+          "name": "test_confined_paths",
+          "line": 41
+        },
+        {
+          "name": "test_symlink_escape",
+          "line": 46
+        },
+        {
+          "name": "test_invalid_dags",
+          "line": 62
+        },
+        {
+          "name": "test_topology_and_cross_contract_question_coverage",
+          "line": 67
+        },
+        {
+          "name": "test_high_ambiguity_blocks_even_with_a_mitigation",
+          "line": 76
+        },
+        {
+          "name": "test_model_spec_semantic_failures",
+          "line": 99
+        },
+        {
+          "name": "test_missing_usable_baseline_and_untriggered_fallback",
+          "line": 106
+        },
+        {
+          "name": "test_chronological_and_group_leakage",
+          "line": 119
+        },
+        {
+          "name": "test_assumption_references_and_comparable_baseline",
+          "line": 135
+        },
+        {
+          "name": "test_probe_cannot_contradict_computed_checks",
+          "line": 149
+        },
+        {
+          "name": "test_false_human_attribution_and_spec_changed_question",
+          "line": 160
+        },
+        {
+          "name": "test_append_only_assumptions",
+          "line": 171
+        },
+        {
+          "name": "test_atomic_revision_and_lock",
+          "line": 185
+        },
+        {
+          "name": "test_retry_budget_survives_resume",
+          "line": 200
+        },
+        {
+          "name": "test_resume_detects_transitive_staleness",
+          "line": 214
+        },
+        {
+          "name": "test_workspace_snapshots_and_no_overwrite",
+          "line": 229
+        },
+        {
+          "name": "test_workspace_preflight_does_not_create_destination",
+          "line": 248
+        }
+      ],
+      "imports": [
+        "copy",
+        "jsonschema",
+        "mathmode.contracts",
+        "mathmode.io",
+        "mathmode.schema_catalog",
+        "mathmode.state",
+        "mathmode.workspace",
+        "pathlib",
+        "pytest",
+        "stat",
+        "tools.build_contract_schemas"
+      ]
+    },
+    {
+      "path": "tests/test_data_audit.py",
+      "mode": "100644",
+      "size_bytes": 1110,
+      "sha256": "9be5efaeb5e7ee453ae58ba3b040f7d0944f306b9b5811b7ca2985f0957fe78d",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 21,
+      "review_locations": {
+        "absolute_windows_path": [
+          12
+        ],
+        "edition_literal": [
+          12
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "test_actual_missingness_and_duplicates_do_not_become_pass",
+          "line": 7
+        }
+      ],
+      "imports": [
+        "mathmode.data_audit",
+        "mathmode.workspace",
+        "stat"
+      ]
+    },
+    {
+      "path": "tests/test_dispositions.py",
+      "mode": "100644",
+      "size_bytes": 11961,
+      "sha256": "2f9175d994872af39daed8ff6073572f861a1cb4976a94a0e65c33ed3c1c0a83",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 191,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "authored_disposition",
+          "line": 21
+        },
+        {
+          "name": "double_role_provenance",
+          "line": 56
+        },
+        {
+          "name": "test_reviewed_warnings_and_limited_validation_freeze_and_propagate",
+          "line": 61
+        },
+        {
+          "name": "test_dispositions_reject_omissions_self_review_errors_and_stale_context",
+          "line": 130
+        },
+        {
+          "name": "test_proposed_disposition_cannot_pin_or_cite_unsupplied_evidence",
+          "line": 172
+        }
+      ],
+      "imports": [
+        "copy",
+        "json",
+        "mathmode",
+        "mathmode.__main__",
+        "mathmode.agents",
+        "mathmode.contracts",
+        "mathmode.freeze",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.orchestrator",
+        "pathlib",
+        "pytest",
+        "sys",
+        "test_upstream",
+        "test_validation",
+        "test_workflow"
+      ]
+    },
+    {
+      "path": "tests/test_docx_io.py",
+      "mode": "100644",
+      "size_bytes": 2586,
+      "sha256": "12521b0ef54bda663a20d5e807b7e00c322dad2ee421d3437fd3c369948e64cc",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 62,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "test_scrub_retries_transient_windows_replacement_without_removing_output",
+          "line": 12
+        },
+        {
+          "name": "test_scrub_preserves_both_packages_and_reports_persistent_denial",
+          "line": 44
+        },
+        {
+          "name": "pause",
+          "line": 23
+        },
+        {
+          "name": "temporarily_locked",
+          "line": 26
+        },
+        {
+          "name": "locked",
+          "line": 50
+        }
+      ],
+      "imports": [
+        "docx",
+        "mathmode.io",
+        "pathlib",
+        "pytest",
+        "test_policy"
+      ]
+    },
+    {
+      "path": "tests/test_freeze.py",
+      "mode": "100644",
+      "size_bytes": 9155,
+      "sha256": "bbbbfdc0ddd4a09c4bc7b996ca1ba8b0b474e277b2ef91b77872b9a8c5a4fd0c",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 181,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "make_evidence",
+          "line": 18
+        },
+        {
+          "name": "frozen",
+          "line": 32
+        },
+        {
+          "name": "test_freeze_uses_real_locators_and_immutable_versions",
+          "line": 39
+        },
+        {
+          "name": "test_thaw_invalidates_all_consumers_and_preserves_old_bytes",
+          "line": 54
+        },
+        {
+          "name": "test_refreeze_requires_actual_new_runs_and_validation",
+          "line": 78
+        },
+        {
+          "name": "test_canonical_change_propagates_to_freeze_and_paper",
+          "line": 93
+        },
+        {
+          "name": "test_manual_snapshot_and_log_mutation_are_rejected",
+          "line": 110
+        },
+        {
+          "name": "test_invalid_numeric_locators",
+          "line": 133
+        },
+        {
+          "name": "test_freeze_rejects_unverified_source_and_wrong_unit",
+          "line": 138
+        },
+        {
+          "name": "test_registry_batch_publishes_one_revision_or_nothing",
+          "line": 151
+        },
+        {
+          "name": "test_binding_run_preserves_upstream_parameter_dependencies",
+          "line": 171
+        }
+      ],
+      "imports": [
+        "copy",
+        "jsonschema",
+        "mathmode.freeze",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.runner",
+        "mathmode.schema_catalog",
+        "mathmode.state",
+        "mathmode.validation",
+        "pytest",
+        "stat",
+        "sys",
+        "test_validation"
+      ]
+    },
+    {
+      "path": "tests/test_human_decisions.py",
+      "mode": "100644",
+      "size_bytes": 14243,
+      "sha256": "da6e71092950b6146766b450c9cde1cc7ec340c3a5c98bf48b05110236fe0586",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 246,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "TerminalDouble",
+          "line": 22
+        },
+        {
+          "name": "terminal",
+          "line": 28
+        },
+        {
+          "name": "configure",
+          "line": 35
+        },
+        {
+          "name": "test_terminal_event_resumes_schedule_and_binds_real_execution",
+          "line": 71
+        },
+        {
+          "name": "test_pipes_defer_and_cancel_never_publish_a_method_choice",
+          "line": 136
+        },
+        {
+          "name": "test_changed_evidence_while_waiting_preserves_event_but_refuses_publication",
+          "line": 158
+        },
+        {
+          "name": "test_human_can_only_choose_a_triggered_and_measured_fallback",
+          "line": 179
+        },
+        {
+          "name": "test_interrupted_publication_reuses_observed_choice_without_another_prompt",
+          "line": 202
+        },
+        {
+          "name": "test_new_task_requires_new_response_after_context_changes",
+          "line": 224
+        },
+        {
+          "name": "isatty",
+          "line": 24
+        },
+        {
+          "name": "fixture_kind",
+          "line": 50
+        },
+        {
+          "name": "ChangingTerminal",
+          "line": 162
+        },
+        {
+          "name": "interrupted",
+          "line": 208
+        },
+        {
+          "name": "readline",
+          "line": 163
+        }
+      ],
+      "imports": [
+        "copy",
+        "io",
+        "jsonschema",
+        "mathmode.contracts",
+        "mathmode.freeze",
+        "mathmode.human_decisions",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.orchestrator",
+        "mathmode.runner",
+        "mathmode.state",
+        "pytest",
+        "sys",
+        "test_validation",
+        "test_workflow",
+        "test_workflow_fallback"
+      ]
+    },
+    {
+      "path": "tests/test_orchestrator.py",
+      "mode": "100644",
+      "size_bytes": 5265,
+      "sha256": "dd763f8369f8c6a9793795231a9385b0e40ef7a32d92d505081cdfab151a54ea",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 106,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "schedule",
+          "line": 13
+        },
+        {
+          "name": "test_prepare_keeps_originals_and_is_stable_on_resume",
+          "line": 22
+        },
+        {
+          "name": "test_council_cannot_bypass_framing_with_a_valid_schedule",
+          "line": 35
+        },
+        {
+          "name": "test_schedule_rejects_cycles_and_cross_workspace",
+          "line": 47
+        },
+        {
+          "name": "test_human_gate_never_dispatches_model_decision",
+          "line": 61
+        },
+        {
+          "name": "test_cli_data_audit_and_new_command_discovery",
+          "line": 74
+        },
+        {
+          "name": "test_validator_can_use_repaired_outputs_but_not_stale_history",
+          "line": 80
+        }
+      ],
+      "imports": [
+        "copy",
+        "mathmode.__main__",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.orchestrator",
+        "mathmode.runner",
+        "mathmode.state",
+        "pytest",
+        "sys",
+        "test_agents",
+        "test_runner",
+        "test_validation"
+      ]
+    },
+    {
+      "path": "tests/test_policy.py",
+      "mode": "100644",
+      "size_bytes": 11688,
+      "sha256": "2bd664ecb0cedc194abefaa781a3bde3f50554337d3ff81db75f1ce939226f01",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 243,
+      "review_locations": {
+        "absolute_windows_path": [
+          96
+        ],
+        "edition_literal": [
+          91,
+          93,
+          97
+        ],
+        "page_policy": [
+          64
+        ],
+        "cover_anonymity_toc": [
+          15,
+          80,
+          82,
+          83,
+          84,
+          135,
+          146,
+          157,
+          205,
+          215,
+          226
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "tool",
+          "line": 20
+        },
+        {
+          "name": "paper",
+          "line": 29
+        },
+        {
+          "name": "policy",
+          "line": 44
+        },
+        {
+          "name": "test_default_policy_never_claims_verified_official_rules",
+          "line": 48
+        },
+        {
+          "name": "test_toc_rules_override_project_preferences",
+          "line": 57
+        },
+        {
+          "name": "test_historical_minimum_cannot_become_official_failure",
+          "line": 63
+        },
+        {
+          "name": "test_official_limits_fail_closed_when_body_unknown",
+          "line": 72
+        },
+        {
+          "name": "test_identity_cover_scope_excludes_only_declared_cover",
+          "line": 78
+        },
+        {
+          "name": "test_reviewed_snapshot_hashes_and_scope_are_rechecked",
+          "line": 87
+        },
+        {
+          "name": "test_invalid_json_never_enters_policy",
+          "line": 109
+        },
+        {
+          "name": "test_policy_rejects_template_code_in_edition_and_invalid_cover",
+          "line": 116
+        },
+        {
+          "name": "test_tex_builder_and_auditor_agree_on_toc_and_new_edition",
+          "line": 126
+        },
+        {
+          "name": "test_tex_cover_identity_allowed_but_body_leak_is_blocked",
+          "line": 143
+        },
+        {
+          "name": "test_tex_comment_and_prefix_brace_regressions",
+          "line": 163
+        },
+        {
+          "name": "test_pdf_heading_and_page_regex_regressions",
+          "line": 170
+        },
+        {
+          "name": "test_docx_derived_toc_and_edition_match_policy",
+          "line": 184
+        },
+        {
+          "name": "test_docx_anonymity_scans_table_cells",
+          "line": 205
+        },
+        {
+          "name": "test_docx_identity_cover_keeps_body_scope_and_template_intact",
+          "line": 220
+        }
+      ],
+      "imports": [
+        "__future__",
+        "copy",
+        "docx",
+        "importlib.util",
+        "json",
+        "jsonschema",
+        "mathmode.policy",
+        "pathlib",
+        "pytest",
+        "types"
+      ]
+    },
+    {
+      "path": "tests/test_probes.py",
+      "mode": "100644",
+      "size_bytes": 6507,
+      "sha256": "2f9947aa2d2efc4d2132f418753c6b4e03ebedf88b38617346502e99a6a849de",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 116,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "setup_probe",
+          "line": 12
+        },
+        {
+          "name": "test_probe_verdict_comes_from_actual_measurements_and_pinned_plan",
+          "line": 41
+        },
+        {
+          "name": "test_probe_cannot_change_threshold_after_execution",
+          "line": 58
+        },
+        {
+          "name": "test_fallback_trigger_uses_an_executed_qualified_metric",
+          "line": 67
+        },
+        {
+          "name": "test_fallback_executes_only_after_predeclared_measured_trigger",
+          "line": 82
+        }
+      ],
+      "imports": [
+        "copy",
+        "mathmode.io",
+        "mathmode.probes",
+        "mathmode.runner",
+        "pathlib",
+        "pytest",
+        "sys",
+        "test_runner"
+      ]
+    },
+    {
+      "path": "tests/test_recovery.py",
+      "mode": "100644",
+      "size_bytes": 11878,
+      "sha256": "092f742366e791115225fb577ef58014cc184fdfddd671cdb5b830c60db6be96",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 235,
+      "review_locations": {
+        "edition_literal": [
+          25
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "test_live_lock_and_legacy_lock_are_not_silently_stolen",
+          "line": 20
+        },
+        {
+          "name": "test_stopped_workflow_owner_requires_explicit_scoped_recovery",
+          "line": 31
+        },
+        {
+          "name": "test_real_interrupted_run_recovery_preserves_evidence_and_retry_budget",
+          "line": 70
+        },
+        {
+          "name": "test_process_identity_does_not_treat_reused_pid_as_original_owner",
+          "line": 152
+        },
+        {
+          "name": "test_interrupted_agent_transport_recovery_keeps_attempt_history",
+          "line": 158
+        },
+        {
+          "name": "test_recovery_before_launch_differs_from_missing_identity_after_launch",
+          "line": 221
+        }
+      ],
+      "imports": [
+        "mathmode.agents",
+        "mathmode.io",
+        "mathmode.processes",
+        "mathmode.recovery",
+        "mathmode.runner",
+        "mathmode.state",
+        "os",
+        "pathlib",
+        "psutil",
+        "pytest",
+        "subprocess",
+        "sys",
+        "test_agents",
+        "test_runner",
+        "time"
+      ]
+    },
+    {
+      "path": "tests/test_reference_access.py",
+      "mode": "100644",
+      "size_bytes": 4142,
+      "sha256": "135630cec136a685c8a8519973156d793708729ddc61fe48e74a5d0a98485776",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 71,
+      "review_locations": {
+        "absolute_windows_path": [
+          14,
+          16,
+          56,
+          63,
+          70
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "test_same_problem_reference_cannot_be_admitted_by_a_boolean_flag",
+          "line": 11
+        },
+        {
+          "name": "role_sources",
+          "line": 22
+        },
+        {
+          "name": "sealed_baseline",
+          "line": 42
+        },
+        {
+          "name": "test_checkpoint_preserves_blind_sources_and_refuses_snapshot_tampering",
+          "line": 51
+        }
+      ],
+      "imports": [
+        "copy",
+        "mathmode.io",
+        "mathmode.reference_access",
+        "mathmode.state",
+        "pathlib",
+        "pytest",
+        "test_freeze"
+      ]
+    },
+    {
+      "path": "tests/test_reference_case.py",
+      "mode": "100644",
+      "size_bytes": 10294,
+      "sha256": "19b3d98abeef167d81e61b59f7d9d40e744c93a888bee893b4ba31a2319bf54d",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 184,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "seal",
+          "line": 18
+        },
+        {
+          "name": "complete_case",
+          "line": 24
+        },
+        {
+          "name": "test_partial_case_cannot_read_any_same_problem_source",
+          "line": 31
+        },
+        {
+          "name": "test_complete_case_http_lineage_and_immutable_history",
+          "line": 57
+        },
+        {
+          "name": "test_case_rejects_mixed_frames_missing_questions_and_originals",
+          "line": 91
+        },
+        {
+          "name": "test_legacy_single_question_history_and_scope_change",
+          "line": 125
+        },
+        {
+          "name": "test_mode_off_is_explicit_immutable_and_does_not_claim_blindness",
+          "line": 141
+        },
+        {
+          "name": "test_mode_cannot_be_disabled_mid_run",
+          "line": 163
+        },
+        {
+          "name": "test_cli_initialization_can_explicitly_disable_blind_mode",
+          "line": 171
+        }
+      ],
+      "imports": [
+        "datetime",
+        "json",
+        "mathmode.__main__",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.reference_access",
+        "mathmode.reference_baselines",
+        "mathmode.reference_retrieval",
+        "mathmode.state",
+        "pytest",
+        "test_reference_access",
+        "test_reference_retrieval",
+        "test_upstream"
+      ]
+    },
+    {
+      "path": "tests/test_reference_retrieval.py",
+      "mode": "100644",
+      "size_bytes": 10144,
+      "sha256": "9368375e5406a42aef73ce1cd714518b97e4a29509febd670e9618fcaa6fcd3a",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 187,
+      "review_locations": {
+        "absolute_windows_path": [
+          29,
+          34,
+          56,
+          139
+        ],
+        "contact_pattern": [
+          139
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "server",
+          "line": 21
+        },
+        {
+          "name": "reference_root",
+          "line": 65
+        },
+        {
+          "name": "test_http_snapshot_and_every_redirect_are_admitted_before_network",
+          "line": 73
+        },
+        {
+          "name": "test_same_problem_requires_baseline_before_any_http_request",
+          "line": 95
+        },
+        {
+          "name": "test_same_problem_http_receipt_preserves_and_depends_on_real_blind_checkpoint",
+          "line": 103
+        },
+        {
+          "name": "test_failed_downloads_preserve_evidence_without_usable_snapshot",
+          "line": 125
+        },
+        {
+          "name": "test_non_http_or_credential_urls_are_rejected_before_admission",
+          "line": 140
+        },
+        {
+          "name": "test_http_method_sources_bind_actual_receipt_and_snapshot",
+          "line": 147
+        },
+        {
+          "name": "test_cli_retrieval_and_verification_keep_scientific_acceptance_unrun",
+          "line": 180
+        },
+        {
+          "name": "Handler",
+          "line": 24
+        },
+        {
+          "name": "response",
+          "line": 170
+        },
+        {
+          "name": "log_message",
+          "line": 25
+        },
+        {
+          "name": "do_GET",
+          "line": 28
+        }
+      ],
+      "imports": [
+        "contextlib",
+        "http.server",
+        "json",
+        "mathmode.__main__",
+        "mathmode.agents",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.reference_retrieval",
+        "mathmode.state",
+        "pathlib",
+        "pytest",
+        "test_agents",
+        "test_reference_access",
+        "threading"
+      ]
+    },
+    {
+      "path": "tests/test_reference_workflow.py",
+      "mode": "100644",
+      "size_bytes": 1768,
+      "sha256": "4a764b9a622d1e714d0f6b695f90b79a9d2aae8f76e82f1c7a81ebc57cbf4dce",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 29,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "test_workflow_fetches_declared_general_source_once_and_preserves_blindness",
+          "line": 8
+        }
+      ],
+      "imports": [
+        "mathmode.io",
+        "pathlib",
+        "test_reference_retrieval",
+        "test_validation",
+        "test_workflow"
+      ]
+    },
+    {
+      "path": "tests/test_repairs.py",
+      "mode": "100644",
+      "size_bytes": 11357,
+      "sha256": "d9ebb255e41ba83a5b548af4de55e605d2bf883ca5aeb5a831943a6c7ccd7f90",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 208,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "diagnosis",
+          "line": 18
+        },
+        {
+          "name": "failure_case",
+          "line": 27
+        },
+        {
+          "name": "test_failed_subprocess_dispatches_once_and_routes_diagnosis",
+          "line": 55
+        },
+        {
+          "name": "test_authored_diagnosis_cannot_replace_a_handoff",
+          "line": 79
+        },
+        {
+          "name": "test_corrupted_failed_log_blocks_diagnosis",
+          "line": 88
+        },
+        {
+          "name": "test_diagnosis_rejects_false_attribution_and_pins",
+          "line": 102
+        },
+        {
+          "name": "test_diagnosis_requires_complete_historical_input_bundle",
+          "line": 110
+        },
+        {
+          "name": "test_workflow_failure_hook_returns_diagnosis_without_retrying",
+          "line": 119
+        },
+        {
+          "name": "test_verify_diagnosis_cli_reports_only_diagnostic_scope",
+          "line": 135
+        },
+        {
+          "name": "test_failed_diagnostic_proposal_is_preserved_without_resolicitation",
+          "line": 146
+        },
+        {
+          "name": "test_missing_backend_waits_without_inventing_diagnosis",
+          "line": 181
+        },
+        {
+          "name": "test_wrong_workflow_question_blocks_before_dispatch",
+          "line": 190
+        },
+        {
+          "name": "test_historical_snapshots_cannot_impersonate_current_role_contracts",
+          "line": 197
+        },
+        {
+          "name": "test_diagnosis_source_must_be_manifest_not_code",
+          "line": 203
+        },
+        {
+          "name": "response",
+          "line": 34
+        },
+        {
+          "name": "fixture_kind",
+          "line": 42
+        },
+        {
+          "name": "capture",
+          "line": 126
+        },
+        {
+          "name": "corrupt",
+          "line": 150
+        }
+      ],
+      "imports": [
+        "json",
+        "jsonschema",
+        "mathmode",
+        "mathmode.__main__",
+        "mathmode.agents",
+        "mathmode.contracts",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.repairs",
+        "mathmode.workflow",
+        "pytest",
+        "test_agents",
+        "test_runner"
+      ]
+    },
+    {
+      "path": "tests/test_runner.py",
+      "mode": "100644",
+      "size_bytes": 11309,
+      "sha256": "6b0c24a1a32e965ab25c28ed201d28800ae4be118a386250a5499574178a4297",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 240,
+      "review_locations": {
+        "absolute_windows_path": [
+          25
+        ],
+        "edition_literal": [
+          25
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "workspace",
+          "line": 20
+        },
+        {
+          "name": "run",
+          "line": 41
+        },
+        {
+          "name": "test_real_run_seed_environment_and_hashes",
+          "line": 45
+        },
+        {
+          "name": "test_exit_or_text_claims_do_not_establish_artifacts",
+          "line": 72
+        },
+        {
+          "name": "test_old_output_cannot_satisfy_a_fresh_run",
+          "line": 80
+        },
+        {
+          "name": "test_timeout_is_recorded_with_real_returncode",
+          "line": 89
+        },
+        {
+          "name": "test_retries_require_changed_code_and_stop_at_three",
+          "line": 101
+        },
+        {
+          "name": "test_execution_authorization_is_required_to_match_candidate_retry",
+          "line": 118
+        },
+        {
+          "name": "test_legacy_run_without_authorization_remains_verifiable",
+          "line": 123
+        },
+        {
+          "name": "test_retry_rejects_rewritten_attempt_budget",
+          "line": 131
+        },
+        {
+          "name": "test_retry_rejects_changed_failure_log",
+          "line": 147
+        },
+        {
+          "name": "test_repair_preserves_failure_and_accepts_changed_canonical_code",
+          "line": 157
+        },
+        {
+          "name": "test_input_snapshot_modification_is_detected",
+          "line": 172
+        },
+        {
+          "name": "test_unsupported_memory_limit_is_not_silently_ignored",
+          "line": 185
+        },
+        {
+          "name": "test_no_shell_expansion_in_backend",
+          "line": 194
+        },
+        {
+          "name": "test_verify_rejects_tampering_and_stale_code",
+          "line": 201
+        },
+        {
+          "name": "test_verify_rejects_rewritten_success_claim",
+          "line": 216
+        },
+        {
+          "name": "test_interrupted_run_cannot_be_silently_skipped",
+          "line": 226
+        },
+        {
+          "name": "test_output_contract_rejects_wrong_shape_or_nonfinite",
+          "line": 236
+        }
+      ],
+      "imports": [
+        "json",
+        "jsonschema",
+        "mathmode.contracts",
+        "mathmode.execution",
+        "mathmode.io",
+        "mathmode.runner",
+        "mathmode.schema_catalog",
+        "mathmode.workspace",
+        "pathlib",
+        "pytest",
+        "stat",
+        "sys"
+      ]
+    },
+    {
+      "path": "tests/test_upstream.py",
+      "mode": "100644",
+      "size_bytes": 3806,
+      "sha256": "9c08840fab4a2814812cf7b1953ffcc931344e837b0d3121ae7b18b2de7d6a0a",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 62,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "compute_child",
+          "line": 12
+        },
+        {
+          "name": "test_two_question_freeze_dependency_is_consumed_and_invalidated",
+          "line": 55
+        }
+      ],
+      "imports": [
+        "mathmode.freeze",
+        "mathmode.io",
+        "mathmode.runner",
+        "mathmode.validation",
+        "pytest",
+        "sys",
+        "test_freeze"
+      ]
+    },
+    {
+      "path": "tests/test_validation.py",
+      "mode": "100644",
+      "size_bytes": 13207,
+      "sha256": "5f41674c4b25fcf3b0e8d1848081818f48b937b91ea2aaaf1219b283efb86c3b",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 226,
+      "review_locations": {
+        "absolute_windows_path": [
+          44
+        ],
+        "edition_literal": [
+          44,
+          163,
+          164,
+          167
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "criteria_for",
+          "line": 19
+        },
+        {
+          "name": "prepared",
+          "line": 33
+        },
+        {
+          "name": "runs",
+          "line": 68
+        },
+        {
+          "name": "test_real_independent_computation_and_evidence",
+          "line": 74
+        },
+        {
+          "name": "test_self_validation_is_rejected",
+          "line": 90
+        },
+        {
+          "name": "test_evidence_rejects_tampered_measurements",
+          "line": 96
+        },
+        {
+          "name": "test_evidence_detects_changed_upstream_after_validation",
+          "line": 105
+        },
+        {
+          "name": "test_wrong_predictions_fail_independent_numbers",
+          "line": 114
+        },
+        {
+          "name": "test_small_linear_oracle_recomputes_feasibility_and_optimality",
+          "line": 128
+        },
+        {
+          "name": "test_mechanism_conservation_is_independently_computed",
+          "line": 139
+        },
+        {
+          "name": "test_graph_oracle_rejects_invented_edge_and_wrong_cost",
+          "line": 150
+        },
+        {
+          "name": "test_time_split_is_checked_against_actual_raw_rows",
+          "line": 161
+        },
+        {
+          "name": "test_dimension_checker_catches_mismatches_and_does_not_execute_code",
+          "line": 172
+        },
+        {
+          "name": "test_uncertainty_is_computed_from_holdout_samples",
+          "line": 189
+        },
+        {
+          "name": "test_criteria_cannot_waive_coverage_or_required_robustness",
+          "line": 201
+        },
+        {
+          "name": "test_unresolved_warning_blocks_evidence",
+          "line": 217
+        }
+      ],
+      "imports": [
+        "copy",
+        "jsonschema",
+        "math",
+        "mathmode.evaluators",
+        "mathmode.io",
+        "mathmode.runner",
+        "mathmode.schema_catalog",
+        "mathmode.units",
+        "mathmode.validation",
+        "mathmode.workspace",
+        "pathlib",
+        "pytest",
+        "stat",
+        "sys"
+      ]
+    },
+    {
+      "path": "tests/test_workflow.py",
+      "mode": "100644",
+      "size_bytes": 17851,
+      "sha256": "eb8ca74eab8c3c4a5708058aa0f254e7a5f7601edf02fe269ccd5827d9aef204",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 290,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "review",
+          "line": 20
+        },
+        {
+          "name": "na_assumptions",
+          "line": 33
+        },
+        {
+          "name": "case",
+          "line": 52
+        },
+        {
+          "name": "test_failed_production_is_dispatched_to_diagnosis_on_resume",
+          "line": 123
+        },
+        {
+          "name": "test_runtime_jobs_resolve_verified_activation_without_mutating_plan",
+          "line": 143
+        },
+        {
+          "name": "test_real_lifecycle_stops_for_semantic_review_then_freezes",
+          "line": 157
+        },
+        {
+          "name": "test_model_spec_cannot_change_the_framed_question",
+          "line": 239
+        },
+        {
+          "name": "test_different_baseline_author_requires_separate_review",
+          "line": 249
+        },
+        {
+          "name": "test_missing_probe_report_is_recomputed_from_existing_execution",
+          "line": 262
+        },
+        {
+          "name": "test_workflow_advancement_serializes_the_entire_transition",
+          "line": 273
+        },
+        {
+          "name": "fixture_contract",
+          "line": 112
+        },
+        {
+          "name": "capture",
+          "line": 132
+        },
+        {
+          "name": "capture_schedule",
+          "line": 177
+        },
+        {
+          "name": "transition",
+          "line": 276
+        }
+      ],
+      "imports": [
+        "copy",
+        "mathmode",
+        "mathmode.assessments",
+        "mathmode.contracts",
+        "mathmode.dispositions",
+        "mathmode.freeze",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.probes",
+        "mathmode.runner",
+        "mathmode.state",
+        "mathmode.workflow",
+        "pathlib",
+        "pytest",
+        "sys",
+        "test_validation"
+      ]
+    },
+    {
+      "path": "tests/test_workflow_fallback.py",
+      "mode": "100644",
+      "size_bytes": 14437,
+      "sha256": "e36679c93083db69752228b5a69f5bf9f1e9524adcacef085ea15874655886fa",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 232,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "fallback_case",
+          "line": 18
+        },
+        {
+          "name": "test_triggered_fallback_is_reviewed_executed_independently_validated_and_frozen",
+          "line": 101
+        },
+        {
+          "name": "test_fallback_requires_own_probe_role_and_complete_decision_evidence",
+          "line": 154
+        },
+        {
+          "name": "test_structural_fallback_decision_is_not_a_runtime_admission",
+          "line": 191
+        },
+        {
+          "name": "test_fallback_validator_guard_requires_selection_evidence_and_excludes_code",
+          "line": 202
+        },
+        {
+          "name": "capture",
+          "line": 123
+        }
+      ],
+      "imports": [
+        "copy",
+        "mathmode.contracts",
+        "mathmode.freeze",
+        "mathmode.io",
+        "mathmode.lineage",
+        "mathmode.probes",
+        "mathmode.runner",
+        "mathmode.state",
+        "pathlib",
+        "pytest",
+        "sys",
+        "test_validation",
+        "test_workflow"
+      ]
+    },
+    {
+      "path": "tools/audit_repository.py",
+      "mode": "100644",
+      "size_bytes": 7202,
+      "sha256": "c2ef5e4f64343ec1a35223f20c6879f3f9e8f0f2b9e7fb45e55ef003d4b8eb89",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 142,
+      "review_locations": {
+        "absolute_windows_path": [
+          102
+        ],
+        "edition_literal": [
+          27,
+          106
+        ],
+        "page_policy": [
+          28
+        ],
+        "cover_anonymity_toc": [
+          29
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "git",
+          "line": 36
+        },
+        {
+          "name": "inventory",
+          "line": 41
+        },
+        {
+          "name": "main",
+          "line": 128
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "ast",
+        "collections",
+        "hashlib",
+        "io",
+        "json",
+        "jsonschema",
+        "pathlib",
+        "re",
+        "subprocess",
+        "sys",
+        "warnings",
+        "xml.etree",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "tools/build_contract_examples.py",
+      "mode": "100644",
+      "size_bytes": 6677,
+      "sha256": "14ee82357126349fed22141233ffcc0c989f2452ebe963c332174f896775c40e",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 85,
+      "review_locations": {
+        "absolute_windows_path": [
+          15
+        ],
+        "edition_literal": [
+          14
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "build",
+          "line": 10
+        }
+      ],
+      "imports": [
+        "mathmode.io",
+        "mathmode.state",
+        "pathlib",
+        "sys"
+      ]
+    },
+    {
+      "path": "tools/build_contract_schemas.py",
+      "mode": "100644",
+      "size_bytes": 1551,
+      "sha256": "001b38113516c1912601e02040718e584e5c4e716f6689620ab7361dfc58dca7",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 42,
+      "review_locations": {
+        "absolute_windows_path": [
+          16,
+          17
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "build",
+          "line": 13
+        },
+        {
+          "name": "main",
+          "line": 30
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "json",
+        "mathmode.schema_catalog",
+        "pathlib",
+        "sys"
+      ]
+    },
+    {
+      "path": "tools/check_skill_parity.py",
+      "mode": "100644",
+      "size_bytes": 1607,
+      "sha256": "4097b12594cebb1769a750f88a1fc4f1d1a7f32f31ef2578ed0a52e31c9559e9",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 42,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "snapshot",
+          "line": 10
+        },
+        {
+          "name": "check",
+          "line": 24
+        },
+        {
+          "name": "main",
+          "line": 32
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "hashlib",
+        "json",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "tools/init_competition_workspace.py",
+      "mode": "100644",
+      "size_bytes": 292,
+      "sha256": "e9a2765199dbf3d2c1f4156b52383c9e872608c150086c91057eefc5d4d027fc",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 9,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [],
+      "imports": [
+        "mathmode.__main__",
+        "pathlib",
+        "sys"
+      ]
+    },
+    {
+      "path": "tools/probe_v1_baseline.py",
+      "mode": "100644",
+      "size_bytes": 6910,
+      "sha256": "8b1962b196af4a65de541a1f724d8769cbdc41755da04657b11c040444c52d7f",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 112,
+      "review_locations": {
+        "edition_literal": [
+          46
+        ]
+      },
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "module",
+          "line": 17
+        },
+        {
+          "name": "save",
+          "line": 24
+        },
+        {
+          "name": "run_probe",
+          "line": 29
+        },
+        {
+          "name": "main",
+          "line": 101
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "importlib.util",
+        "json",
+        "pathlib",
+        "subprocess",
+        "sys",
+        "tempfile"
+      ]
+    },
+    {
+      "path": "tools/sync_agent_assets.py",
+      "mode": "100644",
+      "size_bytes": 1580,
+      "sha256": "7ec20539c8843f4bcfb0028eb8401c40f8a9f776eb6d574276215c68630cff6d",
+      "suffix": ".py",
+      "utf8_text": true,
+      "lines": 41,
+      "review_locations": {},
+      "syntax": "PASS",
+      "syntax_warnings": [],
+      "definitions": [
+        {
+          "name": "synchronize",
+          "line": 11
+        },
+        {
+          "name": "main",
+          "line": 30
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "check_skill_parity",
+        "json",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "华为杯_求解规范/schemas/agent_response.schema.json",
+      "mode": "100644",
+      "size_bytes": 1832,
+      "sha256": "c9b80f3c144c42480e9c0fff19461a8a58dfa18115379775c6e0a470c991fe98",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 85,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/agent_result.schema.json",
+      "mode": "100644",
+      "size_bytes": 5618,
+      "sha256": "235ddaa05fdc362bc66c30ba0567be485dc6de5a68f1fa7ead98c00488583c14",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 265,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/agent_schedule.schema.json",
+      "mode": "100644",
+      "size_bytes": 6120,
+      "sha256": "6fa9ec9fe16b1f567e39c030dd721120b66ae1417d80ac09e0b72166e52383e5",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 239,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/agent_task.schema.json",
+      "mode": "100644",
+      "size_bytes": 3960,
+      "sha256": "08be56a0243dffbed44c5a6553bd4e20b279172f1d515d427f460544bd5920bb",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 192,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/ai_usage.schema.json",
+      "mode": "100644",
+      "size_bytes": 2274,
+      "sha256": "29127061eaf923dc44dc19e1c68748933921a9d6c95291eccb051014792be501",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 117,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/ambiguity_register.schema.json",
+      "mode": "100644",
+      "size_bytes": 2762,
+      "sha256": "c57c5bf0fa00ee92a9bfabbb0e293051bfebfa9141c8a9207851a66474ec9b13",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 117,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/assumption_ledger.schema.json",
+      "mode": "100644",
+      "size_bytes": 2285,
+      "sha256": "d79ca72dfe2321930bb24ddc6eabb82146c9e7959244a7e8d5b9f206a421ec85",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 113,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/assumption_plan.schema.json",
+      "mode": "100644",
+      "size_bytes": 5416,
+      "sha256": "893e221fc1b2c2eaa8a93aee873c7e710482d283fc74b5b1eae30ffd12b4fa1b",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 225,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/assumption_report.schema.json",
+      "mode": "100644",
+      "size_bytes": 5904,
+      "sha256": "a0e1f3e6cf6e12b8c12973cdd689e6ce335b414bb7935675c6888692209cc0ae",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 246,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/code_repair_request.schema.json",
+      "mode": "100644",
+      "size_bytes": 3809,
+      "sha256": "335b426e66de54c1b8fccba446523f61306259f0719979642315223a1cc75450",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 157,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/competition_policy.schema.json",
+      "mode": "100644",
+      "size_bytes": 4683,
+      "sha256": "d2f126ae285a8c808380afc3a53539fec1ddb8731be427484c6b375076b13a55",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 82,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3,
+          30
+        ],
+        "cover_anonymity_toc": [
+          43,
+          49
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/data_audit.schema.json",
+      "mode": "100644",
+      "size_bytes": 3612,
+      "sha256": "659dd5eeccda65a55a7901466c1afd595b9faccd8fc303ab9a44938d9ad6d878",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 163,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/disposition_review.schema.json",
+      "mode": "100644",
+      "size_bytes": 1929,
+      "sha256": "b4be8e4480a9c753c36e06e79343e7a51d539288b6a1858c0578868ce34429ff",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 90,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/evidence_gate.schema.json",
+      "mode": "100644",
+      "size_bytes": 2302,
+      "sha256": "d2de0e933aaa8c9821289ef2cdf207d732ee546ec9811b8b0f37c415455564d8",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 106,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/failure_diagnosis.schema.json",
+      "mode": "100644",
+      "size_bytes": 2144,
+      "sha256": "e72fa634220eeeef675d71f2be5657d2f3245bf5e47b1c01470e7af793bfd91f",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 97,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/freeze_event.schema.json",
+      "mode": "100644",
+      "size_bytes": 1493,
+      "sha256": "d65bd0279d20fdfdf5cbbd90adeb18770029a53dee1d1120d6a54e20cfd9c69f",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 71,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/freeze_index.schema.json",
+      "mode": "100644",
+      "size_bytes": 1296,
+      "sha256": "8b126f3b3c520c1783eacd8019c77b4b2f2cc518686606ff3b92dd93d897a181",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 55,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/freeze_request.schema.json",
+      "mode": "100644",
+      "size_bytes": 4478,
+      "sha256": "25b6e3ba93b8917502b8282e5c2b5172178e5405170b304bd8c91e672b593415",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 175,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/frozen_numbers.schema.json",
+      "mode": "100644",
+      "size_bytes": 10228,
+      "sha256": "09e3a265db22c849c82187f46eb77fb94d0fdc34fa059d73df86cc406e345ffb",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 391,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/human_decision_event.schema.json",
+      "mode": "100644",
+      "size_bytes": 1746,
+      "sha256": "2f64ad6eb660d7ff66e4158f1a15cbbb78cda2115c4deb42cd0dc7e79608d946",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 84,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/human_decision_request.schema.json",
+      "mode": "100644",
+      "size_bytes": 3220,
+      "sha256": "f14c619ea3b1fc96369e53801f8b604a6482c8ce1e3fd26f61486cc9dc8da7f6",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 141,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/input_manifest.schema.json",
+      "mode": "100644",
+      "size_bytes": 2554,
+      "sha256": "326e14c7666450cfb3921d00dfe56e8877325e7f0f055241975ccffcfb331d7a",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 109,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/issue_disposition.schema.json",
+      "mode": "100644",
+      "size_bytes": 3359,
+      "sha256": "6bf24b2411defa88f15a2ca12b2a3d178065d9b0ac6a842356279b5d3cb56da0",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 148,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/method_card.schema.json",
+      "mode": "100644",
+      "size_bytes": 5240,
+      "sha256": "2571dea3abbe665a5f435c200ccb28037a75168e95c00db5cabfd1ff2d617899",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 212,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/method_decision.schema.json",
+      "mode": "100644",
+      "size_bytes": 1818,
+      "sha256": "4d30054726289024429354a14671ec8441533e206976967afcc1ab754b5619f3",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 86,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/method_proposal.schema.json",
+      "mode": "100644",
+      "size_bytes": 2375,
+      "sha256": "68d9147028312cbee0825495d394e48493cbddaa9703c09a85f8edfd8c554eac",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 118,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/method_sources.schema.json",
+      "mode": "100644",
+      "size_bytes": 2556,
+      "sha256": "19340df5722ca5ff76b8f4dc7afc9ac45dc0610dde0e7051242952be60bf036d",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 101,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/model_spec.schema.json",
+      "mode": "100644",
+      "size_bytes": 14838,
+      "sha256": "f212ecec11046ada168316c715eb90c21bdb62977cfa659adef17f8b413e34b8",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 620,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/problem_dag.schema.json",
+      "mode": "100644",
+      "size_bytes": 1031,
+      "sha256": "cb8f512d56857b44885eaaa986707c239171b0231991b4dcd85c51654d0e3834",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 44,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/problem_frame.schema.json",
+      "mode": "100644",
+      "size_bytes": 7517,
+      "sha256": "f24bd4588f195934e4a31f13c50447a79d16e1a58f27ce2e9add6334ff273f2f",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 277,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/recovery_event.schema.json",
+      "mode": "100644",
+      "size_bytes": 1948,
+      "sha256": "e289f64ea378885f44f10abba26a2ae85a4cf066c371367c887e4831f558ed64",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 92,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/reference_baseline.schema.json",
+      "mode": "100644",
+      "size_bytes": 6075,
+      "sha256": "9365a73558d6f47b33f20a6b4a2b22b9460d09fcfe872dc916bfdff60af5ef87",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 222,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/reference_case_baseline.schema.json",
+      "mode": "100644",
+      "size_bytes": 2372,
+      "sha256": "ecd6d6e5e32e9f15f665b291606fd4cc96291ae9e3e0fbe8c4d4c36cd89cbc47",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 98,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/reference_retrieval.schema.json",
+      "mode": "100644",
+      "size_bytes": 5948,
+      "sha256": "e5a8ad3eafa50e5eb610b8e831c8e6a8867acbb879d1126e853816b73e1165c5",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 272,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/repair_activation.schema.json",
+      "mode": "100644",
+      "size_bytes": 3195,
+      "sha256": "d6e20f29e6bfbcc68424b57feabf813712c2f0f61c7b863994466de84f64792d",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 142,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/risk_probe.schema.json",
+      "mode": "100644",
+      "size_bytes": 2300,
+      "sha256": "18cb47524e1a495b0462ad6dc5844d8a33b942bb4aafb760dd9ac489322149aa",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 103,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/risk_probe_plan.schema.json",
+      "mode": "100644",
+      "size_bytes": 2892,
+      "sha256": "ea35d8ae04a0596f085181d81a159cbada06e4ddccbdd7046ca6acb0822af81c",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 116,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/run_manifest.schema.json",
+      "mode": "100644",
+      "size_bytes": 16357,
+      "sha256": "4245cec113ff33691509bece31c74211582647a38c82dc928b133c48dbd42b22",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 694,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/semantic_review.schema.json",
+      "mode": "100644",
+      "size_bytes": 2353,
+      "sha256": "54a5e03d39e480d9d10b872d0c4231b6206b4c88e3aa76e09700fc1229833463",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 107,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/symbol_table.schema.json",
+      "mode": "100644",
+      "size_bytes": 2710,
+      "sha256": "eea53255d427d6b434f46f0e414c9a97fe866004794ed22562832aea0af46c40",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 113,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/validation_criteria.schema.json",
+      "mode": "100644",
+      "size_bytes": 4234,
+      "sha256": "9e3e6e2c5b98a22aa6cc1da3be60fd52ff211449f8999526c14ec022779ba1dd",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 192,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/validation_summary.schema.json",
+      "mode": "100644",
+      "size_bytes": 5043,
+      "sha256": "bcc2c7d4fdb62cb9516afa7b151a01b7c9fbc9b6980dda33574ba0ca281f291d",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 224,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/workflow_plan.schema.json",
+      "mode": "100644",
+      "size_bytes": 8992,
+      "sha256": "fd64fe7356b4fc3c6d1f7bb0afdfb5c93e8fffbed2071705d6b5991ce81400b8",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 320,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/workflow_progress.schema.json",
+      "mode": "100644",
+      "size_bytes": 3118,
+      "sha256": "071c88f5fd550bfc775ea4a953cbea58c0d8a99568ee795644a94a5eeb73134b",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 120,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
+    },
+    {
+      "path": "华为杯_求解规范/schemas/workflow_state.schema.json",
+      "mode": "100644",
+      "size_bytes": 7403,
+      "sha256": "358ca13d64bbab9e9fe551e1a2b0b564a523c4bd58a5316ecd694e1d4fa0fe25",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 316,
+      "review_locations": {
+        "absolute_windows_path": [
+          2,
+          3
+        ]
+      },
+      "json": "PASS",
+      "schema": "PASS"
     },
     {
       "path": "华为杯_求解规范/tools/audit_supporting_materials.py",
@@ -10172,24 +15780,24 @@
     {
       "path": "华为杯_论文规范模板/README.md",
       "mode": "100644",
-      "size_bytes": 8004,
-      "sha256": "238271d5c30964b8ca107ed07ad82402dfe8b6d692ab249ba72ff928ab8c76df",
+      "size_bytes": 8240,
+      "sha256": "0c7d40848b6212cadecdc43353ed21d982a7119d35827e380c5bd4de56c5c191",
       "suffix": ".md",
       "utf8_text": true,
-      "lines": 83,
+      "lines": 85,
       "review_locations": {
         "edition_literal": [
-          54
+          56
         ],
         "page_policy": [
-          69,
-          77
+          71
         ],
         "cover_anonymity_toc": [
-          6,
-          7,
-          10,
-          36
+          3,
+          8,
+          9,
+          12,
+          38
         ]
       }
     },
@@ -10208,6 +15816,24 @@
       },
       "json": "PASS",
       "schema": "PASS"
+    },
+    {
+      "path": "华为杯_论文规范模板/competition_policy.json",
+      "mode": "100644",
+      "size_bytes": 1159,
+      "sha256": "54fe2c197f6a5190d1c9811cd0ee387f857960ee5b9c4644bf14aaf21f7f3e94",
+      "suffix": ".json",
+      "utf8_text": true,
+      "lines": 31,
+      "review_locations": {
+        "edition_literal": [
+          5
+        ],
+        "cover_anonymity_toc": [
+          17
+        ]
+      },
+      "json": "PASS"
     },
     {
       "path": "华为杯_论文规范模板/example.tex",
@@ -10441,17 +16067,12 @@
     {
       "path": "华为杯_论文规范模板/page_targets.json",
       "mode": "100644",
-      "size_bytes": 2355,
-      "sha256": "9e4646d3c1e1c400c839d86c83baf1bac085e0b5c8edc39c233ac273d10eb09b",
+      "size_bytes": 2384,
+      "sha256": "bfbbe46dceb95fcb0c375da5e084b1bcf06f02e91f8dc6fe7daba363d2ee6e3f",
       "suffix": ".json",
       "utf8_text": true,
       "lines": 113,
-      "review_locations": {
-        "page_policy": [
-          3,
-          112
-        ]
-      },
+      "review_locations": {},
       "json": "PASS"
     },
     {
@@ -10471,20 +16092,24 @@
     {
       "path": "华为杯_论文规范模板/tools/audit_docx.py",
       "mode": "100644",
-      "size_bytes": 14756,
-      "sha256": "41b49acec54cd4063d324595aaf0f081a3ca8c8994af03e1488ffefc3d7c5b4f",
+      "size_bytes": 16343,
+      "sha256": "e935de347788448444f6ceac8f5d011a886cdfae9ef2fbbe93371057f5c4ab7b",
       "suffix": ".py",
       "utf8_text": true,
-      "lines": 302,
+      "lines": 324,
       "review_locations": {
         "absolute_windows_path": [
-          13,
-          18
+          17,
+          22
         ],
         "cover_anonymity_toc": [
           2,
-          134,
-          145
+          132,
+          143,
+          144,
+          145,
+          154,
+          165
         ]
       },
       "syntax": "PASS",
@@ -10492,43 +16117,43 @@
       "definitions": [
         {
           "name": "local_attrs",
-          "line": 23
+          "line": 27
         },
         {
           "name": "first_run_for_label",
-          "line": 29
+          "line": 33
         },
         {
           "name": "next_text_run_for_label",
-          "line": 37
+          "line": 41
         },
         {
           "name": "on",
-          "line": 49
+          "line": 53
         },
         {
           "name": "run_measurements",
-          "line": 55
+          "line": 59
         },
         {
           "name": "effective_italic",
-          "line": 71
+          "line": 75
         },
         {
           "name": "style_measurements",
-          "line": 79
+          "line": 83
         },
         {
           "name": "paragraph_outline_level",
-          "line": 105
+          "line": 109
         },
         {
           "name": "audit",
-          "line": 115
+          "line": 119
         },
         {
           "name": "main",
-          "line": 289
+          "line": 310
         }
       ],
       "imports": [
@@ -10536,25 +16161,32 @@
         "argparse",
         "json",
         "lxml",
+        "mathmode.policy",
         "pathlib",
         "re",
+        "sys",
         "zipfile"
       ]
     },
     {
       "path": "华为杯_论文规范模板/tools/audit_paper.py",
       "mode": "100644",
-      "size_bytes": 17861,
-      "sha256": "3e0cada5857418b9d641b22dd030d802ca71bc199c7a73d66472615a7c8742dd",
+      "size_bytes": 20676,
+      "sha256": "bef165d83560efe73b8c55e12b73372442aa6c0157f4c5af4811909d0f38369e",
       "suffix": ".py",
       "utf8_text": true,
-      "lines": 386,
+      "lines": 432,
       "review_locations": {
         "absolute_windows_path": [
-          24
+          28
         ],
-        "page_policy": [
-          311
+        "cover_anonymity_toc": [
+          18,
+          380,
+          383,
+          387,
+          392,
+          416
         ]
       },
       "syntax": "PASS",
@@ -10562,51 +16194,55 @@
       "definitions": [
         {
           "name": "pdf_pages",
-          "line": 32
+          "line": 36
         },
         {
           "name": "extract_page_records",
-          "line": 39
+          "line": 43
         },
         {
           "name": "first_page_text",
-          "line": 99
-        },
-        {
-          "name": "detect_heading_pages",
           "line": 103
         },
         {
+          "name": "abstract_page_count",
+          "line": 107
+        },
+        {
+          "name": "detect_heading_pages",
+          "line": 117
+        },
+        {
           "name": "detect_heading_pages_from_manifest",
-          "line": 119
+          "line": 133
         },
         {
           "name": "detect_heading_pages_from_toc",
-          "line": 134
+          "line": 148
         },
         {
           "name": "printed_page_offset",
-          "line": 179
+          "line": 191
         },
         {
           "name": "role_ranges",
-          "line": 194
+          "line": 206
         },
         {
           "name": "body_pages",
-          "line": 217
+          "line": 229
         },
         {
           "name": "body_layout_density",
-          "line": 226
+          "line": 238
         },
         {
           "name": "pdfinfo",
-          "line": 269
+          "line": 281
         },
         {
           "name": "main",
-          "line": 282
+          "line": 294
         }
       ],
       "imports": [
@@ -10614,33 +16250,45 @@
         "argparse",
         "fitz",
         "json",
+        "mathmode.policy",
         "pathlib",
         "pymupdf",
         "re",
         "subprocess",
+        "sys",
         "typing"
       ]
     },
     {
       "path": "华为杯_论文规范模板/tools/audit_tex.py",
       "mode": "100644",
-      "size_bytes": 11425,
-      "sha256": "f67d41c92ee1e247a310e569e4c3d0052f845f4155a7249eff62904fcb62bce4",
+      "size_bytes": 14114,
+      "sha256": "0fc0ba7dccc53d61a0f1881acaa34b729d15f10128f8c77a67a0034703e884a5",
       "suffix": ".py",
       "utf8_text": true,
-      "lines": 247,
+      "lines": 295,
       "review_locations": {
         "absolute_windows_path": [
-          208
+          251
         ],
         "cover_anonymity_toc": [
-          17,
-          109,
-          112,
-          118,
-          120,
-          123,
-          209
+          20,
+          131,
+          134,
+          140,
+          142,
+          145,
+          216,
+          233,
+          234,
+          235,
+          236,
+          237,
+          240,
+          241,
+          251,
+          252,
+          253
         ]
       },
       "syntax": "PASS",
@@ -10648,72 +16296,73 @@
       "definitions": [
         {
           "name": "read_manifest",
-          "line": 21
+          "line": 24
         },
         {
           "name": "inside",
-          "line": 25
+          "line": 28
         },
         {
           "name": "remove_comments",
-          "line": 31
+          "line": 34
         },
         {
           "name": "brace_balance",
-          "line": 35
+          "line": 47
         },
         {
           "name": "expand_tex_inputs",
-          "line": 51
+          "line": 65
         },
         {
           "name": "audit",
-          "line": 84
+          "line": 98
         },
         {
           "name": "main",
-          "line": 233
+          "line": 278
         },
         {
           "name": "visit",
-          "line": 57
+          "line": 71
         },
         {
           "name": "add",
-          "line": 91
+          "line": 108
         }
       ],
       "imports": [
         "__future__",
         "argparse",
         "json",
+        "mathmode.policy",
         "pathlib",
-        "re"
+        "re",
+        "sys"
       ]
     },
     {
       "path": "华为杯_论文规范模板/tools/build_docx.py",
       "mode": "100644",
-      "size_bytes": 32132,
-      "sha256": "94a1cc746a8ae24b7a7c9842eb53c99ac2ef45c63f19daf89ca3a3fc4c804bd5",
+      "size_bytes": 34728,
+      "sha256": "bfd5b61c7b20ff899102ba3057b148987d8c747f8dce4bfa91d22c7e4f9bdba8",
       "suffix": ".py",
       "utf8_text": true,
-      "lines": 751,
+      "lines": 797,
       "review_locations": {
         "absolute_windows_path": [
-          27,
-          32
-        ],
-        "edition_literal": [
-          637
+          32,
+          37
         ],
         "cover_anonymity_toc": [
-          196,
-          249,
-          262,
-          677,
-          678,
-          681
+          201,
+          254,
+          267,
+          562,
+          653,
+          718,
+          719,
+          723
         ]
       },
       "syntax": "PASS",
@@ -10721,135 +16370,135 @@
       "definitions": [
         {
           "name": "set_run_font",
-          "line": 37
+          "line": 42
         },
         {
           "name": "set_style_font",
-          "line": 53
+          "line": 58
         },
         {
           "name": "set_spacing",
-          "line": 71
+          "line": 76
         },
         {
           "name": "clear_element_content",
-          "line": 81
+          "line": 86
         },
         {
           "name": "clear_body_keep_final_section",
-          "line": 88
+          "line": 93
         },
         {
           "name": "configure_section",
-          "line": 100
+          "line": 105
         },
         {
           "name": "add_page_field",
-          "line": 119
+          "line": 124
         },
         {
           "name": "configure_header_footer",
-          "line": 136
+          "line": 141
         },
         {
           "name": "add_style",
-          "line": 154
+          "line": 159
         },
         {
           "name": "configure_styles",
-          "line": 182
+          "line": 187
         },
         {
           "name": "add_label_run",
-          "line": 201
+          "line": 206
         },
         {
           "name": "add_body_run",
-          "line": 207
+          "line": 212
         },
         {
           "name": "add_body_paragraph",
-          "line": 213
+          "line": 218
         },
         {
           "name": "add_heading",
-          "line": 222
+          "line": 227
         },
         {
           "name": "add_toc_field",
-          "line": 248
+          "line": 253
         },
         {
           "name": "enable_update_fields",
-          "line": 273
+          "line": 278
         },
         {
           "name": "add_table",
-          "line": 282
+          "line": 287
         },
         {
           "name": "_replace_braced_command",
-          "line": 310
+          "line": 315
         },
         {
           "name": "tex_to_word_text",
-          "line": 316
+          "line": 321
         },
         {
           "name": "tex_table_rows",
-          "line": 353
+          "line": 358
         },
         {
           "name": "add_tex_figure",
-          "line": 373
+          "line": 378
         },
         {
           "name": "add_tex_content",
-          "line": 389
+          "line": 394
         },
         {
           "name": "resolve_tex_path",
-          "line": 496
+          "line": 501
         },
         {
           "name": "read_tex_source",
-          "line": 509
+          "line": 514
         },
         {
           "name": "read_input",
-          "line": 527
+          "line": 532
         },
         {
           "name": "remove_numbering_from_paragraph",
-          "line": 562
+          "line": 567
         },
         {
           "name": "scrub_package",
-          "line": 569
+          "line": 574
         },
         {
           "name": "etree_from_bytes",
-          "line": 610
+          "line": 625
         },
         {
           "name": "xml_bytes",
-          "line": 615
+          "line": 630
         },
         {
           "name": "build",
-          "line": 620
+          "line": 635
         },
         {
           "name": "main",
-          "line": 740
+          "line": 784
         },
         {
           "name": "flush",
-          "line": 396
+          "line": 401
         },
         {
           "name": "expand",
-          "line": 518
+          "line": 523
         }
       ],
       "imports": [
@@ -10864,30 +16513,31 @@
         "docx.shared",
         "json",
         "lxml",
+        "mathmode.policy",
         "pathlib",
         "re",
         "shutil",
+        "sys",
+        "time",
         "zipfile"
       ]
     },
     {
       "path": "华为杯_论文规范模板/tools/build_latex.py",
       "mode": "100644",
-      "size_bytes": 10608,
-      "sha256": "89088c90bdb37c7f9b360adccdebedb143193f1e51ed2bf3dc1bdac781f6e29b",
+      "size_bytes": 12465,
+      "sha256": "25d76e2caf9c844cbf70f7ba8c3df1b8ab903ff48c8a364374d1e63b30251819",
       "suffix": ".py",
       "utf8_text": true,
-      "lines": 235,
+      "lines": 259,
       "review_locations": {
         "absolute_windows_path": [
-          18
-        ],
-        "edition_literal": [
-          161
+          21
         ],
         "cover_anonymity_toc": [
-          185,
-          188
+          133,
+          206,
+          208
         ]
       },
       "syntax": "PASS",
@@ -10895,58 +16545,59 @@
       "definitions": [
         {
           "name": "tex_escape",
-          "line": 21
+          "line": 24
         },
         {
           "name": "title_underlines",
-          "line": 37
+          "line": 40
         },
         {
           "name": "relative_file",
-          "line": 54
+          "line": 57
         },
         {
           "name": "load_manifest",
-          "line": 67
+          "line": 70
         },
         {
           "name": "check_fragment",
-          "line": 99
+          "line": 102
         },
         {
           "name": "build_main",
-          "line": 107
+          "line": 110
         },
         {
           "name": "copy_assets",
-          "line": 207
+          "line": 226
         },
         {
           "name": "main",
-          "line": 214
+          "line": 233
         }
       ],
       "imports": [
         "__future__",
         "argparse",
         "json",
+        "mathmode.policy",
         "pathlib",
         "re",
-        "shutil"
+        "shutil",
+        "sys"
       ]
     },
     {
       "path": "华为杯_论文规范模板/tools/calibrate_page_targets.py",
       "mode": "100644",
-      "size_bytes": 2378,
-      "sha256": "98e88e6fadf5cac25220d467c50b0332eb427f7a48a56af60c95cc1a1aad4bf4",
+      "size_bytes": 2440,
+      "sha256": "eae7f8f57432e4dd125bfb73eb206a3fe15e880cab5cba5e10b874436b5f43c6",
       "suffix": ".py",
       "utf8_text": true,
       "lines": 59,
       "review_locations": {
         "page_policy": [
-          46,
-          51
+          46
         ]
       },
       "syntax": "PASS",
@@ -11062,30 +16713,25 @@
     {
       "path": "华为杯_论文规范模板/华为杯_论文章节规范.md",
       "mode": "100644",
-      "size_bytes": 54532,
-      "sha256": "d1e067a2bfae6d7cdeecfa6fb9cd2fa592db76820ae23d3cdb54ec7d6202ad6d",
+      "size_bytes": 54177,
+      "sha256": "b4c74435b32ff518b035828700206f322a981bbcd872e59d6206426e76f6cd25",
       "suffix": ".md",
       "utf8_text": true,
-      "lines": 1141,
+      "lines": 1128,
       "review_locations": {
         "absolute_windows_path": [
-          1103
-        ],
-        "page_policy": [
-          545
+          1090
         ],
         "cover_anonymity_toc": [
           97,
           99,
-          104,
-          105,
-          109,
-          138,
-          139,
-          240,
-          243,
-          1093,
-          1133
+          101,
+          227,
+          230,
+          1080,
+          1082,
+          1120,
+          1121
         ]
       }
     },
