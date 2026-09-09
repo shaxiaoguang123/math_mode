@@ -184,7 +184,7 @@ def catalog():
                 "snapshot_path": PATH, "sha256": HASH, "size_bytes": {"type": "integer", "minimum": 1}})),
             "scientific_acceptance": {"const": "NOT_RUN"}}, optional=("contract_snapshots", "upstream_freezes", "execution_authorization")),
         "validation_criteria": contract({"criteria_id": ID, "question_id": ID,
-            "task_type": enum("regression", "time_series", "optimization", "mechanism", "graph"),
+            "task_type": enum("regression", "time_series", "optimization", "mechanism", "graph", "classification"),
             "data_input_id": ID, "main_output_name": ID, "baseline_output_name": ID,
             "source_refs": arr(TEXT, 1), "checks": arr(obj({"check_id": ID, "metric": ID,
                 "operator": enum("le", "ge", "eq"), "threshold": NUMBER, "unit": TEXT,

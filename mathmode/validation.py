@@ -12,6 +12,7 @@ from .workspace import initialize
 from .units import verify_formula_units
 
 REQUIRED_METRICS = {
+    "classification": {"main_error_rate", "main_macro_f1_loss", "coverage_error", "split_leakage"},
     "regression": {"main_mse", "coverage_error", "split_leakage"},
     "time_series": {"main_mse", "coverage_error", "split_leakage"},
     "optimization": {"main_inequality_violation", "main_equality_residual", "main_reported_objective_error",

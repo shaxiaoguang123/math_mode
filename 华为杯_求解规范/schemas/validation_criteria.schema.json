@@ -36,7 +36,8 @@
         "time_series",
         "optimization",
         "mechanism",
-        "graph"
+        "graph",
+        "classification"
       ]
     },
     "data_input_id": {

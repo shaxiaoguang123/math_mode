@@ -385,3 +385,12 @@ This command executes a candidate; it does not switch the effective workflow
 model, reuse old numerical validation, reassess assumptions or freeze results.
 Those workflow activation and evidence transitions remain pending. Its PASS only
 reports process/output-contract success, with scientific_acceptance=NOT_RUN.
+
+Classification validation is an additive extension of the v2 criteria schema;
+existing regression and other supported contracts are unchanged. To adopt it,
+prepare original labeled JSON rows with an explicit string class universe,
+declare a holdout/group split and matching main/baseline output contracts, and
+pin classification criteria before rerunning both models. Existing unlabeled
+prediction runs cannot be retroactively admitted. See the classification adapter
+in `docs/contracts.md` and `fixtures/validation/classification_solver.py` for the
+synthetic output protocol; the fixture is not historical contest evidence.

@@ -82,6 +82,62 @@ def regression(data, main, baseline, spec, criteria):
     return result
 
 
+def classification(data, main, baseline, spec, criteria):
+    """Score string labels against original held-out labels, never solver metrics."""
+    classes = data["classes"]
+    if (not isinstance(classes, list) or len(classes) < 2
+            or any(not isinstance(c, str) or not c.strip() for c in classes)
+            or len(set(classes)) != len(classes)):
+        raise ValueError("Classification requires distinct nonempty string classes")
+    rows = index_rows(data["rows"])
+    split = spec["data_split"]
+    train, holdout, fit = (set(split[k]) for k in ("train_ids", "test_ids", "fit_ids"))
+    if (not train or not holdout or not fit or train & holdout
+            or not fit <= train or not (train | holdout) <= rows.keys()):
+        raise ValueError("Invalid classification row membership or fitting leakage")
+    target = criteria["evaluation"]["target"]
+    if not target or target != split["target"] or target in split["features"]:
+        raise ValueError("Classification target contract mismatch/leakage")
+    if split["strategy"] not in {"holdout", "group"}:
+        raise ValueError("Classification adapter requires holdout or group split")
+    if criteria["evaluation"]["bootstrap_repetitions"]:
+        raise ValueError("Classification bootstrap is not implemented")
+    for key in train | holdout:
+        value = rows[key].get(target)
+        if not isinstance(value, str) or value not in classes:
+            raise ValueError("Original classification label is outside declared classes")
+        if any(feature not in rows[key] for feature in split["features"]):
+            raise ValueError("Declared feature is absent from raw classification rows")
+    if split["strategy"] == "group":
+        for key in train | holdout:
+            if rows[key].get("group") != split["sample_groups"].get(key) or not rows[key].get("group"):
+                raise ValueError("Declared groups differ from original classification data")
+        if {rows[k]["group"] for k in train} & {rows[k]["group"] for k in holdout}:
+            raise ValueError("Actual raw groups leak across train and holdout")
+    # Macro F1 over the original declared class universe; an absent class scores 0.
+    result = {"coverage_error": 0.0, "split_leakage": 0.0}
+    for name, output in (("main", main), ("baseline", baseline)):
+        predictions = index_rows(output)
+        if predictions.keys() != holdout:
+            raise ValueError("Classification prediction coverage differs from complete holdout")
+        for row in predictions.values():
+            if not isinstance(row.get("prediction"), str) or row["prediction"] not in classes:
+                raise ValueError("Predicted classification label is outside declared classes")
+        errors = sum(predictions[k]["prediction"] != rows[k][target] for k in holdout)
+        f1 = []
+        for label in classes:
+            tp = sum(rows[k][target] == label and predictions[k]["prediction"] == label for k in holdout)
+            fp = sum(rows[k][target] != label and predictions[k]["prediction"] == label for k in holdout)
+            fn = sum(rows[k][target] == label and predictions[k]["prediction"] != label for k in holdout)
+            denominator = 2 * tp + fp + fn
+            f1.append(2 * tp / denominator if denominator else 0.0)
+        result[f"{name}_error_rate"] = errors / len(holdout)
+        result[f"{name}_macro_f1"] = sum(f1) / len(classes)
+        result[f"{name}_macro_f1_loss"] = 1 - result[f"{name}_macro_f1"]
+    result["macro_f1_improvement"] = result["main_macro_f1"] - result["baseline_macro_f1"]
+    return result
+
+
 def optimization(data, main, baseline, spec, criteria):
     import numpy as np
     from scipy.optimize import linprog
@@ -201,6 +257,6 @@ def graph(data, main, baseline, spec, criteria):
 
 def evaluate(data, main, baseline, spec, criteria):
     evaluator = {"regression": regression, "time_series": regression, "optimization": optimization,
-                 "mechanism": mechanism, "graph": graph}[criteria["task_type"]]
+                 "mechanism": mechanism, "graph": graph, "classification": classification}[criteria["task_type"]]
     result = evaluator(data, main, baseline, spec, criteria)
     return {key: number(value) for key, value in result.items()}

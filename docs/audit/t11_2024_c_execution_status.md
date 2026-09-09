@@ -64,17 +64,27 @@ code, interpreter, process, and output SHA-256 values. This is an execution and
 provenance checkpoint only; independent validation and evidence gates remain
 outstanding.
 
-Q4 runner integration has been prepared, but its first long execution ended
-without a manifest after the controlling session stopped. It is therefore not
-accepted as a run result; the workspace retains the snapshots for diagnosis
-and a fresh bounded retry is required.
+## Q4 history reverified from manifests
 
-The bounded retry completed successfully as Q4 method
-`extra-trees-loss-runner-v3`: run
-`run-5ddffaac4b484e32905b68b637a41f5e` returned code 0 with 400 structured
-predictions and a complete runner manifest. The earlier interrupted attempts
-remain historical failures; this newer run is the current execution evidence,
-with scientific acceptance still `NOT_RUN` pending independent validation.
+Historical `verify_run(current_sources=False)` verification corrects the prior
+interruption diagnosis. The original run
+`run-bbd8302dde454614a0116f1f3c71d19d` completed with `PASS` in 252 seconds.
+Run `run-0faae49c2b0c48aab05d1b4ea5e8f1ad` returned code 0 but was rejected
+with `VALIDATION_FAILURE`: the canonical input manifest/spec changed during
+execution. An observation ending without a manifest did not establish that
+either process had been interrupted.
+
+Run `run-5ddffaac4b484e32905b68b637a41f5e` completed with `PASS` in 231 seconds
+under a different method ID. Its `retry_of` is null, so it is not evidence of a
+bounded retry. It also uses 120 trees instead of the original 250: previous
+model-quality metrics and attachment predictions do not validate this variant.
+All these records remain preserved. Scientific acceptance is `NOT_RUN`.
+
+Q1 classification needs a labeled holdout, a distinct baseline and criteria
+pinned before new executions. Existing Q1/Q4 manifests contain no pinned
+validation criteria. The new classification evaluator consumes original labeled
+JSON rows and independently computes error rate and macro F1; it does not turn
+unlabeled official test predictions or current draft runs into G5 evidence.
 
 ## Reopened downstream rebuild
 

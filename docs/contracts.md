@@ -608,3 +608,18 @@ object binding the repair request, review, candidate spec, role and failed
 predecessor. The runner verifies these pins before launch, preventing an ordinary
 retry from being relabeled as the reviewed repair. This records provenance only;
 it does not replace numerical validation or freeze.
+
+### Classification validation adapter
+
+Classification criteria now support labeled holdout or group splits. Original
+JSON data supplies `classes` (distinct nonempty strings) and `rows` containing
+`id`, declared features, target label, and `group` for group splits. Predictions
+contain `id` and a string `prediction` for every held-out ID exactly once.
+The source-free evaluator rejects unknown labels, fitting/target/group leakage,
+missing rows and duplicates. It recomputes main/baseline error rate and macro F1
+over the full original class universe (zero for absent classes), plus improvement.
+Mandatory checks are `main_error_rate`, `main_macro_f1_loss`, `coverage_error`
+and `split_leakage`; the last two require zero tolerance. Bootstrap and temporal
+classification splits are explicitly rejected. This adapter evaluates supplied
+holdout predictions, not label-free competition test accuracy or fit provenance.
+Both model runs still require the same criteria hash pinned before execution.
