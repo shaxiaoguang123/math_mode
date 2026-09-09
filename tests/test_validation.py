@@ -137,6 +137,8 @@ def test_small_linear_oracle_recomputes_feasibility_and_optimality():
 
 
 def test_q5_frontier_adapter_recomputes_engineering_candidates():
+    import hashlib
+    import numpy as np
     rows = []
     labels = ["\u6b63\u5f26\u6ce2", "\u4e09\u89d2\u6ce2", "\u68af\u5f62\u6ce2"]
     for index, label in enumerate(labels):
@@ -152,9 +154,38 @@ def test_q5_frontier_adapter_recomputes_engineering_candidates():
     assert metrics["expected_frontier_count"] >= 1
     assert metrics["all_unique_design_count"] == 3
     assert metrics["coverage_error"] == 1
+    def output_row(row):
+        peak = max(abs(min(row["waveform"])), abs(max(row["waveform"])))
+        return {"candidate_id": row["id"], "source_input": row["source_input"],
+                "row_number": row["row_number"], "temperature": row["temperature"],
+                "frequency": row["frequency"], "waveform_class": row["waveform_class"],
+                "material_class": row["material_class"],
+                "waveform_sha256": hashlib.sha256(np.asarray(row["waveform"], dtype=float).tobytes()).hexdigest(),
+                "predicted_loss": 1.0, "peak_flux": peak,
+                "energy_proxy": row["frequency"] * peak}
+    main = [output_row(row) for row in rows]
+    baseline = list(main)
+    metrics = evaluate({"rows": rows}, main, baseline, spec, criteria)
+    assert metrics["energy_proxy_max_abs_error"] == 0
+    tampered = list(main)
+    tampered[0] = {**tampered[0], "energy_proxy": tampered[0]["energy_proxy"] + 1}
+    assert evaluate({"rows": rows}, tampered, baseline, spec, criteria)["energy_proxy_max_abs_error"] == 1
     rows[0]["waveform_class"] = "unknown"
     with pytest.raises(ValueError, match="Unknown waveform class"):
         evaluate({"rows": rows}, [], [], spec, criteria)
+
+
+def test_q5_frontier_adapter_rejects_duplicate_candidate_ids():
+    row = {"id": "duplicate", "source_input": "C-INPUT-2", "row_number": 2,
+           "temperature": 25.0, "frequency": 50_000.0, "loss": 10.0,
+           "waveform_class": "正弦波", "material_class": 1,
+           "waveform": [0.0, 0.1, -0.1]}
+    spec = {"seed": 20240921, "parameters": {"n_estimators": 4,
+            "min_samples_leaf": 1, "max_features": 1.0}}
+    criteria = {"task_type": "optimization", "source_refs": ["engineering:q5-frontier"],
+                "evaluation": {"sense": "max"}}
+    with pytest.raises(ValueError, match="duplicate candidate IDs"):
+        evaluate({"rows": [row, dict(row)]}, [], [], spec, criteria)
 
 
 def test_mechanism_conservation_is_independently_computed():

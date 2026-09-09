@@ -253,6 +253,8 @@ def q5_frontier(data, main, baseline, spec, criteria):
     source = data.get("rows")
     if not isinstance(source, list) or not source:
         raise ValueError("Q5 data must contain nonempty rows")
+    if len({row.get("id") for row in source}) != len(source):
+        raise ValueError("Q5 data contains duplicate candidate IDs")
     X = np.asarray([features(row) for row in source], dtype=float)
     y = np.asarray([number(row["loss"]) for row in source], dtype=float)
     params = spec["parameters"]
@@ -287,7 +289,7 @@ def q5_frontier(data, main, baseline, spec, criteria):
     duplicate_designs = len(design_keys) - len(set(design_keys))
     coverage_error = float(set(main_index) != set(frontier_index)
                            or set(baseline_index) != set(expected_index))
-    prediction_error = peak_error = 0.0
+    prediction_error = peak_error = energy_error = 0.0
     for output in (main, baseline):
         for item in output:
             if item["candidate_id"] not in by_id:
@@ -298,6 +300,8 @@ def q5_frontier(data, main, baseline, spec, criteria):
                                    abs(number(item["predicted_loss"]) - expected["predicted_loss"]))
             peak_error = max(peak_error,
                              abs(number(item["peak_flux"]) - expected["peak_flux"]))
+            energy_error = max(energy_error,
+                               abs(number(item["energy_proxy"]) - expected["energy_proxy"]))
     dominated = sum(any(dominates(other, item) for other in main
                         if other["candidate_id"] != item["candidate_id"])
                     for item in main)
@@ -315,7 +319,7 @@ def q5_frontier(data, main, baseline, spec, criteria):
         "pareto_dominated_count": float(dominated),
         "q4_prediction_max_abs_error": prediction_error,
         "peak_flux_max_abs_error": peak_error,
-        "energy_proxy_max_abs_error": 0.0,
+        "energy_proxy_max_abs_error": energy_error,
         "observed_loss_used_as_prediction_evidence": 0.0,
         "main_candidate_count": float(len(main)),
         "expected_frontier_count": float(len(frontier)),
