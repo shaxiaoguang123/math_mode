@@ -131,5 +131,3 @@ attachment was then checked against the current Q1/Q4 prediction hashes and
 the evidence index was refreshed. These artifacts remain draft evidence:
 scientific acceptance is still `NOT_RUN`, and no baseline freeze or reference
 paper admission is implied.
-
-
