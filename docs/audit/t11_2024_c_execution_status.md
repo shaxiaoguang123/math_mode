@@ -38,4 +38,20 @@ training/test records and rejection of truncated waveforms. Corrected executions
 and downstream revalidation remain required; none of the old PASS labels or
 output hashes authorize freezing, paper claims or reference admission.
 
+## Corrected attachment verification
+
+The private `source_project/build_attachment_checked.py` replaces the legacy
+builder, whose `source_unchanged` compared a hash with itself. The new builder
+checks the original against `input_manifest.json`, pins both prediction files,
+verifies sequential ID formulas, stages the result, then reopens it and compares
+every cell with the template or the corresponding prediction. Q4 display uses
+`0.0`; untouched cells retain their template values. Prior attachment bytes are
+archived before replacement.
+
+The actual rebuild passed with 80 Q1 and 400 Q4 entries. Negative checks rejected
+a changed Q4 value, an extra classification beyond sample 80, a changed ID formula
+and a duplicate prediction ID. The new `attachment4_cell_validation.json` report
+is scoped to `host_attachment_cell_consistency`, scientific acceptance `NOT_RUN`.
+It supersedes the old attachment report and does not validate either model.
+
 
