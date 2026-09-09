@@ -61,11 +61,11 @@ def test_classification_criteria_cannot_omit_required_checks():
     with pytest.raises(ValueError, match='mandatory'): validate_criteria(criteria)
 
 
-def test_absent_declared_class_is_not_dropped_from_macro_average():
+def test_unobserved_declared_class_is_rejected_before_scoring():
     data, main, baseline, spec, criteria = case()
     data['classes'].append('third')
-    metrics = evaluate(data, main, baseline, spec, criteria)
-    assert metrics['main_macro_f1'] == pytest.approx((2 / 3 + 4 / 5) / 3)
+    with pytest.raises(ValueError, match='cover'):
+        evaluate(data, main, baseline, spec, criteria)
 
 
 def test_disjoint_raw_groups_are_accepted():
