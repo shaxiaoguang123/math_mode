@@ -9,17 +9,19 @@ verified from GitHub after this audit document is committed.
 - Repository: `shaxiaoguang123/math_mode`
 - PR: [#1](https://github.com/shaxiaoguang123/math_mode/pull/1), `OPEN`
 - Branch: `feat/mathmode-v2-evidence-runtime`
-- Runtime implementation baseline: Q5 validation fix `c6e3f641`; later commits
-  on this branch are documentation-only audit updates.
+- Runtime implementation baseline: Q5 validation fix `c6e3f641` plus the
+  Codex contract-identity binding fix `fbdc9f1`.
+- Current PR HEAD: `fbdc9f1ff41ba0d9adc7a7161dcb88d1b4380e0b`.
 - GitHub merge state: `CLEAN`; automatic merge is disabled by repository rules.
-- The latest completed CI runs were successful for both Python 3.11 and 3.12;
-  their exact SHA/run pairing is recorded by the final GitHub check.
+- The latest completed CI runs were successful for both Python 3.11 and 3.12
+  at this HEAD: push run `34412052432` and pull-request run `34412057488`.
 - CodeRabbit check: `SUCCESS`; its repository-size skip is informational.
 
-The complete `origin/main...HEAD` diff was reviewed, including the 200 changed
-files and the final Q5 validation fix. The latest commit verifies the Q5 energy
-proxy instead of accepting a constant zero and rejects duplicate candidate IDs;
-its regression tests cover both checks.
+The complete `origin/main...HEAD` diff was reviewed, including the Q5 validation
+fix and the latest agent-runtime change. The latest runtime change binds
+`actor_id`, `producer` and `reviewed_by` output fields to the task actor and has
+a focused regression test; the Q5 regression tests still cover energy-proxy and
+duplicate-candidate checks.
 
 ## Review and thread audit
 
@@ -33,8 +35,8 @@ its regression tests cover both checks.
 
 | Gate or check | Result | Evidence or limitation |
 | --- | --- | --- |
-| Public runtime implementation | `PASS` | 296 tests passed, 1 skipped; compile, schema, parity and diff checks passed. |
-| Current PR HEAD and CI | `PASS` | HEAD and both successful CI runs match. |
+| Public runtime implementation | `PASS` | Full CI regression passed; targeted agent tests 24 passed; compile, schema, parity and diff checks passed. |
+| Current PR HEAD and CI | `PASS` | HEAD `fbdc9f1…` matches both successful CI runs `34412052432` and `34412057488`. |
 | Q1 fresh validation and freeze | `PASS` | Validation and verified freeze completed in the private workspace. |
 | Q2 fresh validation and freeze | `PASS` | Validation and verified freeze completed in the private workspace. |
 | Q3 fresh validation and freeze | `PASS` | Validation and verified freeze completed in the private workspace. |
