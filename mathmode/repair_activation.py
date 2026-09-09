@@ -6,6 +6,7 @@ from .contracts import validate
 from .io import canonical_root, safe_path, read_json, write_json, file_hash, now
 from .runner import verify_run, _history
 from .state import workspace_lock
+from .lineage import artifact_id, ArtifactRegistry
 
 
 def activate_reviewed_repair(root, request_relative: str, run_relative: str):
@@ -88,5 +89,13 @@ def _adopt(root, progress_relative, activation_relative, role):
     question[field] = activation["candidate_spec"]["path"]
     question["repair_activation"] = activation_relative
     validate("workflow_progress", progress, root=root)
+    # Invalidate all registered descendants of the previous numerical evidence
+    # before publishing the effective pointer. Historical files remain intact.
+    roots = {artifact_id(path) for path in (question.get("validation"), question.get("evidence")) if path}
+    registry = ArtifactRegistry(root)
+    registered = {item["artifact_id"] for item in registry.store.load()["artifacts"]}
+    roots &= registered
+    if roots:
+        registry.invalidate(roots, "Reviewed repair activation invalidated prior numerical evidence")
     write_json(safe_path(root, progress_relative), progress)
     return progress
