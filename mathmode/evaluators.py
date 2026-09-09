@@ -108,6 +108,8 @@ def classification(data, main, baseline, spec, criteria):
             raise ValueError("Original classification label is outside declared classes")
         if any(feature not in rows[key] for feature in split["features"]):
             raise ValueError("Declared feature is absent from raw classification rows")
+    if {rows[key][target] for key in fit} != set(classes):
+        raise ValueError("Fitting rows do not cover the declared class universe")
     if split["strategy"] == "group":
         for key in train | holdout:
             if rows[key].get("group") != split["sample_groups"].get(key) or not rows[key].get("group"):

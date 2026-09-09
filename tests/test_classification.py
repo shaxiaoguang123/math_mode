@@ -78,6 +78,13 @@ def test_disjoint_raw_groups_are_accepted():
     assert evaluate(data, main, baseline, spec, criteria)['split_leakage'] == 0
 
 
+def test_fitting_rows_must_cover_declared_classes():
+    data, main, baseline, spec, criteria = case()
+    data['rows'][3]['label'] = 'negative'
+    with pytest.raises(ValueError, match='cover'):
+        evaluate(data, main, baseline, spec, criteria)
+
+
 @pytest.mark.parametrize('wrong_prediction', [False, True])
 def test_real_classification_validator_and_gate(prepared, wrong_prediction):
     # Reuse the real workspace lifecycle fixture, replacing its synthetic problem.
