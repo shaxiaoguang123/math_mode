@@ -65,6 +65,7 @@ def test_failed_subprocess_dispatches_once_and_routes_diagnosis(failure_case):
     again = diagnose_failure(service, plan, job, relative)
     assert again["status"] == "DIAGNOSED" and again["executed"] == []
     assert again["next_owner"] == "code" and again["retry_budget_remaining"] == 2
+    assert again["failure_class"] == "CODE_FAILURE"
     assert file_hash(root / relative) == before
     assert len(list((root / "runs").iterdir())) == 1
     with pytest.raises(ValueError, match="actual backend session"):

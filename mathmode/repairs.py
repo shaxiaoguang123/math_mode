@@ -86,6 +86,7 @@ def diagnose_failure(workflow, plan, job, relative):
         if diagnosis["failure_source"] != {"path": relative, "sha256": file_hash(safe_path(root, relative))}:
             raise ValueError("Diagnosis does not bind this failed execution")
         return {"status": "DIAGNOSED", "executed": [], "diagnosis": output,
+                "failure_class": diagnosis["failure_class"],
                 "next_owner": OWNERS[diagnosis["failure_class"]],
                 "repair_steps": diagnosis["repair_steps"], "run_attempt": record["attempt"],
                 "retry_budget_remaining": max(0, 3 - record["attempt"]),

@@ -3,7 +3,6 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import threading
-import time
 
 import pytest
 
@@ -21,6 +20,7 @@ BODY = b"Synthetic reference: a median of pairwise slopes. This is a transport f
 @contextmanager
 def server(root):
     observations = []
+    release_slow_response = threading.Event()
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
             pass
@@ -36,7 +36,7 @@ def server(root):
                 self.end_headers()
                 return
             if self.path == "/slow":
-                time.sleep(0.4)
+                release_slow_response.wait(timeout=10)
             self.send_response(404 if self.path == "/error" else 200)
             self.send_header("Content-Type", "text/plain; charset=utf-8")
             body = b"" if self.path == "/empty" else BODY
@@ -55,6 +55,7 @@ def server(root):
     try:
         yield f"http://127.0.0.1:{httpd.server_port}", observations
     finally:
+        release_slow_response.set()
         httpd.shutdown()
         httpd.server_close()
         thread.join(timeout=3)
@@ -120,7 +121,7 @@ def test_same_problem_http_receipt_preserves_and_depends_on_real_blind_checkpoin
 @pytest.mark.parametrize("route,options", [
     ("/empty", {}), ("/truncated", {}), ("/negative", {}), ("/error", {}),
     ("/large", {"max_bytes": 20}), ("/stream", {"max_bytes": 20}),
-    ("/redirect", {"max_redirects": 0}), ("/cycle", {}), ("/file", {}), ("/slow", {"timeout": 0.1})])
+    ("/redirect", {"max_redirects": 0}), ("/cycle", {}), ("/file", {}), ("/slow", {"timeout": 2})])
 def test_failed_downloads_preserve_evidence_without_usable_snapshot(reference_root, route, options):
     root = reference_root
     with server(root) as (base, observations):
