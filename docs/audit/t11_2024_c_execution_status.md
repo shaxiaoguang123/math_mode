@@ -69,6 +69,13 @@ without a manifest after the controlling session stopped. It is therefore not
 accepted as a run result; the workspace retains the snapshots for diagnosis
 and a fresh bounded retry is required.
 
+The bounded retry completed successfully as Q4 method
+`extra-trees-loss-runner-v3`: run
+`run-5ddffaac4b484e32905b68b637a41f5e` returned code 0 with 400 structured
+predictions and a complete runner manifest. The earlier interrupted attempts
+remain historical failures; this newer run is the current execution evidence,
+with scientific acceptance still `NOT_RUN` pending independent validation.
+
 ## Reopened downstream rebuild
 
 After the corrected Q4 rerun, grouped holdout validation was regenerated with
