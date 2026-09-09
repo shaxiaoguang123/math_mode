@@ -64,6 +64,11 @@ code, interpreter, process, and output SHA-256 values. This is an execution and
 provenance checkpoint only; independent validation and evidence gates remain
 outstanding.
 
+Q4 runner integration has been prepared, but its first long execution ended
+without a manifest after the controlling session stopped. It is therefore not
+accepted as a run result; the workspace retains the snapshots for diagnosis
+and a fresh bounded retry is required.
+
 ## Reopened downstream rebuild
 
 After the corrected Q4 rerun, grouped holdout validation was regenerated with
