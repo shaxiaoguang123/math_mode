@@ -182,7 +182,7 @@ def catalog():
                 "source_path": PATH, "snapshot_path": PATH, "sha256": HASH, "size_bytes": {"type": "integer", "minimum": 1}})),
             "upstream_freezes": arr(obj({"question_id": ID, "freeze_id": ID, "source_path": PATH,
                 "snapshot_path": PATH, "sha256": HASH, "size_bytes": {"type": "integer", "minimum": 1}})),
-            "scientific_acceptance": {"const": "NOT_RUN"}}, optional=("contract_snapshots", "upstream_freezes")),
+            "scientific_acceptance": {"const": "NOT_RUN"}}, optional=("contract_snapshots", "upstream_freezes", "execution_authorization")),
         "validation_criteria": contract({"criteria_id": ID, "question_id": ID,
             "task_type": enum("regression", "time_series", "optimization", "mechanism", "graph"),
             "data_input_id": ID, "main_output_name": ID, "baseline_output_name": ID,

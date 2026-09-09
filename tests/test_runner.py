@@ -120,6 +120,14 @@ def test_execution_authorization_is_required_to_match_candidate_retry(workspace)
         run(workspace, execution_authorization={})
 
 
+def test_legacy_run_without_authorization_remains_verifiable(workspace):
+    record = run(workspace)
+    record.pop("execution_authorization")
+    relative = f"runs/{record['run_id']}/run_manifest.json"
+    write_json(workspace / relative, record)
+    assert verify_run(workspace, relative)["status"] == "PASS"
+
+
 def test_retry_rejects_rewritten_attempt_budget(workspace):
     code = workspace / "code/compute.py"
     code.write_text("raise RuntimeError('first')", encoding="utf-8")

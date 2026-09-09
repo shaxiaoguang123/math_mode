@@ -401,6 +401,12 @@ def verify_run(root: Path, manifest_relative: str, *, require_success=True, curr
             raise ValueError("Run artifact size mismatch")
     expected_controls = {f"{run_relative}/{name}" for name in ("bootstrap.py", "context.json", "started.json", "planned.json")}
     planned = read_json(root / run_relative / "planned.json")
+    authorization = record.get("execution_authorization")
+    if authorization != planned.get("execution_authorization"):
+        raise ValueError("Run authorization contradicts its pre-execution record")
+    if authorization is not None and current_sources:
+        from .repair_execution import validate_authorization
+        validate_authorization(root, authorization, spec["source_path"], record["role"], record["retry_of"])
     if "request_fingerprint" in planned:
         expected_controls.add(f"{run_relative}/owner.json")
         if record["backend"] == "local_subprocess" and record["returncode"] is not None:

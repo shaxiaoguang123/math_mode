@@ -412,3 +412,25 @@ summary requires diagnosis/explicit repair, instead of launching another validat
 under a fresh ID. A report written before registry publication is independently
 recomputed before its interrupted registration can resume. Neither case invents
 an execution result for an unobserved process.
+
+
+### Reviewed repair execution checkpoint
+
+`run-code-repair --workspace <root> --request repairs/<id>/request.json
+--interpreter <python>` now executes an independently reviewed candidate with its
+actual request/review/candidate hashes, execution role and failed predecessor.
+A workflow lock serializes service calls. A matching terminal retry is verified
+and returned on resume, including FAIL; it is never silently rerun. An intervening
+unrelated execution or interrupted reservation blocks implicit retry. The runner
+retains the three-attempt budget and requires actual changed code/spec.
+
+Run verification compares authorization with the hashed pre-execution planned
+record and, when checking current sources, revalidates the actual repair review.
+Candidate path, role and predecessor must match the repair itself. Older manifests
+without authorization remain readable; absence does not establish repair review.
+An ordinary run cannot gain authorization by changing only its manifest.
+
+This command executes a candidate; it does not switch the effective workflow
+model, reuse old numerical validation, reassess assumptions or freeze results.
+Those workflow activation and evidence transitions remain pending. Its PASS only
+reports process/output-contract success, with scientific_acceptance=NOT_RUN.

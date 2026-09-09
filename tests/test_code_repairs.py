@@ -210,3 +210,61 @@ def test_candidate_producer_must_receive_actual_diagnosis(repair_case):
     first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
     with pytest.raises(ValueError, match="complete candidate bundle"):
         code_repairs.verify_candidate(root, first["request"])
+
+
+def test_execute_reviewed_repair_rejects_unreviewed_request(repair_case):
+    root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
+    first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    with pytest.raises((ValueError, OSError)):
+        from mathmode.repair_execution import execute_reviewed_repair
+        execute_reviewed_repair(root, first["request"], interpreter=sys.executable)
+    assert len(list((root / "runs").iterdir())) == 1
+
+
+def test_authorized_repair_runs_once_and_cannot_be_relabeled(repair_case):
+    from mathmode.repair_execution import execute_reviewed_repair
+    root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
+    first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    run = execute_reviewed_repair(root, first["request"], interpreter=sys.executable)
+    assert run["status"] == "PASS" and run["attempt"] == 2
+    assert read_json(root / run["outputs"][0]["path"])["sum"] == 12
+    assert execute_reviewed_repair(root, first["request"], interpreter=sys.executable)["run_id"] == run["run_id"]
+    assert len(list((root / "runs").iterdir())) == 2
+    manifest = root / f"runs/{run['run_id']}/run_manifest.json"
+    run["execution_authorization"] = None
+    write_json(manifest, run)
+    with pytest.raises(ValueError, match="authorization contradicts"):
+        verify_run(root, manifest.relative_to(root).as_posix())
+
+
+@pytest.mark.parametrize("field", ["candidate_spec", "retry_of", "execution_role"])
+def test_authorization_must_bind_exact_repair_identity(repair_case, field):
+    from mathmode.repair_execution import validate_authorization
+    root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
+    first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    reviewed = code_repairs.verify_code_repair(root, first["request"])
+    auth = {key: {"path": path, "sha256": file_hash(root / path)} for key, path in
+            (("request", first["request"]), ("review", reviewed["review"]), ("candidate_spec", reviewed["candidate_spec"]))}
+    auth.update(execution_role="main", retry_of=failed["run_id"])
+    if field == "candidate_spec":
+        auth[field] = {"path": "model_spec.json", "sha256": file_hash(root / "model_spec.json")}
+    else:
+        auth[field] = "baseline" if field == "execution_role" else "run-unrelated"
+    with pytest.raises(ValueError, match="actual role/predecessor|reviewed candidate"):
+        validate_authorization(root, auth, reviewed["candidate_spec"], auth["execution_role"], auth["retry_of"])
+    assert len(list((root / "runs").iterdir())) == 1
+
+
+def test_ordinary_retry_cannot_be_adopted_as_authorized_repair(repair_case):
+    from mathmode.repair_execution import execute_reviewed_repair
+    root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
+    first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    reviewed = code_repairs.verify_code_repair(root, first["request"])
+    ordinary = execute_model(root, reviewed["candidate_spec"], retry_of=reviewed["retry_of"], interpreter=sys.executable)
+    assert ordinary["status"] == "PASS"
+    with pytest.raises(ValueError, match="predecessor is no longer latest"):
+        execute_reviewed_repair(root, first["request"], interpreter=sys.executable)
+    assert len(list((root / "runs").iterdir())) == 2

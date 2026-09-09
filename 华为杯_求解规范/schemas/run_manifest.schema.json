@@ -31,7 +31,6 @@
     "failure_message",
     "attempt",
     "retry_of",
-    "execution_authorization",
     "spec",
     "input_manifest_sha256",
     "inputs",

@@ -19,7 +19,7 @@
 | 真实执行和独立验证 | `mathmode run`、`verify-run`、`independent-validate`、`evidence` |
 | 分阶段推进与恢复 | `mathmode workflow` 按真实证据观察/推进；`recover`、`recover-lock` 保留中断记录，详见工作流文档 |
 | 终止失败诊断 | workflow 自动分派独立 `failure_diagnosis`；`verify-diagnosis` 核验证据和角色来源，诊断不放行失败结果 |
-| 代码修复候选 | `code_repair_request` 限定修复范围；workflow 分派候选代码和独立审查，`verify-code-repair` 核验；尚不自动启用或重跑 |
+| 代码修复候选 | workflow 分派候选代码和独立审查；`verify-code-repair` 核验，`run-code-repair` 实跑或复用已授权重跑；工作流模型启用仍待接通 |
 | 冻结和过期检查 | `mathmode freeze`、`verify-freeze`、`thaw`、`refresh` |
 | 参考资料与盲测 | `seal-baseline`、`seal-case-baseline`、`verify-baseline`、`admit-reference`、`retrieve-reference`、`verify-reference`；整题盲测与显式非盲测模式见工作流文档 |
 | 普通科学结果图 | 完整读取绘图规范，调用 `.claude/skills/academic-figure-skill/SKILL.md`，按需读取其 references/scripts/assets |
