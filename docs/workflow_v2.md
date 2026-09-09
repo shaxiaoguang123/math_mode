@@ -437,7 +437,15 @@ reports process/output-contract success, with scientific_acceptance=NOT_RUN.
 Adoption is an explicit subsequent checkpoint:
 `activate-repair --workspace <root> --request repairs/<id>/request.json --run runs/<run-id>/run_manifest.json`.
 It writes a `repair_activation` event binding the request, independent review,
-candidate spec, successful run and failed predecessor by SHA-256. The event is
-idempotent and never overwrites the original model. Consumers must treat it as
-a new lineage, invalidate prior evidence, rerun main and baseline as a pair,
-and independently validate before freezing again.
+candidate spec, successful run and failed predecessor by SHA-256. The run must
+carry matching pre-execution authorization and be the latest terminal execution
+for its question/method/role. Ordinary retries cannot be activated. The event is
+idempotent and never overwrites the original model.
+
+`verify_activation()` rederives every pin and identity from current verified
+evidence. The explicit `adopt_activation_in_progress()` helper uses that check,
+rejects mismatched production roles and serializes updates with the workflow
+lock. It currently writes optional effective-spec pointers only. The workflow
+does not yet consume those pointers, invalidate old evidence, schedule paired
+reruns or re-freeze automatically. Those transitions remain required work;
+an ACTIVE event is not evidence of scientific acceptance or completed adoption.

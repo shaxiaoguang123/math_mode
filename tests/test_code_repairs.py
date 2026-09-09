@@ -259,6 +259,7 @@ def test_authorization_must_bind_exact_repair_identity(repair_case, field):
 
 def test_ordinary_retry_cannot_be_adopted_as_authorized_repair(repair_case):
     from mathmode.repair_execution import execute_reviewed_repair
+    from mathmode.repair_activation import activate_reviewed_repair
     root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
     first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
     code_repairs.prepare_code_repair(service, plan, job, diagnosis)
@@ -267,12 +268,15 @@ def test_ordinary_retry_cannot_be_adopted_as_authorized_repair(repair_case):
     assert ordinary["status"] == "PASS"
     with pytest.raises(ValueError, match="predecessor is no longer latest"):
         execute_reviewed_repair(root, first["request"], interpreter=sys.executable)
+    with pytest.raises(ValueError, match="matching execution authorization"):
+        activate_reviewed_repair(root, first["request"], f"runs/{ordinary['run_id']}/run_manifest.json")
+    assert not (root / first["request"]).with_name("activation.json").exists()
     assert len(list((root / "runs").iterdir())) == 2
 
 
 def test_activation_requires_successful_reviewed_run_and_is_idempotent(repair_case):
     from mathmode.repair_execution import execute_reviewed_repair
-    from mathmode.repair_activation import activate_reviewed_repair
+    from mathmode.repair_activation import activate_reviewed_repair, verify_activation, adopt_activation_in_progress
     root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
     first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
     code_repairs.prepare_code_repair(service, plan, job, diagnosis)
@@ -281,3 +285,24 @@ def test_activation_requires_successful_reviewed_run_and_is_idempotent(repair_ca
     record = activate_reviewed_repair(root, first["request"], run_path)
     assert record["status"] == "ACTIVE"
     assert activate_reviewed_repair(root, first["request"], run_path) == record
+    activation_path = first["request"].rsplit("/", 1)[0] + "/activation.json"
+    assert verify_activation(root, activation_path) == record
+    progress = {"schema_version": "2.0", "case_id": plan["case_id"], "questions": {
+        job["question_id"]: {"main_run": relative, "baseline_run": None, "validation": None, "evidence": None}}}
+    write_json(root / "workflow_progress.json", progress)
+    original_progress_hash = file_hash(root / "workflow_progress.json")
+    for field in ("request", "review", "candidate_spec", "run", "failed_predecessor"):
+        forged = deepcopy(record)
+        forged[field]["sha256"] = "0" * 64
+        write_json(root / activation_path, forged)
+        with pytest.raises(ValueError, match="differs from verified execution evidence"):
+            adopt_activation_in_progress(root, "workflow_progress.json", activation_path, role="main")
+        assert file_hash(root / "workflow_progress.json") == original_progress_hash
+    write_json(root / activation_path, record)
+    for role in ("baseline", "probe", "unrecognized"):
+        with pytest.raises(ValueError, match="Adoption role"):
+            adopt_activation_in_progress(root, "workflow_progress.json", activation_path, role=role)
+        assert file_hash(root / "workflow_progress.json") == original_progress_hash
+    adopted = adopt_activation_in_progress(root, "workflow_progress.json", activation_path, role="main")
+    assert adopted["questions"][job["question_id"]]["effective_main_spec"] == record["candidate_spec"]["path"]
+    assert adopted["questions"][job["question_id"]]["main_run"] == relative
