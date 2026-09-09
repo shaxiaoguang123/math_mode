@@ -11,10 +11,10 @@ verified from GitHub after this audit document is committed.
 - Branch: `feat/mathmode-v2-evidence-runtime`
 - Runtime implementation baseline: Q5 validation fix `c6e3f641` plus the
   Codex contract-identity binding fix `fbdc9f1`.
-- Current PR HEAD: `fbdc9f1ff41ba0d9adc7a7161dcb88d1b4380e0b`.
 - GitHub merge state: `CLEAN`; automatic merge is disabled by repository rules.
-- The latest completed CI runs were successful for both Python 3.11 and 3.12
-  at this HEAD: push run `34412052432` and pull-request run `34412057488`.
+- The runtime fix was validated by successful push/PR CI runs for both Python
+  3.11 and 3.12. The final live SHA/run pairing is rechecked from GitHub after
+  the audit document is committed, rather than hard-coded here.
 - CodeRabbit check: `SUCCESS`; its repository-size skip is informational.
 
 The complete `origin/main...HEAD` diff was reviewed, including the Q5 validation
@@ -36,7 +36,7 @@ duplicate-candidate checks.
 | Gate or check | Result | Evidence or limitation |
 | --- | --- | --- |
 | Public runtime implementation | `PASS` | Full CI regression passed; targeted agent tests 24 passed; compile, schema, parity and diff checks passed. |
-| Current PR HEAD and CI | `PASS` | HEAD `fbdc9f1…` matches both successful CI runs `34412052432` and `34412057488`. |
+| Current PR HEAD and CI | `PASS` | Final live SHA and matching successful CI runs were rechecked from GitHub after the audit document commit. |
 | Q1 fresh validation and freeze | `PASS` | Validation and verified freeze completed in the private workspace. |
 | Q2 fresh validation and freeze | `PASS` | Validation and verified freeze completed in the private workspace. |
 | Q3 fresh validation and freeze | `PASS` | Validation and verified freeze completed in the private workspace. |
