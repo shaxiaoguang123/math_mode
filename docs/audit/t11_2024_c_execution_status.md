@@ -54,6 +54,16 @@ and a duplicate prediction ID. The new `attachment4_cell_validation.json` report
 is scoped to `host_attachment_cell_consistency`, scientific acceptance `NOT_RUN`.
 It supersedes the old attachment report and does not validate either model.
 
+## Q1 runner checkpoint
+
+The private workspace completed a real MathMode runner execution for Q1
+(`rf-waveform-runner`). Run `run-d6da348346564069809ec0941c658383` returned
+code 0 with runner status `PASS`, `scientific_acceptance=NOT_RUN`, and a
+structured prediction artifact containing 80 rows. The manifest records input,
+code, interpreter, process, and output SHA-256 values. This is an execution and
+provenance checkpoint only; independent validation and evidence gates remain
+outstanding.
+
 ## Reopened downstream rebuild
 
 After the corrected Q4 rerun, grouped holdout validation was regenerated with
