@@ -140,6 +140,20 @@ def test_failed_production_is_dispatched_to_diagnosis_on_resume(case, monkeypatc
     assert read_json(root / "workflow_progress.json")["questions"]["Q1"] == progress
 
 
+def test_runtime_jobs_resolve_verified_activation_without_mutating_plan(case, monkeypatch):
+    root, service, plan = case
+    original = deepcopy(plan)
+    progress = {"schema_version": "2.0", "case_id": plan["case_id"], "questions": {
+        "Q1": {"main_run": None, "baseline_run": None, "validation": None, "evidence": None,
+                "repair_activation": "repairs/repair-x/activation.json"}}}
+    monkeypatch.setattr("mathmode.repair_activation.verify_activation", lambda *_: {
+        "question_id": "Q1", "execution_role": "main",
+        "candidate_spec": {"path": "models/repairs/repair-x/model_spec.json"}})
+    jobs = service._runtime_jobs(plan, progress)
+    assert jobs["Q1"]["main_spec"] == "models/repairs/repair-x/model_spec.json"
+    assert plan == original
+
+
 def test_real_lifecycle_stops_for_semantic_review_then_freezes(case, monkeypatch):
     root, service, plan = case
     assert Workflow(root).observe(plan)["gates"]["G2"]["status"] == "BLOCKED", "Authored fixture files cannot replace a real reasoning handoff"
