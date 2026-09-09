@@ -261,7 +261,9 @@ def catalog():
                     "locator": TEXT, "unit": TEXT, "precision": {"type": "integer", "minimum": 0, "maximum": 16}}), 1)},
                 optional=("baseline_code_review", "probe_specs", "assumption_plan")), 1)}, optional=("agent_schedule", "reference_requests", "dispositions")),
         "workflow_progress": contract({"case_id": ID, "questions": mapping(obj({
-            "main_run": nullable(PATH), "baseline_run": nullable(PATH), "validation": nullable(PATH), "evidence": nullable(PATH)}))}),
+            "main_run": nullable(PATH), "baseline_run": nullable(PATH), "validation": nullable(PATH), "evidence": nullable(PATH),
+            "effective_main_spec": nullable(PATH), "effective_baseline_spec": nullable(PATH), "repair_activation": nullable(PATH)},
+            optional=("effective_main_spec", "effective_baseline_spec", "repair_activation")))}),
         "agent_response": contract({"task_id": ID, "actor_id": ID, "status": enum("PRODUCED", "BLOCKED"),
             "rationale": TEXT, "evidence_refs": arr(ID), "blockers": arr(TEXT),
             "artifacts": arr(obj({"path": PATH, "content": TEXT}))}),

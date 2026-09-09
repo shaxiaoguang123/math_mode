@@ -76,6 +76,42 @@
                 "type": "null"
               }
             ]
+          },
+          "effective_main_spec": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effective_baseline_spec": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "repair_activation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       }
