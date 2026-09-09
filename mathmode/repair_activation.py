@@ -28,6 +28,9 @@ def activate_reviewed_repair(root, request_relative: str, run_relative: str):
         "execution_role": request["execution_role"], "status": "ACTIVE"}, root=root)
     path = safe_path(root, relative, exists=False)
     if path.exists():
-        if read_json(path) != record: raise ValueError("Conflicting repair activation already exists")
+        existing = read_json(path)
+        if {k: v for k, v in existing.items() if k != "created_at"} != {k: v for k, v in record.items() if k != "created_at"}:
+            raise ValueError("Conflicting repair activation already exists")
+        return existing
     else: write_json(path, record, exclusive=True)
     return record

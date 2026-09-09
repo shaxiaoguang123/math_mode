@@ -268,3 +268,16 @@ def test_ordinary_retry_cannot_be_adopted_as_authorized_repair(repair_case):
     with pytest.raises(ValueError, match="predecessor is no longer latest"):
         execute_reviewed_repair(root, first["request"], interpreter=sys.executable)
     assert len(list((root / "runs").iterdir())) == 2
+
+
+def test_activation_requires_successful_reviewed_run_and_is_idempotent(repair_case):
+    from mathmode.repair_execution import execute_reviewed_repair
+    from mathmode.repair_activation import activate_reviewed_repair
+    root, service, plan, job, failed, relative, diagnosis, schedules, mutations = repair_case
+    first = code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    code_repairs.prepare_code_repair(service, plan, job, diagnosis)
+    run = execute_reviewed_repair(root, first["request"], interpreter=sys.executable)
+    run_path = f"runs/{run['run_id']}/run_manifest.json"
+    record = activate_reviewed_repair(root, first["request"], run_path)
+    assert record["status"] == "ACTIVE"
+    assert activate_reviewed_repair(root, first["request"], run_path) == record
