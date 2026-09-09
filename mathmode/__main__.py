@@ -118,6 +118,10 @@ def main(argv=None) -> int:
     repair_run.add_argument("--workspace", type=Path, required=True)
     repair_run.add_argument("--request", required=True)
     repair_run.add_argument("--interpreter")
+    activation = commands.add_parser("activate-repair", help="Record adoption of a successful independently reviewed repair")
+    activation.add_argument("--workspace", type=Path, required=True)
+    activation.add_argument("--request", required=True)
+    activation.add_argument("--run", required=True)
     probe = commands.add_parser("probe-report", help="Compute risk verdicts from a predeclared plan and actual run")
     probe.add_argument("--workspace", type=Path, required=True)
     probe.add_argument("--manifest", required=True)
@@ -254,6 +258,11 @@ def main(argv=None) -> int:
             record = execute_reviewed_repair(args.workspace, args.request, interpreter=args.interpreter)
             result = {"status": record["status"], "scope": "reviewed_repair_execution", "run_id": record["run_id"],
                       "attempt": record["attempt"], "scientific_acceptance": "NOT_RUN"}
+        elif args.command == "activate-repair":
+            from .repair_activation import activate_reviewed_repair
+            record = activate_reviewed_repair(args.workspace, args.request, args.run)
+            result = {"status": "ACTIVE", "scope": "reviewed_repair_activation",
+                      "activation_id": record["activation_id"], "scientific_acceptance": "NOT_RUN"}
         elif args.command == "verify-code-repair":
             from .code_repairs import verify_code_repair
             result = verify_code_repair(args.workspace, args.request)
