@@ -181,6 +181,26 @@ def test_codex_transport_schema_has_explicit_enum_types():
     assert "pattern" in catalog()["agent_response"]["properties"]["artifacts"]["items"]["properties"]["path"]
 
 
+def test_codex_prompt_binds_contract_identity_to_task_actor(monkeypatch, tmp_path):
+    from mathmode.agent_backends import CodexCliBackend
+    from mathmode.execution import ExecutionResult
+
+    write_json(tmp_path / "task.json", {"actor_id": "framer-codex-test"})
+    captured = {}
+
+    def fake_execute(self, argv, *, cwd, environment, timeout, stdout, stderr):
+        captured["argv"] = argv
+        stdout.write_text("", encoding="utf-8")
+        stderr.write_text("", encoding="utf-8")
+        return ExecutionResult(0, False, 0.0)
+
+    monkeypatch.setattr("mathmode.agent_backends.LocalSubprocessBackend.execute", fake_execute)
+    CodexCliBackend(command=["codex"]).produce(tmp_path, timeout=1)
+    prompt = captured["argv"][-1]
+    assert "task actor_id 'framer-codex-test'" in prompt
+    assert "historical producer names" in prompt
+
+
 def test_fresh_ids_and_actors_cannot_reset_failed_retry_budget(task_root):
     from copy import deepcopy
     root, task = task_root

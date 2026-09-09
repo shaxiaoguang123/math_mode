@@ -89,13 +89,21 @@ class CodexCliBackend(AgentBackend):
         for key in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "CODEX_HOME", "CODEX_API_KEY"):
             if key in os.environ:
                 environment[key] = os.environ[key]
+        task = loads((directory / "task.json").read_text(encoding="utf-8-sig"))
+        actor_id = task["actor_id"]
         argv = [*self.command, "exec", "--json", "--ephemeral", "--sandbox", "read-only",
             "--skip-git-repo-check", "--color", "never", "--cd", str(directory),
             "--output-schema", str(directory / "response.schema.json"),
             "--output-last-message", str(directory / "response.json")]
         if self.model:
             argv.extend(["--model", self.model])
-        argv.append("Read AGENTS.md, task.json and input_map.json together; then batch-read only the supplied input snapshots and required schemas. Explicitly supplied historical log snapshots are evidence. Return the structured proposal. Do not read this task's own execution logs/transcripts, modify files or invoke other agents.")
+        argv.append(
+            "Read AGENTS.md, task.json and input_map.json together; then batch-read only the supplied input snapshots and required schemas. "
+            "Explicitly supplied historical log snapshots are evidence. Return the structured proposal. "
+            f"For every produced contract object, set any actor_id, producer, or reviewed_by field to exactly the task actor_id {actor_id!r}; "
+            "historical producer names in input snapshots are source metadata and must not be copied into those identity fields. "
+            "Do not read this task's own execution logs/transcripts, modify files or invoke other agents."
+        )
         execution = LocalSubprocessBackend().execute(argv, cwd=directory, environment=environment,
             timeout=timeout, stdout=directory / "events.jsonl", stderr=directory / "stderr.txt")
         session_id = None
