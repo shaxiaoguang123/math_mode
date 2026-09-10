@@ -42,13 +42,13 @@ def main():
             min_pages, max_pages = 1, max(6, hi)
         targets[role] = {"min_pages": min_pages, "max_pages": max_pages, "observed": values}
     result = {
-        "version": 1,
-        "required_body_pages": int(baseline.get("required_body_pages", 45)),
+        "version": 2,
+        "recommended_body_pages": baseline.get("recommended_body_pages", baseline.get("required_body_pages")),
         "page_system": baseline.get("page_number_system", "printed"),
         "body_definition": baseline.get("body_definition"),
         "role_targets": targets,
         "observations": observations,
-        "policy": "Use role windows as warnings; body minimum is a hard failure. Never alter official font, margins, or line spacing to pass.",
+        "policy": "Historical page recommendations are warnings only. Official page requirements come exclusively from verified competition_policy.json. Never pad pages.",
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

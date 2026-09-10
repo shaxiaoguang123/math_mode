@@ -10,8 +10,12 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from mathmode.policy import anonymous_records, audit_policy, load_policy, page_issues, toc_settings
 
 try:
     import pymupdf
@@ -21,12 +25,12 @@ except ImportError:  # compatibility with older installations
 
 IDENTITY_RE = re.compile(
     r"学校|学院|实验室|参赛队号|队员姓名|指导教师|学号|邮箱|email|"
-    r"\\b(?:school|student|team|member|advisor)\\b|C:\\\\Users\\\\",
+    r"\b(?:school|student|team|member|advisor)\b|C:\\Users\\",
     re.IGNORECASE,
 )
-REFERENCE_RE = re.compile(r"^\\s*(参考文献|References?)\\s*$", re.IGNORECASE)
-APPENDIX_RE = re.compile(r"^\\s*(附录|Appendix)\\s*[A-ZＡ-Ｚ0-9０-９]*\\s*$", re.IGNORECASE)
-PAGE_RE = re.compile(r"(?<!\\d)(\\d{1,3})(?!\\d)")
+REFERENCE_RE = re.compile(r"^\s*(参考文献|References?)\s*$", re.IGNORECASE)
+APPENDIX_RE = re.compile(r"^\s*(附录|Appendix)\s*[A-ZＡ-Ｚ0-9０-９]*\s*$", re.IGNORECASE)
+PAGE_RE = re.compile(r"(?<!\d)(\d{1,3})(?!\d)")
 
 
 def pdf_pages(pdf: Path) -> int:
@@ -100,6 +104,16 @@ def first_page_text(page):
     return " ".join(line.strip() for line in page["text"].splitlines() if line.strip())
 
 
+def abstract_page_count(records):
+    starts = [r["physical_page"] for r in records if re.search(
+        r"(?im)^\s*(?:摘\s*要|Abstract)\s*[:：]?\s*$", r["text"])]
+    if len(starts) != 1:
+        return None
+    ends = [r["physical_page"] for r in records if r["physical_page"] >= starts[0]
+            and re.search(r"(?im)^\s*(?:关\s*键\s*词|Keywords)\s*[:：]", r["text"])]
+    return ends[0] - starts[0] + 1 if ends else None
+
+
 def detect_heading_pages(records, heading_manifest):
     output = []
     for item in heading_manifest:
@@ -160,9 +174,7 @@ def detect_heading_pages_from_toc(toc: Path, records):
         entries.append({"number_token": number_token, "title": title, "printed": printed, "physical": physical})
     appendix_index = next((index for index, entry in enumerate(entries) if entry["number_token"] and not re.fullmatch(r"\d+(?:\.\d+)*", entry["number_token"])), len(entries))
     reference_index = next((index for index, entry in enumerate(entries) if REFERENCE_RE.match(entry["title"])), None)
-    if reference_index is None and appendix_index:
-        numeric_before_appendix = [index for index, entry in enumerate(entries[:appendix_index]) if re.fullmatch(r"\d+(?:\.\d+)*", entry["number_token"])]
-        reference_index = numeric_before_appendix[-1] if numeric_before_appendix else None
+    # A last numeric heading is not evidence of a references boundary.
     for index, entry in enumerate(entries):
         role = "appendix" if index >= appendix_index else "references" if reference_index is not None and index >= reference_index else "body"
         output.append({
@@ -288,8 +300,12 @@ def main():
     ap.add_argument("--targets", type=Path)
     ap.add_argument("--report", type=Path, required=True)
     ap.add_argument("--source", type=Path)
+    ap.add_argument("--policy", type=Path)
+    ap.add_argument("--project-root", type=Path, help="Root containing official source snapshots")
     args = ap.parse_args()
     pdf = args.pdf.resolve()
+    policy = load_policy(args.policy)
+    provenance = audit_policy(policy, args.project_root.resolve() if args.project_root else pdf.parent.parent)
     records = extract_page_records(pdf)
     headings = json.loads(args.heading_json.read_text(encoding="utf-8-sig")) if args.heading_json and args.heading_json.exists() else {"headings": []}
     manifest = json.loads(args.manifest.read_text(encoding="utf-8-sig")) if args.manifest and args.manifest.exists() else {"chapters": []}
@@ -308,9 +324,23 @@ def main():
     body = body_pages(ranges)
     density = body_layout_density(records, body)
     targets = json.loads(args.targets.read_text(encoding="utf-8-sig")) if args.targets and args.targets.exists() else {}
-    required_body = int(targets.get("required_body_pages", 45))
     role_targets = targets.get("role_targets", {})
-    issues = []
+    issues = page_issues(body, len(records), policy, targets)
+    if provenance["status"] != "PASS":
+        issues.append({"code": "official_policy_unverified", "severity": "error", "details": provenance["issues"]})
+    if any(not item.get("physical_pages") for item in matched):
+        issues.append({"code": "incomplete_heading_coverage", "severity": "error"})
+    if (policy["official"]["page_policy"]["min_body_pages"] is not None
+            and not any(item.get("role") in {"references", "appendix"} for item in matched)):
+        issues.append({"code": "official_body_end_unverified", "severity": "error"})
+    abstract_limit = policy["official"]["abstract_policy"]["max_pages"]
+    abstract_pages = abstract_page_count(records)
+    if abstract_limit is not None and (abstract_pages is None or abstract_pages > abstract_limit):
+        issues.append({"code": "abstract_page_policy_unverified_or_exceeded", "severity": "error",
+                       "actual": abstract_pages, "maximum": abstract_limit})
+    starts = [item["start_physical_page"] for item in ranges]
+    if len(starts) != len(set(starts)):
+        issues.append({"code": "ambiguous_shared_heading_page", "severity": "warning"})
     for chapter in ranges:
         role_target = role_targets.get(chapter.get("role"), {})
         pages = chapter.get("touched_pages", 0)
@@ -324,8 +354,6 @@ def main():
                 "min": role_target.get("min_pages"),
                 "max": role_target.get("max_pages"),
             })
-    if body["pages"] < required_body:
-        issues.append({"code": "body_pages_below_minimum", "severity": "error", "actual": body["pages"], "required": required_body})
     if density.get("longest_sparse_run", 0) >= 2:
         issues.append({
             "code": "consecutive_sparse_body_pages",
@@ -349,10 +377,23 @@ def main():
         })
     if not matched:
         issues.append({"code": "headings_not_detected", "severity": "warning", "message": "未检测到可靠的章节标题；请提供 Word 标题 JSON 或开启 OCR 复核。"})
-    full_text = "\n".join(record["text"] for record in records)
+    scoped_records = anonymous_records(records, policy)
+    full_text = "\n".join(record["text"] for record in scoped_records)
     identity_hits = sorted(set(IDENTITY_RE.findall(full_text)))
+    identity_hits += [term for term in policy["official"]["anonymity_policy"]["identity_terms"] if term in full_text]
     if identity_hits:
         issues.append({"code": "possible_identity_text", "severity": "error", "matches": identity_hits[:20]})
+    if any(not record["text"].strip() for record in scoped_records):
+        issues.append({"code": "anonymity_text_unreadable", "severity": "error",
+                       "message": "OCR or independently reviewed page evidence is required"})
+    include_toc, _ = toc_settings(policy)
+    if args.source:
+        source = args.source.read_text(encoding="utf-8-sig")
+        has_toc = bool(re.search(r"\\(?:maketoc|tableofcontents)\b", source))
+        if has_toc != include_toc:
+            issues.append({"code": "toc_policy_mismatch", "severity": "error"})
+    else:
+        issues.append({"code": "tex_source_not_audited", "severity": "warning"})
     # We cannot prove font correctness from a PDF with broken CMaps, but can flag obvious fonts.
     fonts = sorted({span["font"] for record in records for span in record["spans"] if span.get("font")})
     forbidden_fonts = [font for font in fonts if any(token in font.lower() for token in ("lishu", "kaiti"))]
@@ -365,11 +406,15 @@ def main():
         "printed_page_offset": printed_page_offset(records),
         "heading_source": heading_source,
         "body": body,
+        "abstract_pages": abstract_pages,
         "body_layout_density": density,
         "chapter_ranges": ranges,
         "detected_fonts": fonts,
         "issues": issues,
-        "status": "FAIL" if any(item["severity"] == "error" for item in issues) else "PASS_WITH_WARNINGS" if issues else "PASS",
+        "delivery_blocked": any(item["severity"] == "error" or item.get("blocking", True) for item in issues),
+        "policy": provenance,
+        "anonymity_scope": policy["official"]["anonymity_policy"]["scope"],
+        "status": "FAIL" if any(item["severity"] == "error" for item in issues) else "WARN" if issues else "PASS",
         "limitations": [
             "最终页数以本 PDF 为准；DOCX docProps/app.xml 的 Pages 不参与验收。",
             "中文字体 CMap 损坏时，章节/身份检测可能需要 OCR 或 Word 标题 JSON 交叉验证。",
@@ -379,7 +424,8 @@ def main():
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
-    raise SystemExit(1 if report["status"] == "FAIL" else 0)
+    # Explicit historical advisories never become a disguised minimum-page gate.
+    raise SystemExit(0 if not report["delivery_blocked"] else 2 if report["status"] == "WARN" else 1)
 
 
 if __name__ == "__main__":

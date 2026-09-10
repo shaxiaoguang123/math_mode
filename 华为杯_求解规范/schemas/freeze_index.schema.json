@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/freeze_index.schema.json",
+  "title": "MathMode freeze_index 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "questions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "questions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "freeze_id",
+          "path",
+          "sha256",
+          "version",
+          "status"
+        ],
+        "properties": {
+          "freeze_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "enum": [
+              "FROZEN",
+              "THAWED"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

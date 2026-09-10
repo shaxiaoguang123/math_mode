@@ -1,0 +1,1 @@
+SYNTHETIC CONTRACT FIXTURE: estimate y = a*x + b from training data.

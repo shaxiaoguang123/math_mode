@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/validation_summary.schema.json",
+  "title": "MathMode validation_summary 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "validation_id",
+    "question_id",
+    "actor_id",
+    "created_at",
+    "main_run",
+    "baseline_run",
+    "criteria",
+    "validator_workspace",
+    "validator_run",
+    "validator_code",
+    "measurements",
+    "checks",
+    "status",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "validation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "main_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "baseline_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "validator_workspace": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+    },
+    "validator_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "validator_code": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "measurements": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "metric",
+          "value",
+          "operator",
+          "threshold",
+          "unit",
+          "status"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "metric": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "value": {
+            "type": "number"
+          },
+          "operator": {
+            "enum": [
+              "le",
+              "ge",
+              "eq"
+            ]
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL"
+            ]
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    }
+  }
+}

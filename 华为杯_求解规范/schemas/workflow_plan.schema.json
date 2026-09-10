@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/workflow_plan.schema.json",
+  "title": "MathMode workflow_plan 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "policy_path",
+    "framing",
+    "questions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "policy_path": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agent_schedule": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dispositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "proposal",
+          "review"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "proposal": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "review": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "reference_requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "retrieval_id",
+          "source",
+          "question_id",
+          "same_problem",
+          "baseline_id"
+        ],
+        "properties": {
+          "retrieval_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "question_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "same_problem": {
+            "type": "boolean"
+          },
+          "baseline_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "framing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "problem_frame",
+        "problem_dag",
+        "symbol_table",
+        "ambiguity_register",
+        "assumption_ledger",
+        "review"
+      ],
+      "properties": {
+        "problem_frame": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "problem_dag": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "symbol_table": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "ambiguity_register": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "assumption_ledger": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "review": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question_id",
+          "method_card",
+          "probe_reports",
+          "decision",
+          "main_spec",
+          "baseline_spec",
+          "code_review",
+          "validation_review",
+          "frozen_numbers"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "method_card": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "probe_reports": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "probe_specs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "main_spec": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "baseline_spec": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "code_review": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "baseline_code_review": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "validation_review": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "assumption_plan": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "frozen_numbers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "frozen_number_id",
+                "claim_id",
+                "source",
+                "output_name",
+                "locator",
+                "unit",
+                "precision"
+              ],
+              "properties": {
+                "frozen_number_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+                },
+                "claim_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+                },
+                "source": {
+                  "enum": [
+                    "validation",
+                    "main_output"
+                  ]
+                },
+                "output_name": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "precision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16
+                }
+              }
+            },
+            "minItems": 1,
+            "uniqueItems": false
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    }
+  }
+}

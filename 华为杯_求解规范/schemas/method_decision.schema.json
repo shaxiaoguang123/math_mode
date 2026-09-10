@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/method_decision.schema.json",
+  "title": "MathMode method_decision 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "decision_id",
+    "question_id",
+    "main_method_id",
+    "baseline_method_id",
+    "rationale",
+    "evidence_refs",
+    "decided_by",
+    "actor_id",
+    "decided_at",
+    "human_event_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "main_method_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "baseline_method_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "decided_by": {
+      "enum": [
+        "agent",
+        "human"
+      ]
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "human_event_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "execution_role": {
+      "enum": [
+        "main",
+        "fallback"
+      ]
+    }
+  }
+}

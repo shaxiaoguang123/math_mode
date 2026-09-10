@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/frozen_numbers.schema.json",
+  "title": "MathMode frozen_numbers 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "freeze_id",
+    "version",
+    "question_id",
+    "decision_id",
+    "actor_id",
+    "created_at",
+    "evidence",
+    "validation",
+    "main_run",
+    "baseline_run",
+    "numbers",
+    "registry_artifact_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "freeze_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "main_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "baseline_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "numbers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "frozen_number_id",
+          "claim_id",
+          "source_path",
+          "source_sha256",
+          "locator",
+          "value",
+          "unit",
+          "precision"
+        ],
+        "properties": {
+          "frozen_number_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "claim_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "source_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "precision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "registry_artifact_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "qualifications": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidence",
+        "sources",
+        "inherited_from",
+        "restrictions"
+      ],
+      "properties": {
+        "confidence": {
+          "enum": [
+            "limited"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "proposal",
+              "review"
+            ],
+            "properties": {
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "review": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            }
+          },
+          "minItems": 0,
+          "uniqueItems": false
+        },
+        "inherited_from": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "question_id",
+              "freeze_id",
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "question_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+              },
+              "freeze_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "minItems": 0,
+          "uniqueItems": false
+        },
+        "restrictions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "question_id",
+              "source",
+              "locator",
+              "issue",
+              "boundary"
+            ],
+            "properties": {
+              "question_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "issue": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "boundary": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          },
+          "minItems": 1,
+          "uniqueItems": false
+        }
+      }
+    },
+    "assumption_reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

@@ -11,8 +11,11 @@ import argparse
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from mathmode.policy import load_policy, toc_settings, validate_policy
 
 ROLES = {"preliminary", "problem", "evaluation", "conclusion", "references", "appendix"}
 IDENTITY_RE = re.compile(r"学校|学院|实验室|参赛队号|队员姓名|指导教师|学号|邮箱|C:\\Users\\|school|student|team|member|advisor", re.I)
@@ -104,13 +107,30 @@ def check_fragment(path: Path) -> None:
         raise ValueError(f"章节 fragment 残留 Markdown 语法: {path}")
 
 
-def build_main(manifest: dict, root: Path) -> tuple[str, list[str]]:
+def build_main(manifest: dict, root: Path, policy: dict | None = None,
+               cover_tex_path: str | None = None) -> tuple[str, list[str]]:
+    policy = validate_policy(policy) if policy is not None else load_policy()
+    include_toc, toc_depth = toc_settings(policy)
+    cover_mode = policy["official"]["cover_policy"]["mode"]
+    cover = None
+    if cover_mode == "identity_cover":
+        if not cover_tex_path:
+            raise ValueError("identity_cover policy requires --cover-tex with the reviewed cover fragment")
+        cover = relative_file(root, cover_tex_path, label="cover_tex_path")
+        check_fragment(cover)
+        if re.search(r"\\(?:input|include)\b", cover.read_text(encoding="utf-8-sig")):
+            raise ValueError("Cover fragment must be self-contained")
+    elif cover_tex_path:
+        raise ValueError("--cover-tex is only valid for identity_cover policy")
     abstract = relative_file(root, manifest["abstract_tex_path"], label="abstract_tex_path")
+    check_fragment(abstract)
     inputs = [abstract.relative_to(root).as_posix()]
     for chapter in manifest["chapters"]:
         fragment = relative_file(root, str(chapter["tex_path"]), label=f"章节 {chapter['chapter_id']}")
         check_fragment(fragment)
         inputs.append(fragment.relative_to(root).as_posix())
+    if cover and cover.relative_to(root).as_posix() in inputs:
+        raise ValueError("Cover and anonymous paper fragments must be distinct")
 
     raw_title = str(manifest["title"]).strip()
     title = tex_escape(raw_title)
@@ -158,7 +178,7 @@ def build_main(manifest: dict, root: Path) -> tuple[str, list[str]]:
         r"}",
         r"\newcommand{\HuaweiTitlePage}{%",
         r"  \clearpage\thispagestyle{empty}\setcounter{page}{1}%",
-        r"  \GMCMContestTitle{二十三}",
+        rf"  \GMCMContestTitle{{{policy['edition']}}}",
         r"  \vspace{8mm}\noindent",
         r"  \begin{center}",
         rf"    \HuaweiPaperTitle{{{display_title}}}",
@@ -177,16 +197,15 @@ def build_main(manifest: dict, root: Path) -> tuple[str, list[str]]:
         rf"\title{{{title}}}",
         "",
         r"\begin{document}",
-        r"\HuaweiTitlePage",
+        *([rf"\input{{{cover.relative_to(root).as_posix()}}}", r"\clearpage"] if cover else []),
+        *([r"\HuaweiTitlePage"] if cover_mode == "title_only" else []),
         r"\begin{abstract}",
         rf"\input{{{inputs[0]}}}",
         rf"\keywords{{{keywords}}}",
         r"\end{abstract}",
-        # Generate a linked three-level TOC between front matter and body.
-        r"\setcounter{tocdepth}{3}",
-        r"\clearpage",
-        r"\maketoc",
-        r"\clearpage",
+        # A TOC is controlled by verified policy or an optional recommendation.
+        *([rf"\setcounter{{tocdepth}}{{{toc_depth}}}", r"\clearpage",
+           r"\maketoc", r"\clearpage"] if include_toc else []),
         # Match the confirmed Word interpretation of small-four Songti with
         # an 18 pt single-line box.  This is the production body font, not a
         # page-count adjustment.
@@ -201,7 +220,7 @@ def build_main(manifest: dict, root: Path) -> tuple[str, list[str]]:
             appendix_started = True
         lines.append(rf"\input{{{input_path}}}")
     lines.extend([r"\end{document}", ""])
-    return "\n".join(lines), inputs
+    return "\n".join(lines), ([cover.relative_to(root).as_posix()] if cover else []) + inputs
 
 
 def copy_assets(template_dir: Path, output_dir: Path) -> None:
@@ -217,18 +236,23 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--template-dir", type=Path, required=True)
     parser.add_argument("--manifest-out", type=Path)
+    parser.add_argument("--policy", type=Path, help="Competition policy JSON; default template policy is unverified")
+    parser.add_argument("--cover-tex", help="Reviewed identity cover .tex relative to the paper directory")
     args = parser.parse_args()
     manifest_path = args.manifest.resolve()
     root = manifest_path.parent
     manifest = load_manifest(manifest_path)
-    main_text, inputs = build_main(manifest, root)
+    policy = load_policy(args.policy)
+    main_text, inputs = build_main(manifest, root, policy, args.cover_tex)
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     copy_assets(args.template_dir.resolve(), output.parent)
     output.write_text(main_text, encoding="utf-8")
     out_manifest = args.manifest_out.resolve() if args.manifest_out else output.with_suffix(".inputs.json")
     out_manifest.write_text(json.dumps({"main": output.name, "inputs": inputs, "title": manifest["title"]}, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"output": str(output), "inputs": inputs, "manifest": str(out_manifest)}, ensure_ascii=False, indent=2))
+    print(json.dumps({"output": str(output), "inputs": inputs, "manifest": str(out_manifest),
+                      "policy_status": policy["verification"]["status"],
+                      "scope": "Draft assembly; run policy and rendered-paper audits before submission"}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

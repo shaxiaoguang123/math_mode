@@ -1,0 +1,165 @@
+# Current status (supersedes earlier draft labels)
+
+Audit date: 2026-09-10. The private blind workspace has now completed fresh
+main, baseline, independent-validation and verified-freeze chains for all five
+questions. These are bounded historical development evidence, not official
+contest scores.
+
+| Question | Main run | Baseline run | Validation | Verified freeze |
+| --- | --- | --- | --- | --- |
+| Q1 | `run-831af304f5424b9391d7c6b88a22effe` | `run-a67fd16d799d43deac37d997964b36c7` | `validation-47ce4341ac9b4d319632a42729074336` | `freeze-c2928d457d1448568692633882298bee` |
+| Q2 | `run-69ae2939e556451b979407b7b6a61e98` | `run-551a84928a6a40189af8b0c72654a27d` | `validation-ef161a9fb2f24ee986cd761ba0b28df7` | `freeze-bb5c4e2fd87d4a228b7dc43f4d5d0dcf` |
+| Q3 | `run-430e41148e2c43ef9272ab6e40e28e99` | `run-02c25c2849e1464eae7ed76efdca6025` | `validation-f103ff705b9147979660e51253ab4f58` | `freeze-8cfecfd9dceb4e4f839fe519e043cc45` |
+| Q4 | `run-d30e5844618f499b9478fd48283e175c` | `run-779fa3a5d26b413fad7979608766089f` | `validation-7f932bbc47f6439eb9f71985897c4ecd` | `freeze-89be2d2cb7a247a39705ca0130961b47` |
+| Q5 | `run-4fa7521733ed4606be469bb6dff21607` | `run-cc57d3a0b43a41369a7b948d23fd4ff9` | `validation-b4ecb7cc752340369f5b79e8d1346da9` | `freeze-f9277b25e323412883dc72b3d0015038` |
+
+All five validation records and freezes report `PASS`/`VERIFIED`. Q5's current
+checks include 12,399 unique designs, 168 Pareto candidates, zero energy-proxy
+error, zero duplicate candidates and zero Q4-prediction discrepancy beyond the
+recorded numerical tolerance.
+
+Case-level gates remain incomplete: the root workspace has no persisted gate
+records or workflow progress; no root-registered `reference_baseline` checkpoints
+or writer-produced TeX exist; Q4 and Q5 do not carry the required upstream freeze
+pins; and paper, visual QA, official-compliance and G8 audits remain `NOT_RUN`.
+Reference PDFs remain unread under `blind_reference_mode=true`.
+
+The current conclusion is `PASS_WITH_LIMITATIONS` for the five bounded numerical
+evidence chains. The overall T11/MathMode V2 Goal remains incomplete.
+
+# T11 2024 C execution status
+
+The sections below preserve earlier checkpoints for audit history. Their draft
+labels are superseded by the current status above.
+
+The external blind workspace at `F:\project\math_mode\T11_2024_C\blind_workspace`
+now contains draft Q1鈥換5 outputs and `outputs/evidence_index.json`. The index
+records SHA-256 and byte size for 13 output artifacts, with
+`blind_reference_mode=true`, `reference_papers_read=0`, and status `DRAFT`.
+
+Q1/Q4 output-only structural checks passed, but these were host-authored checks,
+not independent scientific verification. Q5 checks covered finite values and
+deduplication only, not provenance or Pareto correctness against all candidates.
+Q2 grouped validation and Q3 descriptive factor checks are recorded.
+The output attachment copy preserves the official filename and contains 80 Q1
+class entries and 400 Q4 predictions; the original input snapshot is unchanged.
+
+No artifact is frozen. Remaining gates are semantic equation/unit review,
+independent numerical validation, sensitivity evidence, complete run manifests,
+reference admission only after a sealed blind baseline, paper/figure lineage,
+and final audit. Draft metrics must not be described as contest results.
+
+## Input-mapping correction
+
+Direct script inspection subsequently identified material errors in those drafts:
+
+- Q1 used offset 5 for attachment II, dropping the first of 1,024 samples.
+- Q4 reused training metadata indices on attachment III, treating sample ID as
+  temperature, temperature as frequency and material as waveform. Its training
+  holdout scores therefore do not establish correctness of test-set predictions.
+- The corrected Q4 rerun now explicitly encodes material from worksheet names (training) and the test material column; its metrics are newly generated and downstream artifacts are stale until rebuilt.
+- Q5 ranks observed losses against frequency times peak-to-peak flux, while the
+  task requires the Q4 model and peak flux. It also exports only 50 of the
+  computed frontier entries. The existing artifact is not a completed Q5 solution.
+
+The external workspace preserves prior output bytes under
+`history/input-layout-correction` and records their hashes in
+`preflight/input_layout_correction.json`. Q1/Q4 metadata indexing was corrected
+and a direct feature-function check verified equal features for equivalent
+training/test records and rejection of truncated waveforms. Corrected executions
+and downstream revalidation remain required; none of the old PASS labels or
+output hashes authorize freezing, paper claims or reference admission.
+
+## Corrected attachment verification
+
+The private `source_project/build_attachment_checked.py` replaces the legacy
+builder, whose `source_unchanged` compared a hash with itself. The new builder
+checks the original against `input_manifest.json`, pins both prediction files,
+verifies sequential ID formulas, stages the result, then reopens it and compares
+every cell with the template or the corresponding prediction. Q4 display uses
+`0.0`; untouched cells retain their template values. Prior attachment bytes are
+archived before replacement.
+
+The actual rebuild passed with 80 Q1 and 400 Q4 entries. Negative checks rejected
+a changed Q4 value, an extra classification beyond sample 80, a changed ID formula
+and a duplicate prediction ID. The new `attachment4_cell_validation.json` report
+is scoped to `host_attachment_cell_consistency`, scientific acceptance `NOT_RUN`.
+It supersedes the old attachment report and does not validate either model.
+
+## Q1 runner checkpoint
+
+The private workspace completed a real MathMode runner execution for Q1
+(`rf-waveform-runner`). Run `run-d6da348346564069809ec0941c658383` returned
+code 0 with runner status `PASS`, `scientific_acceptance=NOT_RUN`, and a
+structured prediction artifact containing 80 rows. The manifest records input,
+code, interpreter, process, and output SHA-256 values. This is an execution and
+provenance checkpoint only; independent validation and evidence gates remain
+outstanding.
+
+## Q4 history reverified from manifests
+
+Historical `verify_run(current_sources=False)` verification corrects the prior
+interruption diagnosis. The original run
+`run-bbd8302dde454614a0116f1f3c71d19d` completed with `PASS` in 252 seconds.
+Run `run-0faae49c2b0c48aab05d1b4ea5e8f1ad` returned code 0 but was rejected
+with `VALIDATION_FAILURE`: the canonical input manifest/spec changed during
+execution. An observation ending without a manifest did not establish that
+either process had been interrupted.
+
+Run `run-5ddffaac4b484e32905b68b637a41f5e` completed with `PASS` in 231 seconds
+under a different method ID. Its `retry_of` is null, so it is not evidence of a
+bounded retry. It also uses 120 trees instead of the original 250: previous
+model-quality metrics and attachment predictions do not validate this variant.
+All these records remain preserved. Scientific acceptance is `NOT_RUN`.
+
+The original Q1/Q4 prediction-only manifests contain no pinned validation
+criteria. They remain execution checkpoints, separate from the labeled Q1
+comparison below. Unlabeled official test predictions cannot establish accuracy.
+
+## Q1 grouped development validation
+
+The private child workspace `evaluations/q1-grouped-v1` now contains a real
+main/baseline/independent-validator/evidence chain. A parent decoding run
+`run-2a5dab5981944671bf728c94b16679e1` preserved all 12,400 labeled training
+rows and their 1,024 waveform samples as JSON. It retained source input ID,
+worksheet and Excel row identity; its manifest pins the original Excel bytes,
+decoder source and derived output. The child input manifest pins that JSON,
+the decoder manifest/code and original problem/training sheets. Parent run
+verification succeeded before and after evaluation.
+
+Before predictions, the comparison fixed seed 20240921 and a 20% group holdout
+by material/temperature/waveform: 9,764 training rows and 2,636 holdout rows.
+Duplicates within these groups cannot cross the split. Both candidates use
+19 shape features after per-row peak-absolute flux normalization, with fitting
+restricted to training IDs. Main uses RF250; the usable baseline is a depth-six
+decision tree with minimum leaf size three. This is a new development comparison,
+not retrospective validation of the original full-data prediction-only models.
+
+The same criteria hash was pinned into both real runs before execution:
+main error and macro-F1 loss <= 0.05; baseline error and macro-F1 loss <= 0.15;
+main macro-F1 improvement >= 0; complete coverage and zero split leakage.
+These are engineering thresholds, not official competition scoring rules.
+
+- Main: `run-814b8141a23041919e895c23d10d1df0`, runner PASS.
+- Baseline: `run-b572ca4c6e41452cb95d8a90faae567c`, runner PASS.
+- Independent recomputation: both error rates 0 and macro-F1 1.0; improvement 0.
+- Reverified numerical evidence gate: PASS.
+- Negative controls rejected missing predictions, duplicate IDs, unknown labels,
+  fitting leakage and intentionally wrong predictions. No accepted artifact was
+  mutated for these checks.
+
+The parent receipt is `preflight/q1_holdout_checkpoint.json`. The simple baseline
+matched RF250 on this partition, so there is no measured advantage for the more
+complex classifier. This single partition does not establish seed sensitivity,
+out-of-distribution accuracy, independent semantic/assumption review or full
+G5 acceptance. No question is frozen and no whole-case baseline is sealed;
+same-problem reference PDFs remain unread.
+
+## Reopened downstream rebuild
+
+After the corrected Q4 rerun, grouped holdout validation was regenerated with
+the same material encoding used by the production feature function. The rebuilt
+attachment was then checked against the current Q1/Q4 prediction hashes and
+the evidence index was refreshed. These artifacts remain draft evidence:
+scientific acceptance is still `NOT_RUN`, and no baseline freeze or reference
+paper admission is implied.

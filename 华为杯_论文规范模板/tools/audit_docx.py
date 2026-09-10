@@ -5,8 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 import zipfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from mathmode.policy import load_policy, toc_settings, validate_policy
 
 from lxml import etree
 
@@ -112,7 +116,9 @@ def paragraph_outline_level(paragraph):
         return None
 
 
-def audit(path: Path):
+def audit(path: Path, policy: dict | None = None):
+    policy = validate_policy(policy) if policy is not None else load_policy()
+    include_toc, toc_depth = toc_settings(policy)
     checks = []
     with zipfile.ZipFile(path) as package:
         names = set(package.namelist())
@@ -121,8 +127,22 @@ def audit(path: Path):
         document = etree.fromstring(package.read("word/document.xml"))
         styles = etree.fromstring(package.read("word/styles.xml"))
         paragraphs = document.xpath(".//w:body/w:p", namespaces=NS)
-        text = "\n".join("".join(p.xpath(".//w:t/text()", namespaces=NS)) for p in paragraphs)
-        identity_hits = sorted(set(IDENTITY_RE.findall(text)))
+        body_nodes = list(document.find("w:body", NS))
+        text = "\n".join("".join(p.xpath(".//w:t/text()", namespaces=NS)) for p in body_nodes)
+        scope = policy["official"]["anonymity_policy"]["scope"]
+        scoped_nodes = body_nodes
+        if scope == "none":
+            scoped_nodes = []
+        elif scope == "after_cover" and policy["official"]["cover_policy"]["pages"]:
+            boundaries = [i for i, node in enumerate(body_nodes) if node.xpath(
+                './/w:bookmarkStart[@w:name="MathModeAnonymousStart"]', namespaces=NS)]
+            checks.append({"code": "cover_boundary_marker", "ok": len(boundaries) == 1,
+                           "message": "Physical page scope still requires rendered PDF audit"})
+            if len(boundaries) == 1:
+                scoped_nodes = body_nodes[boundaries[0]:]
+        anonymous_text = "\n".join("".join(p.xpath(".//w:t/text()", namespaces=NS)) for p in scoped_nodes)
+        identity_hits = sorted(set(IDENTITY_RE.findall(anonymous_text)))
+        identity_hits += [term for term in policy["official"]["anonymity_policy"]["identity_terms"] if term in anonymous_text]
         checks.append({"code": "identity_text", "ok": not identity_hits, "matches": identity_hits})
         checks.append({"code": "template_placeholders", "ok": "xx" not in text, "matches": ["xx"] if "xx" in text else []})
 
@@ -133,7 +153,7 @@ def audit(path: Path):
             instructions = " ".join(paragraph.xpath(".//w:instrText/text()", namespaces=NS))
             if re.search(r"\bTOC\b", instructions, re.I):
                 toc_fields.append({"paragraph": index, "instruction": instructions})
-        toc_switch_ok = bool(toc_fields and re.search(r"\\o\s+\"1-3\"", toc_fields[0]["instruction"]) and
+        toc_switch_ok = bool(toc_fields and re.search(rf'\\o\s+"1-{toc_depth}"', toc_fields[0]["instruction"]) and
                               re.search(r"\\h", toc_fields[0]["instruction"]) and
                               re.search(r"\\z", toc_fields[0]["instruction"]) and
                               re.search(r"\\u", toc_fields[0]["instruction"]))
@@ -141,9 +161,9 @@ def audit(path: Path):
                            if paragraph_outline_level(paragraph) in {0, 1, 2} and paragraph_texts[index]]
         toc_order_ok = bool(toc_titles and toc_fields and heading_indexes and
                             toc_titles[0] < toc_fields[0]["paragraph"] < heading_indexes[0])
-        checks.append({"code": "dynamic_toc_field", "ok": toc_switch_ok, "fields": toc_fields,
-                       "message": 'TOC \\o "1-3" \\h \\z \\u field is required'})
-        checks.append({"code": "toc_title_and_order", "ok": toc_order_ok,
+        checks.append({"code": "dynamic_toc_field", "ok": toc_switch_ok if include_toc else not toc_fields, "fields": toc_fields,
+                       "message": "TOC follows competition policy"})
+        checks.append({"code": "toc_title_and_order", "ok": toc_order_ok if include_toc else not toc_titles,
                        "title_paragraphs": toc_titles, "heading_paragraphs": heading_indexes[:20]})
         checks.append({"code": "non_empty_outline_headings", "ok": bool(heading_indexes),
                        "count": len(heading_indexes)})
@@ -152,7 +172,7 @@ def audit(path: Path):
         if "word/settings.xml" in names:
             settings = etree.fromstring(package.read("word/settings.xml"))
             settings_update = bool(settings.xpath('.//w:updateFields[@w:val="true"]', namespaces=NS))
-        checks.append({"code": "toc_update_on_open", "ok": settings_update})
+        checks.append({"code": "toc_update_on_open", "ok": settings_update if include_toc else True})
 
         chinese_italic_runs = []
         for paragraph_index, paragraph in enumerate(paragraphs, start=1):
@@ -200,7 +220,7 @@ def audit(path: Path):
         checks.append({"code": "page_number_starts_at_1", "ok": page_numbering_ok, "sections": section_results})
 
         body_breaks = len(document.xpath('.//w:body//w:br[@w:type="page"]', namespaces=NS))
-        checks.append({"code": "abstract_to_toc_and_body_page_breaks", "ok": body_breaks >= 2, "page_breaks": body_breaks})
+        checks.append({"code": "abstract_to_toc_and_body_page_breaks", "ok": body_breaks >= (2 if include_toc else 1), "page_breaks": body_breaks})
 
         label_measurements = {}
         for label in ("题 目：", "摘 要：", "关键词："):
@@ -283,15 +303,17 @@ def audit(path: Path):
         })
 
     failures = [item for item in checks if not item["ok"]]
-    return {"docx": str(path), "status": "PASS" if not failures else "FAIL", "checks": checks, "failures": failures}
+    return {"docx": str(path), "status": "PASS" if not failures else "FAIL", "checks": checks, "failures": failures,
+            "scope": "DOCX structure only; rendered page scope and official provenance require separate audit"}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--docx", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--policy", type=Path)
     args = parser.parse_args()
-    result = audit(args.docx.resolve())
+    result = audit(args.docx.resolve(), load_policy(args.policy))
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))

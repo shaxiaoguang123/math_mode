@@ -1,0 +1,13 @@
+{
+  "schema_version": "2.0",
+  "activation_id": "activation-repair-run-fixture",
+  "question_id": "Q1",
+  "created_at": "2026-09-09T00:00:00Z",
+  "request": {"path": "repairs/repair-run-fixture/request.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "review": {"path": "reviews/repair-run-fixture-code.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "candidate_spec": {"path": "models/repairs/repair-run-fixture/model_spec.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "run": {"path": "runs/run-fixture-repair/run_manifest.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "failed_predecessor": {"path": "runs/run-fixture/run_manifest.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "execution_role": "main",
+  "status": "ACTIVE"
+}

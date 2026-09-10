@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/human_decision_event.schema.json",
+  "title": "MathMode human_decision_event 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "request",
+    "actor_id",
+    "received_at",
+    "choice",
+    "rationale",
+    "source",
+    "input_tty",
+    "output_tty",
+    "confirmation",
+    "identity_scope"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "choice": {
+      "enum": [
+        "main",
+        "fallback",
+        "defer"
+      ]
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "source": {
+      "const": "terminal_stdin"
+    },
+    "input_tty": {
+      "const": true
+    },
+    "output_tty": {
+      "const": true
+    },
+    "confirmation": {
+      "const": "SUBMIT"
+    },
+    "identity_scope": {
+      "const": "host_terminal_not_person_authentication"
+    }
+  }
+}

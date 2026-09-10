@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/failure_diagnosis.schema.json",
+  "title": "MathMode failure_diagnosis 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "diagnosis_id",
+    "actor_id",
+    "question_id",
+    "failure_source",
+    "created_at",
+    "failure_class",
+    "cause_id",
+    "rationale",
+    "evidence_refs",
+    "repair_steps"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "diagnosis_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "failure_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^runs/[A-Za-z][A-Za-z0-9_.-]{0,95}/run_manifest\\.json$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "failure_class": {
+      "enum": [
+        "ENV_FAILURE",
+        "DATA_FAILURE",
+        "CODE_FAILURE",
+        "MODEL_FAILURE",
+        "VALIDATION_FAILURE",
+        "POLICY_FAILURE"
+      ]
+    },
+    "cause_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "repair_steps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/evidence_gate.schema.json",
+  "title": "MathMode evidence_gate 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "question_id",
+    "created_at",
+    "producer",
+    "validation",
+    "dependencies",
+    "status",
+    "blockers",
+    "scope",
+    "official_compliance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "const": "evidence-auditor"
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "scope": {
+      "const": "computed_model_evidence"
+    },
+    "official_compliance": {
+      "const": "NOT_RUN"
+    }
+  }
+}

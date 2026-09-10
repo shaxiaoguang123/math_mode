@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "required_body_pages": 45,
+  "version": 2,
+  "recommended_body_pages": 45,
   "page_system": "printed",
   "body_definition": "正文从摘要结束后的下一页开始，到参考文献标题前一页结束；附录不计入正文。",
   "role_targets": {
@@ -109,5 +109,5 @@
       "pages": 1
     }
   ],
-  "policy": "Use role windows as warnings; body minimum is a hard failure. Never alter official font, margins, or line spacing to pass."
+  "policy": "Historical page recommendations are warnings only. Official page requirements come exclusively from verified competition_policy.json. Never pad pages."
 }

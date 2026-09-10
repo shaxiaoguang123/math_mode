@@ -1,220 +1,41 @@
-# 华为杯数学建模项目总控（Codex）
-
-本文件是 Codex 在本项目根目录的 workflow router。它规定阶段、门禁、证据链和最终完成条件；详细求解规则读取 `华为杯_求解规范/华为杯_求解规范.md`，详细绘图规则唯一读取 `华为杯_求解规范/华为杯_绘图规范.md`，详细论文规则读取 `华为杯_论文规范模板/华为杯_论文章节规范.md`和`华为杯_论文规范模板/README.md`。不要复制这些长规范；涉及普通科学结果图时必须发现并调用项目内完整的 `academic-figure-skill`，按需读取其 `SKILL.md`、`references/`、`scripts/` 和 `assets/`。
-
-## 1. 审计基线与项目资产
-
-本文件重写前已递归审计当前根目录。项目不是 Git 仓库；当前虽已有空的 `题目/`、`数据/`、`求解/`、`论文/` 起始目录以及根目录下用于复盘的 `论文.pdf`、`Modex opus5 24华为杯F.pdf`，但尚无可作为下一赛题事实源的题目、原始数据或已完成工作目录。两份根目录 PDF 仅用于视觉对比，不得当作下一赛题结果或验收证据。有效资产包括：
-
-- `华为杯_求解规范/华为杯_求解规范.md`；
-- `华为杯_求解规范/华为杯_绘图规范.md`（绘图视觉、图型、Figure Plan、Schematic Plan、Flowchart Plan、质量检查的唯一详细来源）；
-- `华为杯_论文规范模板/` 下的章节规范、README、`论文.tex`、`example.tex`、`gmcmthesis.cls`、`gmcm.bst`、`reference.bib`、`figures/`；
-- `第二十三届研赛论文Word标准模板.docx`及两份优秀论文 PDF；
-- `华为杯_论文规范模板/tools/` 下的 `build_latex.py`、`audit_tex.py`、`migrate_markdown_to_tex.py`、`audit_paper.py`，以及可选派生链路的 `build_docx.py`、`audit_docx.py`、`render_word.vbs`；
-- `.agents/skills/academic-figure-skill/`（Codex 项目级完整绘图 skill）；
-- `.claude/skills/academic-figure-skill/`（Claude Code 项目级完整绘图 skill）；
-- `华为杯_求解规范/视觉计划.schema.json`、`华为杯_求解规范/tools/init_visual_plan.py`、`audit_visual_plan.py`、`agent_manifest.schema.json`、`章节页数基线.json`、`page_targets.json`和验收演练输出。
-- `华为杯_求解规范/支撑材料清单.schema.json`及 `tools/init_supporting_materials.py`、`build_supporting_materials.py`、`audit_supporting_materials.py`，用于逐问源码、自主数据、补充图表、README 和哈希的支撑材料闭环。
-
-### 1.1 academic-figure-skill 集成边界
-
-出现“绘图/作图/生成结果图/预测图/模型对比图/误差图/敏感性图/鲁棒性图/热图/散点图/箱线图/多面板图”等普通科学结果图请求时，Codex 必须发现并调用 `.agents/skills/academic-figure-skill/`，入口为大小写敏感的 `SKILL.md`；运行时按需读取该目录的 `references/`、`scripts/` 和 `assets/figures/`。普通结果图可见文字默认使用中文，并必须通过 `scripts/chinese_fonts.py` 的实际字体/反乱码门禁。Figure Plan 负责提供科学问题、真实结果源、字段、`Figure archetype`、Panel/布局、资产目录、`native run / visual adapt / cross-type inherit`、脚本、PDF/SVG/PNG、统计/QA 报告路径、论文标签和质量状态；同一字段同步写入 `求解/视觉计划.json`，skill 负责普通科研图的图型判断、资产优先、渲染和 QA。机器可读 JSON 中对应枚举仍写作 `cross_type_inherit`。
-
-流程图、总体技术路线图、模型结构图和算法流程图不由 skill 替代：它们仍必须走项目 `Flowchart Plan`、真实节点/箭头审查和 TikZ/XeLaTeX 门禁。skill 的 `schematic-led` 或多面板参考只能作为可选参考，不能绕过项目流程图规则。正式普通结果图进入 `求解/问题X/图片/`，并在 `求解/结果索引.md` 登记；不适用的交互式 dashboard、探索性可视化、数学函数图、PowerPoint/Figma 设计和纯代码调试不强制触发该 skill。
-
-示例输入、示例 DOCX/PDF和现有审计报告只是工具链演练；示例 PDF 4 页、正文 1 页，故意不满足 45 页。不得把它们当作赛题结果或达标证据。收到题目后创建独立工作目录，模板源文件保持只读。
-
-## 2. 权威顺序与旧规则迁移
-
-冲突时依次服从：
-
-1. 用户当前要求；
-2. 赛题正文硬约束；
-3. 赛题附件、官方答案、公式、程序和提交要求；
-4. 当前求解规范；
-5. 当前绘图规范 `华为杯_求解规范/华为杯_绘图规范.md`；
-6. 当前论文规范、LaTeX 模板和工具 README；
-7. 工具实际接口、`page_targets.json`和 schema；
-8. `CLAUDE.md`/`AGENTS.md`；
-9. 新导入旧规则。
-
-旧 CLAUDE 只贡献无人值守的阶段编排、失败回退和结果追溯思想，不覆盖当前 LaTeX 主链路。旧 `format.cls`、`fonts/`、身份 `\maketitle`、目录、固定总章节、强制所有表格 `longtable`和机械 4–6 张图不再作为当前总控规则。`example.tex`仅供参考，不能复制身份字段、目录、示例文献或占位内容。正式论文以 `论文/论文.tex` 为唯一入口，以 `论文/章节内容/*.tex` 为唯一正文源；Word 只能由同一 TeX 源派生，不能反向成为 source of truth。论文章节规范不设普遍官方全文页数，但本项目 `page_targets.json`配置正文 45 页硬门禁，项目交付必须执行该门禁。
-
-## 3. 一键触发与自动权限边界
-
-`开始解题`、`开始求解`、`求解这个题目`、`按规则求解`、`开始完成论文`、`从求解做到论文`或同义请求，均进入 `FULL AUTO / ONE-SHOT MODE`。
-
-Codex 自动完成普通的模型、算法、图表、章节、文件布局和排版选择，不在阶段之间等待确认。每个重要决定和结论应有证据引用或结果索引。全自动不允许猜测、伪造、绕过权限或外部提交。
-
-只有关键材料缺失/损坏、无法由证据解决的题意或单位冲突、必需软件/权限不可用、硬约束无法满足、继续计算将制造虚假结果、或三次根因修复仍失败时停止。停止报告必须包含完成阶段、精确错误、尝试过的修复、现有产物和最小解决条件。
-
-## 4. 目录与事实链
-
-真实项目推荐：
-
-```text
-.venv/                 # 本机环境，不提交
-题目/                  # 正文和规则，只读
-数据/原始/             # 原始附件，只读
-数据/中间/             # 清洗/解压副本
-数据/自主/             # 非官方、自主查阅/整理/爬取的数据与来源记录
-求解/
-  环境与依赖.md
-  题面约束清单.md
-  数据审计.md
-  求解计划.md
-  视觉计划.json
-  支撑材料清单.json
-  结果索引.md
-  视觉编码表.md
-  AI使用记录.md
-  问题一/问题一.py、结果/、图片/
-提交附件/最终提交文件/、支撑材料/、readme.md、_支撑材料构建清单.json、SHA256SUMS.txt
-论文/论文输入.json、论文.tex、章节内容/*.tex、验收输出/
-```
-
-固定事实链：
-
-```text
-原始题目/数据 → 求解代码 → 结构化结果 → 独立验证
-→ 求解/结果索引.md → LaTeX 论文/PDF
-→ 可选 DOCX/官方附件 + 经审计的源码/自主数据/补充图表支撑材料
-```
-
-不得回写原始附件；不得在论文中根据“看起来合理”补数。
-
-## 5. 自动流程阶段
-
-### Phase 0：环境
-
-先读取求解规范，检查项目 `.venv`/实际解释器、按需依赖、R/Rscript、XeLaTeX/BibTeX/TikZ、Microsoft Word COM、PDF 工具和当前 `tools/`。求解优先使用项目虚拟环境；不要无必要重装大型依赖。记录 `求解/环境与依赖.md`。
-
-### Phase 1：题目和数据
-
-完整读取 `题目/`、`数据/`和附件说明，生成 `求解/题面约束清单.md`。识别每问输入/输出/依赖、方法限制、指标、单位、边界、精度、时间、CPU/GPU、训练测试隔离、官方答案文件结构、AI 要求。审计文件格式、大小、Sheet/变量、shape、字段、dtype、缺失、重复、异常、坐标、时间/空间范围和泄漏风险。压缩包先列目录和规模，只解压副本。
-
-赛题官方原始数据之外、实际用于建模的自主查阅/整理/爬取数据统一保存到 `数据/自主/`，同时保留来源、获取日期、许可/条款、采集或整理方法及脚本，不得只在论文中留下 URL。
-
-若用户另行提供往届优秀论文、评阅意见或视觉参考，先生成 `求解/参考论文审阅.md`，逐篇核对问题定义、数据使用、训练/验证切分、指标口径、模型假设、可复现证据和图表结构。参考论文只用于发现候选方法、验证风险和叙事方式；其分数、结论与图片都不是当前赛题事实源。不同切分或不同数据上的指标不得直接排序，不得复制参考论文的数据、结果图或可能存在泄漏的实验设计。
-
-### Phase 2：计划
-
-生成 `求解/求解计划.md` 和机器可审计的 `求解/视觉计划.json`。每问写问题本质、Baseline、主模型、必要改进、算法、验证、敏感性/稳健性、关键结果文件、图表、官方输出和问题依赖。Evidence Matrix 至少审查机理/几何、主结果、独立验证、误差/约束、对比、敏感性/鲁棒性、场景、理论边界与反证；每行填写数据形态、`figure / schematic / table / text / N/A`、结构化结果和关联 ID。Figure Plan 必须在代码前定义科学问题、结果文件、字段/单位、扫描范围/重复次数/统计量、Panel、archetype、hero/layout、输出和质量状态。轨道/空间几何、坐标变换、传播路径、采样/折叠等非流程机理图建立 Schematic Plan 并走 TikZ/XeLaTeX；含步骤、分支、迭代或数据流的结构继续建立 Flowchart Plan。建立任何视觉计划前必须完整读取绘图规范；完成后运行 `audit_visual_plan.py --stage plan`，未通过不得开始求解代码。模型顺序按题面机理/经典方法/统计优化/传统 ML/深度学习递进，禁止无理由追求复杂度；题面限制优先。
-
-计划阶段同时建立“正文证据架构”：把模型动机、推导/算法、主结果、阻断验证、误差结构、敏感性/稳健性和适用边界优先分配到对应问题章节，并预估图表在正文前段、中段和后段的分布。标准/复杂问题逐项审查算法伪代码、机理/流程结构、主结果、比较/消融、独立验证和失效边界；只有实际存在独特算法步骤时才写伪代码，只有结构图能增加可验证信息时才建立 Flowchart Plan。不得预先规划以“完整折级清单”“文件/哈希审计”“序列化与交付完整性”为主要内容的正文独立章；全量逐折表、首行抽查、哈希和构建记录进入附录、结果索引或支撑材料。
-
-问题数量确定后，按 `支撑材料清单.schema.json` 初始化 `求解/支撑材料清单.json`。每问预先登记唯一主入口、完整源码范围、运行记录、外部数据依赖和拟纳入的补充图表；不得等论文结束后凭记忆补清单。
-
-### Phase 3：逐题求解
-
-每问执行：
-
-```text
-输入 → 数据处理 → baseline → 主模型 → 必要改进
-→ 求解 → 独立验证 → 稳定性/敏感性（适用）
-→ 结构化结果 → 结果索引 → 科研图 → 官方附件
-```
-
-每题保留唯一主入口，计算与绘图分离，固定种子并记录时间。对评分公式、可行性、编码、尺寸或答案表要求建立独立验证器，依据原始输入和最终输出重新计算。新增的比较、消融、灵敏度、鲁棒性、场景、Monte Carlo 或稳定性分析必须真实运行并保存到 `求解/问题X/结果/`，绘图只读取这些最终结果。任何绘图前必须再次读取绘图规范；生成、修改或审查任何 Schematic/Flowchart 前还必须再次读取绘图规范和论文章节规范。按 Figure/Schematic/Flowchart Plan 生成图，执行字体、渲染、warning、重叠、裁切、灰度和缩放检查，并把通过状态写入结果索引。图必须支撑结论，不为凑数量生成；简单问题通常至少 2 个 Figure，标准/复杂问题通常 3--6 个，每问必须有主结果图，标准/复杂问题还必须有独立验证图，低于阈值逐项说明不适用理由和替代证据。四问型标准/复杂赛题组合级通常审查 15--25 个非冗余 Figure；一个 Figure 可含多个共同回答同一科学问题的 Panel，数量从不是硬指标。全部普通图生成后运行 `audit_visual_plan.py --stage render`，失败不得进入论文。官方答案文件保留题面要求的文件名、Sheet、结构和精度，保存后重新读取核验。
-
-每问完成时同步更新 `求解/支撑材料清单.json`：列全唯一主入口及其本问/公共依赖源码，保存实际运行命令、通过状态、时间和非空记录；将正文不宜完整展示但可复核的较大篇幅中间图表登记为补充材料；登记本问使用的自主数据及溯源。随后运行 `build_supporting_materials.py` 和 `audit_supporting_materials.py --stage question --question-id <ID>`。该审计未通过时，本问不得标记完成。`提交附件/支撑材料/` 是可重建快照，禁止在其中单独修代码或改数据。
-
-流程图共享门禁（Codex 与 Claude Code 一致）：流程图必须有真实科学用途；节点、箭头、反馈、分支、验证区和汇总区必须可追溯；类型必须匹配真实模型；Flowchart Plan、TikZ/XeLaTeX、结构真实性、字体、重叠、穿字、颜色、灰度、版心、裁切、缩放、图题、label、正文引用和结果索引均通过后，状态才可标记“通过”并进入论文。
-
-只有全部问题真实求解、关键结果和验证留档、正式图生成、官方附件核验、结果索引完整且无结果矛盾，才通过求解→论文门禁。
-
-### Phase 4：论文
-
-写论文前完整读取 `华为杯_论文规范模板/华为杯_论文章节规范.md`、README、`agent_manifest.schema.json`、`章节页数基线.json`和`page_targets.json`。当前主要交付链路是：
-
-```text
-真实结果 → 论文输入/章节内容/*.tex → 论文/论文.tex
-→ 视觉计划 paper 审计 → XeLaTeX 双遍编译 → PDF → 格式/页数验收
-```
-
-论文应匿名、无页眉、页脚居中页码；目录由工具链自动插在摘要/关键词之后、正文之前，包含三级标题、页码和超链接，且不收录摘要、关键词或目录标题本身。题目/摘要/关键词和正文样式按当前 LaTeX 规则；章节按题目自适应，覆盖问题分析、假设、符号、模型、推导、求解、结果、验证、评价/改进、真实文献和必要附录。图表必须在正文引用，且只能引用已按 `华为杯_求解规范/华为杯_绘图规范.md` 通过质量检查的真实结果图；流程图还必须通过 Flowchart Plan、TikZ/XeLaTeX 和结构真实性门禁。论文规范只负责路径、尺寸、图题、标签、正文引用和 PDF 缩放/裁切检查，不提供固定流程图模板。摘要数字必须与结果一致。禁止以 Markdown `.md` 作为最终论文章节源；求解计划、结果索引、AI 记录和 legacy archive 可以使用 `.md`。不能把 `example.tex`当生产入口。
-
-每个正文一级章必须通过“章节用途门”：它应回答一个独立科学问题、给出模型/证据或形成不可由前章替代的综合结论。若一章主要由逐折明细、特征字典、文件行数、允许值检查、哈希、序列化、人工抽查或提交边界构成，则拆成摘要证据并回填相应问题章节，其余移入附录、`求解/结果索引.md`、验收输出或支撑材料。理论边界、设备诊断和模型选择稳定性原则上与对应问题相邻；不得在论文后半段重新复述前文数字来维持页数。
-
-论文内容稳定后再次逐问审查正文未完整展示的长表、批量中间图、分场景/分样本结果，只有真实且具有复核价值的材料才进入支撑包；调试图、缓存、重复图和虚拟环境不得进入。清单、正文、结果索引或官方输出发生变化时必须重建支撑包。
-
-`agent_manifest.schema.json`需要 `title`、4–6 个 `keywords`、`abstract_tex_path` 和章节数组；每章必须有 `chapter_id`、`title`、`role`、`order`、`tex_path`。禁止 `abstract`、`content`、`content_file` 和 `.md` 章节路径。生成前后检查身份信息、占位符、虚构结果和不一致数字。
-
-### 华为杯赛事标题组件
-
-华为杯论文封面的三行赛事标题必须调用 `gmcm-title.sty` 中的 `\GMCMContestTitle{届次中文数字}`；禁止在新论文中重新手写这三行的字体、字号、伪粗体、阴影和行距参数。当前第二十三届统一调用 `\GMCMContestTitle{二十三}`；届次变化时只修改宏参数（例如 `\GMCMContestTitle{二十四}`），不得修改 `gmcm-title.sty` 的视觉参数。编译引擎必须为 XeLaTeX，并使用系统字体 `STXinwei`；字体缺失时必须报告错误，不得自动字体替代。`gmcm-title.sty` 是华为杯标题格式的唯一事实来源。除非用户明确提出修改官方标题格式，否则 Codex 不得调整该组件。
-
-### Phase 5：LaTeX/PDF闭环
-
-按当前工具顺序执行：
-
-```text
-华为杯_论文规范模板/tools/build_latex.py
-→ 华为杯_求解规范/tools/audit_visual_plan.py --stage paper
-→ audit_tex.py
-→ XeLaTeX × 2
-→ audit_paper.py
-→ pdfinfo/PyMuPDF/pdftoppm 或 pdftocairo 视觉检查
-```
-
-根目录命令模板：
-
-```powershell
-python 华为杯_论文规范模板/tools/build_latex.py --manifest 论文/论文输入.json --output 论文/论文.tex --template-dir 华为杯_论文规范模板 --manifest-out 论文/论文.inputs.json
-python 华为杯_求解规范/tools/audit_visual_plan.py --plan 求解/视觉计划.json --stage paper --project-root . --main-tex 论文/论文.tex --report 论文/验收输出/视觉计划.paper.audit.json
-python 华为杯_论文规范模板/tools/audit_tex.py --manifest 论文/论文输入.json --main 论文/论文.tex --report 论文/验收输出/论文.tex.audit.json
-cd 论文
-xelatex -interaction=nonstopmode -halt-on-error -file-line-error 论文.tex
-xelatex -interaction=nonstopmode -halt-on-error -file-line-error 论文.tex
-cd ..
-python 华为杯_论文规范模板/tools/audit_paper.py --pdf 论文/论文.pdf --source 论文/论文.tex --targets 华为杯_论文规范模板/page_targets.json --report 论文/验收输出/论文.audit.json
-python 华为杯_求解规范/tools/build_supporting_materials.py --manifest 求解/支撑材料清单.json --project-root . --output 提交附件
-python 华为杯_求解规范/tools/audit_supporting_materials.py --manifest 求解/支撑材料清单.json --stage final --project-root . --output 提交附件 --report 论文/验收输出/支撑材料.final.audit.json
-```
-
-`audit_tex.py`必须通过 TeX-only 输入链、路径、语法残留、环境/花括号、图片、匿名、标签、引用、Unicode 数学符号和正文非斜体检查。编译日志不得有致命错误、字体缺字、未定义引用或不可接受的横向溢出。页数必须来自 XeLaTeX 最终 PDF。Word/DOCX 仅在用户或提交要求需要时从相同 `.tex` 源生成，并运行原有 Word 派生审计；不得把 DOCX 修改回写成正式论文源。
-
-## 6. 45页正文门禁和反注水
-
-`page_targets.json`将正文定义为摘要结束后至参考文献前，不计附录；当前 `required_body_pages`为 **45**。前置、问题和评价页数窗口只是预警，问题不要求等长。
-
-完整闭环是：
-
-```text
-生成 TeX → TeX 审计 → XeLaTeX 双遍 → PDF
-→ 正文页数 → 章节页数 → 图表/公式/分页/视觉检查
-→ 不通过则修改真实内容/布局并重新全链路
-```
-
-禁止空白页、无意义分页、重复结论/公式/图片、无关背景、虚构实验/数据/结果、装饰性或无意义图、无意义放大字号/间距/图表或压缩官方格式凑页数。即使用户允许“好看的无意义图”，也只能把该偏好转化为更高质量的真实证据图，不能削弱事实链。
-
-页数不足时按以下顺序恢复，且每一步都要回到对应问题章节而不是在论文末尾追加“审计式大章”：
-
-1. 补齐 Evidence Matrix 中真实适用但尚未执行的 Baseline、独立互验、误差/残差、参数可辨识性、输入敏感性、鲁棒扰动、场景、复杂度、收敛、理论边界、约束或反事实；新增实验必须真实运行并保存结构化结果。
-2. 把关键公式的由来、单位、边界、优化目标、停止条件和实际算法写清；对具有独特循环/分支的算法增加与主入口一致的伪代码，对不同问题确有不同数据流时才增加逐问流程图。
-3. 优先把多点扫描、逐折结果、设备/场景差异、误差分布、参数不确定性、特征作用、阈值/边界和模型胜负结构转为非冗余多面板 Figure。每个 Panel 必须有独立问题和真实结果源，不能把同一数字换图型重复展示。
-4. 将详细证据前移并均匀嵌入各问；全量逐折表、特征字典、运行日志、文件完整性和哈希移到附录或支撑材料。不得用后置的“完整证据”“交付完整性”章节承载主要页数。
-5. 每轮 PDF 都检查正文逐页联系表、章节页数和版面占用。若后 1/3 正文出现连续稀疏页、图表全部集中在前半段、章节主要由短表加大段空白组成，即使总页数达标也必须重新编排；稀疏检测只作结构告警，不能通过放大图表或强制分页消除。
-
-自动章节检测在同页标题或中文 CMap 损坏时可能不可靠，必须用 heading JSON、页面渲染和 OCR/视觉证据交叉确认；示例负例不能作为通过证据。不得用文字膨胀或训练“模型动物园”替代真实证据。
-
-## 7. 回退与完成条件
-
-同一根因连续修复三次后回到数据/单位/接口/约束/假设/环境根因或重写模块。上游结果变化必须同步结果索引、论文、摘要、图表和附件。不得静默跳过错误、伪造结果或改变题面。
-
-只有以下全部满足才可报告完成：
-
-1. 全部问题和硬约束已回答；
-2. 代码真实运行，关键结果有结构化文件和独立验证；
-3. 结果索引、AI 记录和官方附件核验完整；
-4. 每问完整可运行源码、运行验证、自主数据及溯源、正文未完整展示的补充图表已进入 `提交附件/`，`readme.md` 列出全部文件及作用；
-5. `audit_supporting_materials.py --stage final` 通过，支撑材料构建清单、SHA-256、源文件和快照一致且无未登记文件；
-6. 论文事实可追溯且图表/摘要/附件一致；
-7. `audit_visual_plan.py --stage paper`和`audit_tex.py`通过；
-8. XeLaTeX 双遍成功并导出可读 PDF；
-9. `audit_paper.py`无硬失败、正文至少 45 页且章节异常已处理；
-10. 视觉、字体、匿名、引用、公式/图表越界检查通过；
-11. LaTeX 主线路无致命错误、未定义引用、字体缺失或不可接受溢出；
-12. 未经用户明确授权，不执行外部提交。
-
-`AGENTS.md`是 Codex 版本的项目总控；`CLAUDE.md`是 Claude Code 版本。两者必须保持上述规则、路径、门禁和完成条件一致，只有运行时表述可以不同。
+# MathMode 项目入口（Codex）
+
+<!-- Generated from docs/agent_router.md by tools/sync_agent_assets.py. -->
+
+先读取 `docs/runtime_rules.md`。开发目标为 `goal.md`，Git 操作遵循
+`git_rule.md`；仓库状态以当前 Git 命令为准。真实比赛在仓库外创建私有工作区，
+原始题目、数据、官方模板和既有绘图资产保持完整。历史论文、示例和 fixture
+不能作为当前赛题计算结果或最终验收证据。
+
+阶段与证据入口：
+
+| 工作 | 规则与执行入口 |
+| --- | --- |
+| 官方规则和输入 | `mathmode policy`、`mathmode init`；默认 policy 未核验，不能声称最终合规 |
+| 题意、DAG、假设、模型 | `docs/contracts.md`、`docs/workflow_v2.md`；`mathmode validate` |
+| 警告与受限使用 | `issue_disposition` 提案和独立 `disposition_review`；`verify-disposition` 核验，门禁及冻结保留 `LIMITED` |
+| 假设与敏感性证据 | 独立审查 `assumption_plan`；`assess-assumptions` 实跑参数/种子扰动，`verify-assumptions` 核验；账本状态不能替代证据 |
+| 人工模型选择 | `human_gate` 等待已展示证据的终端响应；`human-decision`、`verify-human-decision`，详见工作流文档 |
+| 真实执行和独立验证 | `mathmode run`、`verify-run`、`independent-validate`、`evidence` |
+| 分阶段推进与恢复 | `mathmode workflow` 按真实证据观察/推进；`recover`、`recover-lock` 保留中断记录，详见工作流文档 |
+| 终止失败诊断 | workflow 自动分派独立 `failure_diagnosis`；`verify-diagnosis` 核验证据和角色来源，诊断不放行失败结果 |
+| 代码修复候选 | workflow 分派候选代码和独立审查；`verify-code-repair` 核验，`run-code-repair` 实跑或复用已授权重跑；工作流模型启用仍待接通 |
+| 冻结和过期检查 | `mathmode freeze`、`verify-freeze`、`thaw`、`refresh` |
+| 参考资料与盲测 | `seal-baseline`、`seal-case-baseline`、`verify-baseline`、`admit-reference`、`retrieve-reference`、`verify-reference`；整题盲测与显式非盲测模式见工作流文档 |
+| 普通科学结果图 | 完整读取绘图规范，调用 `.agents/skills/academic-figure-skill/SKILL.md`，按需读取其 references/scripts/assets |
+| 机理图和流程图 | 项目 Schematic/Flowchart Plan、真实结构审查、TikZ/XeLaTeX 门禁 |
+| 论文与提交材料 | 论文规范、LaTeX 工具、视觉审计、支撑材料构建审计，见共享规则 |
+
+上述命令均使用 `python -m mathmode <命令>`。实际接口以 `--help` 为准。
+数值或结构审计通过不能替代科学语义、视觉和官方合规门禁；未实现的集成
+不能由角色描述或 JSON 中手写的 PASS 代替。当前阶段见 `docs/audit/`。
+
+禁止编造运行记录、实验数字、文献、人工决定和审查结论。独立验证者不能读取
+求解源码或中间状态；作者不能自审通过。冻结数字只能从实测证据取得；变更上游
+须显式解冻、重新执行、验证、冻结，并使旧图表、论文和附件过期。
+
+按已授权范围持续推进；不得擅自推断额外审批要求。外部比赛提交和 Git 合并
+需要用户明确授权；当前优化目标在 PR 与 CI 通过后停于 READY FOR REVIEW，不合并。
+
+本入口由同一源生成；修改公共行为后运行
+`python tools/sync_agent_assets.py`，提交前运行其 `--check`。

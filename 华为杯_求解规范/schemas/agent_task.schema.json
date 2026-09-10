@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/agent_task.schema.json",
+  "title": "MathMode agent_task 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "actor_id",
+    "role",
+    "question_id",
+    "instructions",
+    "created_at",
+    "inputs",
+    "outputs",
+    "reviewed_actor_id",
+    "view",
+    "interaction_mode",
+    "attempt",
+    "supersedes_task_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "role": {
+      "enum": [
+        "framer",
+        "ambiguity",
+        "data_auditor",
+        "method_retriever",
+        "council",
+        "critic",
+        "probe",
+        "decision",
+        "code",
+        "validator",
+        "reviewer",
+        "visual",
+        "writer"
+      ]
+    },
+    "question_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "instructions": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "contract",
+          "format"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "contract": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "format": {
+            "enum": [
+              "json",
+              "jsonl",
+              "python",
+              "tex"
+            ]
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "reviewed_actor_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "view": {
+      "anyOf": [
+        {
+          "enum": [
+            "mechanism",
+            "statistics",
+            "optimization",
+            "engineering",
+            "innovation"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "interaction_mode": {
+      "enum": [
+        "autopilot",
+        "human_gate"
+      ]
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "supersedes_task_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

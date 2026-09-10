@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/agent_result.schema.json",
+  "title": "MathMode agent_result 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "actor_id",
+    "role",
+    "created_at",
+    "backend",
+    "provider",
+    "model",
+    "session_id",
+    "status",
+    "request_sha256",
+    "response",
+    "artifacts",
+    "events",
+    "stderr",
+    "returncode",
+    "timed_out",
+    "duration_seconds",
+    "blockers",
+    "bundle",
+    "capabilities"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "backend": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "PRODUCED",
+        "BLOCKED",
+        "FAILED"
+      ]
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "response": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "events": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "stderr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "returncode": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timed_out": {
+      "type": "boolean"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "bundle": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scoped_input_bundle",
+        "validated_output_publication",
+        "os_read_isolation",
+        "reasoning_backend"
+      ],
+      "properties": {
+        "scoped_input_bundle": {
+          "type": "boolean"
+        },
+        "validated_output_publication": {
+          "type": "boolean"
+        },
+        "os_read_isolation": {
+          "type": "boolean"
+        },
+        "reasoning_backend": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

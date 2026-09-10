@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/workflow_state.schema.json",
+  "title": "MathMode workflow_state 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "revision",
+    "created_at",
+    "updated_at",
+    "workspace_kind",
+    "interaction_mode",
+    "rigor_profile",
+    "blind_reference_mode",
+    "artifacts",
+    "gates",
+    "retry_history",
+    "reference_access"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "workspace_kind": {
+      "enum": [
+        "competition",
+        "fixture"
+      ]
+    },
+    "interaction_mode": {
+      "enum": [
+        "autopilot",
+        "human_gate"
+      ]
+    },
+    "rigor_profile": {
+      "enum": [
+        "lean",
+        "submission"
+      ]
+    },
+    "blind_reference_mode": {
+      "type": "boolean"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "path",
+          "sha256",
+          "size_bytes",
+          "created_at",
+          "producer",
+          "depends_on",
+          "status"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "producer": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "artifact_id",
+                "sha256"
+              ],
+              "properties": {
+                "artifact_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "VALID",
+              "FROZEN",
+              "STALE",
+              "FAILED"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "gate_id",
+          "status",
+          "artifact_refs",
+          "checked_at",
+          "blockers"
+        ],
+        "properties": {
+          "gate_id": {
+            "enum": [
+              "G0",
+              "G1",
+              "G2",
+              "G3",
+              "G3.5",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8"
+            ]
+          },
+          "status": {
+            "enum": [
+              "NOT_RUN",
+              "PASS",
+              "LIMITED",
+              "WARN",
+              "FAIL",
+              "BLOCKED"
+            ]
+          },
+          "artifact_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          },
+          "checked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "retry_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cause_id",
+          "category",
+          "attempt",
+          "question_id",
+          "message",
+          "changed_artifacts",
+          "at"
+        ],
+        "properties": {
+          "cause_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "category": {
+            "enum": [
+              "ENV_FAILURE",
+              "DATA_FAILURE",
+              "CODE_FAILURE",
+              "MODEL_FAILURE",
+              "VALIDATION_FAILURE",
+              "POLICY_FAILURE"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "question_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "changed_artifacts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "reference_access": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "question_id",
+          "same_problem",
+          "at",
+          "baseline_freeze_id"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "question_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "same_problem": {
+            "type": "boolean"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "baseline_freeze_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "blind_reference_mode": {
+            "type": "boolean"
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    }
+  }
+}

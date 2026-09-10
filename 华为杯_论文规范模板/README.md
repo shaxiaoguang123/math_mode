@@ -1,9 +1,11 @@
 # 华为杯论文生成与验收工具
 
+T03 已增加比赛策略层：`competition_policy.json` 区分 official 与 project_recommendations；随仓库提供的配置为 **unverified**，不能通过官方合规门禁。TeX/DOCX 构建与审计可传 `--policy`，身份封面另传 `--cover-tex`。配置与迁移说明见 `docs/migration_v1_to_v2.md`（项目根目录）。
+
 本目录提供 LaTeX-first 论文生产链和可选 Word 派生链：
 
 1. `tools/build_latex.py`：根据 TeX-only manifest 生成唯一主入口 `论文/论文.tex`，章节通过 `\input{}` 组合；
-2. `tools/audit_tex.py`：检查 `.tex` 输入链、三级目录命令/顺序及编译后的 `.toc`、Markdown 残留、环境/花括号、图片、匿名、标签/引用、Unicode 数学字符和显式斜体；
+2. `tools/audit_tex.py`：检查 `.tex` 输入链、策略指定的目录命令/顺序及 `--stage render` 下的 `.toc`、Markdown 残留、环境/花括号、图片、匿名、标签/引用、Unicode 数学字符和显式斜体；
 3. `论文.tex`：匿名 LaTeX 生产骨架，保留 `gmcmthesis.cls + gmcm.bst + figures/`，使用 A4、四边 25 mm、摘要页起始页码 1、摘要可自然延续至第 2 页、正文小四宋体、无页眉和页脚居中页码；
 4. `tools/audit_paper.py`：检查最终 PDF 页数、摘要/正文边界、参考文献/附录边界和各章页数；
 5. `tools/build_docx.py`：从同一批 `.tex` 章节生成可选 DOCX 派生物，明确拒绝 Markdown 和旧 inline content 字段；
@@ -46,7 +48,7 @@ cd ..
 python 华为杯_论文规范模板\tools\audit_paper.py --pdf 论文\论文.pdf --source 论文\论文.tex --targets 华为杯_论文规范模板\page_targets.json --report 论文\验收输出\论文.audit.json
 ```
 
-编译日志不得包含致命错误、字体缺字、未定义引用或不可接受的 `Overfull \hbox`。摘要一般不超过 2 页，可自然延续至第 2 页；关键词后由工具链自动生成三级动态目录，正文从目录结束后的下一页开始。总页数不等于正文页数；正文到参考文献标题前结束，附录不计入。
+编译日志不得包含致命错误、字体缺字、未定义引用或不可接受的 `Overfull \hbox`。摘要页数、目录是否生成及深度从 policy 读取；启用目录时置于摘要后、正文前。正文页数从首个正文标题计至参考文献或附录之前，目录不计入。
 
 ## 可选 Word 派生路线
 
@@ -66,7 +68,7 @@ Word 输出只能从 TeX-only manifest 和 `.tex` 章节派生，不能手工修
 python tools\calibrate_page_targets.py --baseline 章节页数基线.json --output page_targets.json
 ```
 
-默认硬门槛：正文（不含摘要、参考文献、附录）至少 45 页。问题章节区间是异常检测窗口；问题之间允许明显不均衡。正文不足时，智能体必须补充真实的模型推导、数据处理、结果分析和验证，不能通过缩小字体、页边距、行距或堆砌虚假内容达标。
+`page_targets.json` 保存历史章节窗口与正文 45 页经验提醒，均不构成官方硬要求。实际页数限制从已核验的 `competition_policy.json` 读取；页数不能替代证据完整性，也不得用空白、重复内容、虚构实验或缩放版式凑页数。
 
 补页按“问题章内证据恢复”执行：先补真实的阻断互验、误差结构、参数可辨识性、敏感性/鲁棒性、场景/边界，再补与主入口一致的伪代码和复杂度，随后把逐折分布、设备/场景差异、模型胜负和特征响应转为已审计多面板 Figure。全量逐折表、特征字典、文件行数、哈希、序列化和交付完整性进入附录、结果索引或支撑材料，不得单独撑起正文后置章节。流程图只有在每问确有独立数据流、循环或验证闭环时增加，不执行机械的“每问一图”。
 
@@ -74,7 +76,7 @@ python tools\calibrate_page_targets.py --baseline 章节页数基线.json --outp
 
 ## 当前演练结果
 
-历史 Word 示例 PDF 为 4 页、正文 1 页，是页数门槛的故意负例。任何示例产物都不是赛题答案或通过证据。真实论文必须以 XeLaTeX 最终 PDF 通过正文 45 页硬门槛后才交付。
+历史示例只用于工具链演练；其页数既不是赛题结果，也不能证明当前流程通过。当前交付以真实运行、独立验证、冻结证据、当届策略和最终渲染审计为准。
 
 ## 证据链与科研图工作流
 

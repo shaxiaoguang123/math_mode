@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/assumption_report.schema.json",
+  "title": "MathMode assumption_report 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "question_id",
+    "plan",
+    "created_at",
+    "producer",
+    "status",
+    "scope",
+    "experiments",
+    "checks",
+    "assessments",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "const": "assumption-assessment-service"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "scope": {
+      "const": "declared_assumption_checks"
+    },
+    "experiments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scenario_id",
+          "main_run",
+          "baseline_run",
+          "validation"
+        ],
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "main_run": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "baseline_run": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "validation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scenario_id",
+          "metric",
+          "unit",
+          "control",
+          "perturbed",
+          "absolute_change",
+          "max_absolute_change",
+          "status"
+        ],
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "metric": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "control": {
+            "type": "number"
+          },
+          "perturbed": {
+            "type": "number"
+          },
+          "absolute_change": {
+            "type": "number"
+          },
+          "max_absolute_change": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "assumption_id",
+          "status",
+          "rationale",
+          "scenario_ids"
+        ],
+        "properties": {
+          "assumption_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "status": {
+            "enum": [
+              "TESTED",
+              "NOT_APPLICABLE",
+              "FAILED"
+            ]
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "scenario_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "2.0",
+  "repair_id": "repair-run-fixture",
+  "question_id": "Q1",
+  "created_at": "2026-09-09T00:00:00Z",
+  "diagnosis": {"path": "reviews/fixture-diagnosis.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "failed_run": {"path": "runs/run-fixture/run_manifest.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "original_spec": {"path": "models/fixture.json", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "execution_role": "main",
+  "candidate_spec": "models/repairs/repair-run-fixture/model_spec.json",
+  "review": "reviews/repair-run-fixture-code.json",
+  "code": [{"source": "code/fixture.py", "snapshot": {"path": "runs/run-fixture/snapshot/code/code/fixture.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}, "candidate": "code/repairs/repair-run-fixture/code/fixture.py"}]
+}

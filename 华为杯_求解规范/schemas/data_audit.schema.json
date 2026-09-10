@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/data_audit.schema.json",
+  "title": "MathMode data_audit 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "actor_id",
+    "created_at",
+    "input_manifest_sha256",
+    "files",
+    "issues",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "audit_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "input_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input_id",
+          "sha256",
+          "format",
+          "rows",
+          "fields",
+          "missing_values",
+          "duplicate_rows",
+          "observations"
+        ],
+        "properties": {
+          "input_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "rows": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          },
+          "missing_values": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "duplicate_rows": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 0,
+            "uniqueItems": false
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "severity",
+          "input_id",
+          "message"
+        ],
+        "properties": {
+          "severity": {
+            "enum": [
+              "warning",
+              "error"
+            ]
+          },
+          "input_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "WARN",
+        "FAIL"
+      ]
+    }
+  }
+}

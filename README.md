@@ -1,5 +1,7 @@
 # 华为杯论文生成与验收工具
 
+T03 已增加比赛策略层：`competition_policy.json` 区分 official 与 project_recommendations；随仓库提供的配置为 **unverified**，不能通过官方合规门禁。TeX/DOCX 构建与审计可传 `--policy`，身份封面另传 `--cover-tex`。配置与迁移说明见 `docs/migration_v1_to_v2.md`（项目根目录）。
+
 本目录提供 LaTeX-first 论文生产链和可选 Word 派生链。绘图视觉、图型选择、Figure/Schematic/Flowchart Plan、三维/柱状/饼图限制和质量检查统一由 `华为杯_求解规范/华为杯_绘图规范.md` 管理；它是项目内绘图规则的唯一详细来源。`求解/求解计划.md` 保存解释性计划，`求解/视觉计划.json` 按 `视觉计划.schema.json` 保存机器可审计合同。
 
 `视觉计划.schema.json` 供编辑器或外部 JSON Schema 工具执行完整结构校验；项目自带 `audit_visual_plan.py` 仅使用 Python 标准库，强制检查证据覆盖、图量例外、引用关系、渲染产物和论文接入等语义门禁，不要求额外安装 `jsonschema`。正式流程必须运行审计器，外部 schema 校验不能替代它。
@@ -60,7 +62,7 @@ cd ..
 python 华为杯_论文规范模板\tools\audit_paper.py --pdf 论文\论文.pdf --source 论文\论文.tex --targets 华为杯_论文规范模板\page_targets.json --report 论文\验收输出\论文.audit.json
 ```
 
-编译日志不得包含致命错误、字体缺字、未定义引用或不可接受的 `Overfull \hbox`。摘要一般不超过 2 页，可自然延续至第 2 页；关键词后自动生成三级动态目录（含页码、超链接和书签），正文从目录结束后的下一页开始。总页数不等于正文页数；正文到参考文献标题前结束，附录不计入。
+编译日志不得包含致命错误、字体缺字、未定义引用或不可接受的 `Overfull \hbox`。摘要页数、目录是否生成及深度从 policy 读取；启用目录时置于摘要后、正文前。正文页数从首个正文标题计至参考文献或附录之前，目录不计入。
 
 ## 可选 Word 派生路线
 
@@ -80,17 +82,17 @@ Word 输出只能从 TeX-only manifest 和 `.tex` 章节派生，不能手工修
 python tools\calibrate_page_targets.py --baseline 章节页数基线.json --output page_targets.json
 ```
 
-默认硬门槛：正文（不含摘要、参考文献、附录）至少 45 页。问题章节区间是异常检测窗口；问题之间允许明显不均衡。正文不足时，智能体必须补充真实的模型推导、数据处理、结果分析和验证，不能通过缩小字体、页边距、行距或堆砌虚假内容达标。
+`page_targets.json` 保存历史章节窗口与正文 45 页经验提醒，均不构成官方硬要求。实际页数限制从已核验的 `competition_policy.json` 读取；页数不能替代证据完整性，也不得用空白、重复内容、虚构实验或缩放版式凑页数。
 
 ## 当前演练结果
 
-历史 Word 示例 PDF 为 4 页、正文 1 页，是页数门槛的故意负例。任何示例产物都不是赛题答案或通过证据。真实论文必须以 XeLaTeX 最终 PDF 通过正文 45 页硬门槛后才交付。
+历史示例只用于工具链演练；其页数既不是赛题结果，也不能证明当前流程通过。当前交付以真实运行、独立验证、冻结证据、当届策略和最终渲染审计为准。
 
 ## 证据链与科研图工作流
 
 求解计划中的每个问题应同时维护 `Evidence Matrix`、`Figure Plan` 和 `视觉计划.json`；机理/几何图按需建立 `Schematic Plan`，多阶段/迭代/数据流结构按需建立 `Flowchart Plan`。Evidence Matrix 每行必须填写适用性、原因、数据形态、`figure / schematic / table / text / N/A`、结果路径和关联 ID。Figure Plan 在代码前反向定义结果字段、扫描/重复实验、Panel、archetype、hero/layout、图型、视觉 token、输出、统计和 QA 路径。论文阶段只引用 `qa_pass` 且通过 render/paper 两阶段视觉审计的正式图。
 
-任何创建、修改、审查或解释 Figure 前，Codex 和 Claude Code 都必须读取绘图规范；绘图失败时先修复字体、布局、编码或数据源，不得把未通过检查的图写入论文，也不得为了 45 页门禁机械增加图数。
+任何创建、修改、审查或解释 Figure 前，Codex 和 Claude Code 都必须读取绘图规范；绘图失败时先修复字体、布局、编码或数据源，不得把未通过检查的图写入论文，也不得为了 经验页数机械增加图数。
 
 生成、修改或审查流程图前，还必须读取绘图规范和论文章节规范，完成“题面/附件 → 真实模型结构 → 节点/箭头真实性审核 → 结构类型 → Flowchart Plan → TikZ/XeLaTeX → 视觉与版心审计”的顺序。流程图不是固定模板或页数填充；A/B/C 代码仅为历史示例，不能复制为生产图。
 
@@ -100,7 +102,7 @@ python tools\calibrate_page_targets.py --baseline 章节页数基线.json --outp
 - 旧的“低饱和度/克制配色”与“禁止所有多色渐变”类表述不再作为项目规则；当前规则允许有数据语义的高亮度离散色和连续渐变，但禁止无语义彩虹色，并要求灰度可辨。
 - 柱状图不再是默认图型；饼图不能单独承担核心证据；三维图只有在真实三变量关系或空间/轨迹含义存在时才使用，不得伪造，缺少真实三维关系时使用二维替代并记录原因。
 - 论文规范中的 A/B/C 流程图代码仅保留为历史示例，不能作为固定视觉模板；论文规范只负责 LaTeX 接入和 PDF 可读性。
-- `gmcmthesis.cls`、`gmcm-title.sty`、`gmcm.bst`、官方 `figures/` 和 Word 模板保持只读，绘图迁移不改变 LaTeX-first、XeLaTeX 或正文 45 页门禁。
+- `gmcmthesis.cls`、`gmcm-title.sty`、`gmcm.bst`、官方 `figures/` 和 Word 模板保持只读，绘图迁移不改变 LaTeX-first、XeLaTeX 或证据门禁。
 
 默认采用出版级科研多面板表达：简单问题通常至少 2 个 Figure，标准/复杂问题通常 3--6 个，并要求主结果图与独立验证图；四问型标准/复杂赛题组合级通常审查 15--25 个非冗余 Figure。低于阈值允许真实例外，但必须登记理由和替代证据。布局按信息结构使用对称网格或带 hero panel 的非规则组合，不能让全篇机械重复 `1×2`；图数和花哨程度都不能替代真实证据。
 

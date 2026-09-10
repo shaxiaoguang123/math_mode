@@ -1,0 +1,3 @@
+# Byte-hashed synthetic inputs and generated contracts must survive Windows checkout.
+fixtures/contracts/*.txt text eol=lf
+fixtures/contracts/*.json text eol=lf

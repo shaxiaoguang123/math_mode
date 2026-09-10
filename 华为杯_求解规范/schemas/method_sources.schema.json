@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/method_sources.schema.json",
+  "title": "MathMode method_sources 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "actor_id",
+    "question_id",
+    "sources"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "uri",
+          "accessed_at",
+          "snapshot_path",
+          "sha256",
+          "same_problem",
+          "contribution",
+          "limitations"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "accessed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "snapshot_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "retrieval": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "same_problem": {
+            "type": "boolean"
+          },
+          "contribution": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "limitations": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    }
+  }
+}

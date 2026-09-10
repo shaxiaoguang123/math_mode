@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathmode.local/schemas/assumption_plan.schema.json",
+  "title": "MathMode assumption_plan 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "question_id",
+    "actor_id",
+    "created_at",
+    "ledger",
+    "models",
+    "assumptions",
+    "scenarios"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "plan_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "main",
+        "baseline"
+      ],
+      "properties": {
+        "main": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*:).+$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "assumption_id",
+          "mode",
+          "rationale",
+          "scenario_ids"
+        ],
+        "properties": {
+          "assumption_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "mode": {
+            "enum": [
+              "sensitivity",
+              "not_applicable"
+            ]
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "scenario_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": false
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scenario_id",
+          "field",
+          "parameter",
+          "value",
+          "rationale",
+          "metrics"
+        ],
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+          },
+          "field": {
+            "enum": [
+              "parameter",
+              "seed"
+            ]
+          },
+          "parameter": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "metric",
+                "unit",
+                "max_absolute_change"
+              ],
+              "properties": {
+                "metric": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,95}$"
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "max_absolute_change": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "minItems": 1,
+            "uniqueItems": false
+          }
+        }
+      },
+      "minItems": 0,
+      "uniqueItems": false
+    }
+  }
+}
