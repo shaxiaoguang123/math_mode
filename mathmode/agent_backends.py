@@ -86,7 +86,14 @@ class CodexCliBackend(AgentBackend):
     def produce(self, directory, *, timeout):
         # Preserve explicit user CLI configuration/authentication; no provider token is logged.
         environment = execution_environment(0)
-        for key in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "CODEX_HOME", "CODEX_API_KEY"):
+        # Preserve Codex runtime paths/pipes so managed shell and MCP helpers
+        # can initialize inside the child process. Credentials remain explicit.
+        for key in (
+            "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "CODEX_HOME",
+            "CODEX_APP_TOOLS_PIPE_PATH", "CODEX_MCP_NODE_PATH",
+            "CODEX_BROWSER_USE_NODE_PATH", "CODEX_CLI_PATH", "XDG_CACHE_HOME",
+            "CODEX_API_KEY",
+        ):
             if key in os.environ:
                 environment[key] = os.environ[key]
         task = loads((directory / "task.json").read_text(encoding="utf-8-sig"))

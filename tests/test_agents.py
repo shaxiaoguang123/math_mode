@@ -201,6 +201,35 @@ def test_codex_prompt_binds_contract_identity_to_task_actor(monkeypatch, tmp_pat
     assert "historical producer names" in prompt
 
 
+def test_codex_transport_forwards_runtime_environment(monkeypatch, tmp_path):
+    from mathmode.agent_backends import CodexCliBackend
+    from mathmode.execution import ExecutionResult
+
+    write_json(tmp_path / "task.json", {"actor_id": "framer-codex-env-test"})
+    runtime = {
+        "CODEX_HOME": "C:/Users/test/.codex",
+        "CODEX_APP_TOOLS_PIPE_PATH": r"\\.\pipe\codex-tools-test",
+        "CODEX_MCP_NODE_PATH": "C:/node/codex-mcp.js",
+        "CODEX_BROWSER_USE_NODE_PATH": "C:/node/browser-use.js",
+        "CODEX_CLI_PATH": "C:/bin/codex.exe",
+        "XDG_CACHE_HOME": "C:/cache",
+    }
+    for key, value in runtime.items():
+        monkeypatch.setenv(key, value)
+    captured = {}
+
+    def fake_execute(self, argv, *, cwd, environment, timeout, stdout, stderr):
+        captured["environment"] = environment
+        stdout.write_text("", encoding="utf-8")
+        stderr.write_text("", encoding="utf-8")
+        return ExecutionResult(0, False, 0.0)
+
+    monkeypatch.setattr("mathmode.agent_backends.LocalSubprocessBackend.execute", fake_execute)
+    CodexCliBackend(command=["codex"]).produce(tmp_path, timeout=1)
+
+    assert {key: captured["environment"].get(key) for key in runtime} == runtime
+
+
 def test_fresh_ids_and_actors_cannot_reset_failed_retry_budget(task_root):
     from copy import deepcopy
     root, task = task_root
